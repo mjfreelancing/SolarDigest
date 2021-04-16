@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+      <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+  </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AllOverIt" Version="1.3.0" />
+        <PackageReference Include="Amazon.Lambda.Core" Version="2.0.0" />
+        <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.1.0" />
+        <PackageReference Include="AWSSDK.EventBridge" Version="3.7.1.11" />
+        <PackageReference Include="AWSSDK.Lambda" Version="3.7.0.11" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SolarDigest.Models\SolarDigest.Models.csproj" />
+      <ProjectReference Include="..\SolarDigest.Shared\SolarDigest.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Properties\" />
+    </ItemGroup>
+
+</Project>
