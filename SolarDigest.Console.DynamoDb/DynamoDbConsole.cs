@@ -32,6 +32,12 @@ namespace SolarDigest.Console.DynamoDb
                 );
         }
 
+
+        // todo: need to look at
+        //  - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKMidLevel.html
+        //  - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKHighLevel.html
+
+
         private static async Task<int> CreateSiteInfoIfMissing(string solarEdgeApiKey, string awsAccessKey, string awsSecretKey)
         {
             var credentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
@@ -41,7 +47,7 @@ namespace SolarDigest.Console.DynamoDb
             {
                 var request = new QueryRequest
                 {
-                    TableName = "Sites",
+                    TableName = "Site",
                     KeyConditionExpression = "Id = :id",
                     ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                     {
@@ -89,7 +95,7 @@ namespace SolarDigest.Console.DynamoDb
 
                         var putItem = new PutItemRequest
                         {
-                            TableName = "Sites",
+                            TableName = "Site",
                             Item = attributeValues
                         };
 

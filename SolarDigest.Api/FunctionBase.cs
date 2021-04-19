@@ -1,6 +1,8 @@
 ﻿using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.SystemTextJson;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Logging;
 using System;
 using System.Threading.Tasks;
@@ -15,23 +17,35 @@ namespace SolarDigest.Api
     public abstract class FunctionBase<TPayload, TResultType>
     {
         private readonly Lazy<IServiceProvider> _services;
-        private IServiceProvider Services => _services.Value;
+        public IServiceProvider Services => _services.Value;
+        public IConfiguration Configuration => Services.GetService<IConfiguration>();
 
         protected FunctionBase()
         {
             _services = new Lazy<IServiceProvider>(() =>
             {
-                var serviceCollection = new ServiceCollection();
+                var builder = Host
+                    .CreateDefaultBuilder()
+                    .ConfigureServices((hostContext, services) =>
+                    {
+                        services.AddSingleton(hostContext.Configuration);
+                        ConfigureServices(services);
+                    });
 
-                ConfigureServices(serviceCollection);
+                return builder.Build().Services;
 
-                return serviceCollection.BuildServiceProvider();
+                //var serviceCollection = new ServiceCollection();
+
+                //ConfigureServices(serviceCollection);
+
+                //return serviceCollection.BuildServiceProvider();
             });
         }
 
         protected virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IFunctionLogger, FunctionLogger>();
+            services.AddScoped<IExceptionHandler, FunctionExceptionHandler>();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);
