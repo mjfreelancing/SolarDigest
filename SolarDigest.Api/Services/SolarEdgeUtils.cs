@@ -6,8 +6,8 @@ namespace SolarDigest.Api.Services
 {
     internal static class SolarEdgeUtils
     {
-        // NOTE: This is eventually to be used when actually calling the SolarEdge API - it doesn't belong here
-        public static async Task<string> GetApiKey()
+        // NOTE: This is eventually to be used when actually calling the SolarEdge API - it doesn't belong here.
+        public static async Task<string> GetApiKey()            // create a service that takes a paramName as input
         {
             using (var client = new AmazonSimpleSystemsManagementClient(Amazon.RegionEndpoint.APSoutheast2))
             {
