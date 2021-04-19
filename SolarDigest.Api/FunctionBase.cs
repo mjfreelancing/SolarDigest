@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Logging;
+using SolarDigest.Api.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -17,8 +18,8 @@ namespace SolarDigest.Api
     public abstract class FunctionBase<TPayload, TResultType>
     {
         private readonly Lazy<IServiceProvider> _services;
-        public IServiceProvider Services => _services.Value;
-        public IConfiguration Configuration => Services.GetService<IConfiguration>();
+        private IServiceProvider Services => _services.Value;
+        private IConfiguration Configuration => Services.GetService<IConfiguration>();
 
         protected FunctionBase()
         {
@@ -57,18 +58,29 @@ namespace SolarDigest.Api
             {
                 var scopedServiceProvider = scope.ServiceProvider;
 
-                var logger = scopedServiceProvider.GetService<IFunctionLogger>();
-
-                if (logger is FunctionLogger functionLogger)
+                try
                 {
-                    // the logger is context specific so needs to be injected manually
-                    functionLogger.SetLambdaLogger(context.Logger);
+                    var logger = scopedServiceProvider.GetService<IFunctionLogger>();
+
+                    if (logger is FunctionLogger functionLogger)
+                    {
+                        // the logger is context specific so needs to be injected manually
+                        functionLogger.SetLambdaLogger(context.Logger);
+                    }
+
+                    logger!.LogDebug($"Invoked: {context.FunctionName}");
+
+                    var handlerContext = new FunctionContext<TPayload>(scopedServiceProvider, logger, payload);
+                    return await InvokeHandlerAsync(handlerContext).ConfigureAwait(false);
+                }
+                catch (Exception exception)
+                {
+                    var exceptionHandler = scopedServiceProvider.GetService<IExceptionHandler>();
+                    await exceptionHandler!.HandleAsync(exception);
                 }
 
-                logger!.LogDebug($"Invoked: {context.FunctionName}");
-
-                var handlerContext = new FunctionContext<TPayload>(scopedServiceProvider, logger, payload);
-                return await InvokeHandlerAsync(handlerContext).ConfigureAwait(false);
+                // todo: really should wrap the result in a response object with a success / fail status ?
+                return default;
             }
         }
     }

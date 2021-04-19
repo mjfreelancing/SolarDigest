@@ -6,7 +6,7 @@ using SolarDigest.Api.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api
+namespace SolarDigest.Api.Services
 {
     internal sealed class FunctionExceptionHandler : IExceptionHandler
     {
