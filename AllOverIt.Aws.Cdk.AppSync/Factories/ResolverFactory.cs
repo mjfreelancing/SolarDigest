@@ -4,24 +4,24 @@ using AllOverIt.Helpers;
 using Amazon.CDK.AWS.AppSync;
 using System.Linq;
 using System.Reflection;
-using Type = System.Type;
+using SystemType = System.Type;
 
 namespace AllOverIt.Aws.Cdk.AppSync.Factories
 {
     public sealed class ResolverFactory : IResolverFactory
     {
-        private readonly GraphqlApi _graphqlApi;
+        private readonly GraphqlApi _graphQlApi;
         private readonly IMappingTemplates _mappingTemplates;
         private readonly IDataSourceFactory _dataSourceFactory;
 
-        public ResolverFactory(GraphqlApi graphqlApi, IMappingTemplates mappingTemplates, IDataSourceFactory dataSourceFactory)
+        public ResolverFactory(GraphqlApi graphQlApi, IMappingTemplates mappingTemplates, IDataSourceFactory dataSourceFactory)
         {
-            _graphqlApi = graphqlApi.WhenNotNull(nameof(graphqlApi));
+            _graphQlApi = graphQlApi.WhenNotNull(nameof(graphQlApi));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
             _dataSourceFactory = dataSourceFactory.WhenNotNull(nameof(dataSourceFactory));
         }
 
-        public void ConstructResolverIfRequired(Type type, PropertyInfo propertyInfo)
+        public void ConstructResolverIfRequired(SystemType type, PropertyInfo propertyInfo)
         {
             var attribute = propertyInfo.GetCustomAttributes(typeof(DataSourceAttribute), true).SingleOrDefault();
 
@@ -31,9 +31,9 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
                 var dataSource = _dataSourceFactory.CreateDataSource(dataSourceAttribute);
                 var propertyName = propertyInfo.Name;
 
-                _ = new Resolver(_graphqlApi, $"{type.Name}{propertyName}Resolver", new ResolverProps
+                _ = new Resolver(_graphQlApi, $"{type.Name}{propertyName}Resolver", new ResolverProps
                 {
-                    Api = _graphqlApi,
+                    Api = _graphQlApi,
                     DataSource = dataSource,
                     TypeName = type.Name,
                     FieldName = propertyName.GetGraphqlName(),
