@@ -11,4 +11,8 @@
         <PackageReference Include="Hone.Core" Version="1.0.1526" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AllOverIt.Aws.Cdk.AppSync\AllOverIt.Aws.Cdk.AppSync.csproj" />
+    </ItemGroup>
+
 </Project>

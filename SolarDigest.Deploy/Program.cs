@@ -1,11 +1,10 @@
-﻿using Amazon.CDK;
+﻿using AllOverIt.Aws.Cdk.AppSync;
+using AllOverIt.Aws.Cdk.AppSync.Factories;
+using AllOverIt.Aws.Cdk.AppSync.Schema;
+using Amazon.CDK;
 using Amazon.CDK.AWS.AppSync;
 using Amazon.CDK.AWS.IAM;
-using SolarDigest.Deploy.Factories;
 using SolarDigest.Deploy.Schema;
-using SolarDigest.Deploy.Schema.Mutation;
-using SolarDigest.Deploy.Schema.Query;
-using SolarDigest.Deploy.Schema.Subscription;
 using System.Collections.Generic;
 using System.Text;
 using Environment = Amazon.CDK.Environment;
@@ -63,7 +62,7 @@ namespace SolarDigest.Deploy
             dataSourceRoles.AddRole(
                 serviceRole,
                 Constants.ServiceName,
-                Constants.DataSource.GetSiteInfo
+                Constants.DataSource.GetSite
                 //Constants.DataSource.HydrateAllSitesPower, Constants.DataSource.HydrateSitePower, Constants.DataSource.EmailException
             );
 
@@ -119,10 +118,10 @@ namespace SolarDigest.Deploy
             })
         {
             // these require the GraphqlApi reference
-            var dataSourceFactory = new DataSourceFactory(this, apiProps, serviceRoles);
-            var resolverFactory = new ResolverFactory(this, apiProps, dataSourceFactory);
+            var dataSourceFactory = new DataSourceFactory(this, serviceRoles);
+            var resolverFactory = new ResolverFactory(this, apiProps.MappingTemplates, dataSourceFactory);
             var gqlTypeCache = new GraphqlTypeStore(resolverFactory);
-            _schemaBuilder = new SchemaBuilder(this, apiProps, gqlTypeCache, dataSourceFactory);
+            _schemaBuilder = new SchemaBuilder(this, apiProps.MappingTemplates, gqlTypeCache, dataSourceFactory);
         }
 
         public SolarDigestGraphqlApi AddSchemaQuery<TType>() where TType : IQueryDefinition
@@ -162,8 +161,9 @@ namespace SolarDigest.Deploy
             : base(scope, apiProps, authMode, dataSourceRoleCache)
         {
             SolarDigestGraphqlApi
-                .AddSchemaQuery<IPublicQueryDefinition>();
-                //.AddSchemaMutation<IPublicMutationDefinition>();
+                .AddSchemaQuery<ISolarDigestQueryDefinition>()
+                .AddSchemaMutation<ISolarDigestMutationDefinition>()
+                .AddSchemaSubscription<ISolarDigestSubscriptionDefinition>();
         }
     }
 
@@ -174,17 +174,12 @@ namespace SolarDigest.Deploy
 
         internal static class DataSource
         {
-            internal const string GetSiteInfo = "GetSiteInfo";
+            internal const string GetSite = "GetSite";
+            internal const string CreateSite = "CreateSite";
             internal const string HydrateAllSitesPower = "HydrateAllSitesPower";
             internal const string HydrateSitePower = "HydrateSitePower";
             internal const string EmailException = "EmailException";
         }
-    }
-
-    internal interface IMappingTemplates
-    {
-        string RequestMapping { get; }
-        string ResponseMapping { get; }
     }
 
     internal sealed class SolarDigestApiProps

@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarDigest.Api", "SolarDig
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarDigest.Models", "SolarDigest.Models\SolarDigest.Models.csproj", "{EEB61DF7-F6A4-4C04-A99B-F93F3AAC2A7C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SolarDigest.Deploy", "SolarDigest.Deploy\SolarDigest.Deploy.csproj", "{AEA04476-5A56-4EC0-8137-E19C5A8FEE71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolarDigest.Deploy", "SolarDigest.Deploy\SolarDigest.Deploy.csproj", "{AEA04476-5A56-4EC0-8137-E19C5A8FEE71}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllOverIt.Aws.Cdk.AppSync", "AllOverIt.Aws.Cdk.AppSync\AllOverIt.Aws.Cdk.AppSync.csproj", "{C554EFFC-4A34-49E6-867F-DAF269FD6817}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +49,10 @@ Global
 		{AEA04476-5A56-4EC0-8137-E19C5A8FEE71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEA04476-5A56-4EC0-8137-E19C5A8FEE71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEA04476-5A56-4EC0-8137-E19C5A8FEE71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C554EFFC-4A34-49E6-867F-DAF269FD6817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C554EFFC-4A34-49E6-867F-DAF269FD6817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C554EFFC-4A34-49E6-867F-DAF269FD6817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C554EFFC-4A34-49E6-867F-DAF269FD6817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

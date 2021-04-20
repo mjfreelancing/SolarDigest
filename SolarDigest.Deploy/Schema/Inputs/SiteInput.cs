@@ -1,18 +1,18 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
-namespace SolarDigest.Deploy.Schema.Types
+namespace SolarDigest.Deploy.Schema.Inputs
 {
-    // interpreted as an output type
-    internal interface Site
+    [GraphqlInput]
+    internal interface SiteInput
     {
         [GraphqlTypeRequired]
-        public int Id { get; }
+        public string Id { get; }
 
         [GraphqlTypeRequired]
         public string StartDate { get; }
 
-        //[GraphqlTypeRequired]
-        //public string ApiKey { get; }
+        [GraphqlTypeRequired]
+        public string ApiKey { get; }
 
         [GraphqlTypeRequired]
         public string ContactName { get; }
