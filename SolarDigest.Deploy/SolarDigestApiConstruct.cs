@@ -11,9 +11,9 @@ namespace SolarDigest.Deploy
             : base(scope, apiProps, authMode, dataSourceRoleCache)
         {
             SolarDigestGraphqlApi
-                .AddSchemaQuery<ISolarDigestQueryDefinition>()
-                .AddSchemaMutation<ISolarDigestMutationDefinition>()
-                .AddSchemaSubscription<ISolarDigestSubscriptionDefinition>();
+                .AddSchemaQuery<ISolarDigestQueryDefinition>();
+                //.AddSchemaMutation<ISolarDigestMutationDefinition>()
+                //.AddSchemaSubscription<ISolarDigestSubscriptionDefinition>();
         }
     }
 }

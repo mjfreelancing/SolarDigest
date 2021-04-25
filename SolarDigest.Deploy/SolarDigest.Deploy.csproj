@@ -6,9 +6,14 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.98.0" />
-        <PackageReference Include="Amazon.CDK.AWS.CloudFormation" Version="1.98.0" />
-        <PackageReference Include="Hone.Core" Version="1.0.1526" />
+        <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.CloudFormation" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.CloudWatch" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.DynamoDB" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Events" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Events.Targets" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Lambda" Version="1.100.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Lambda.EventSources" Version="1.100.0" />
     </ItemGroup>
 
     <ItemGroup>

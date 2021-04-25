@@ -5,6 +5,9 @@
         internal const int ApiVersion = 1;
         internal const string ServiceName = "SolarDigest";
 
+        internal const string S3LambdaCodeBucketName = "solardigest-lambda-code";
+        internal const string S3CodeBucketKeyName = "publish.zip";      // should really be something like {ServiceName}-V{ApiVersion}
+
         internal static class DataSource
         {
             internal const string GetSite = "GetSite";

@@ -1,8 +1,5 @@
-﻿using AllOverIt.Aws.Cdk.AppSync;
-using Amazon.CDK;
-using Amazon.CDK.AWS.AppSync;
-using Amazon.CDK.AWS.IAM;
-using System.Collections.Generic;
+﻿using Amazon.CDK;
+using SolarDigest.Deploy.Constructs;
 using Environment = Amazon.CDK.Environment;
 using SystemEnvironment = System.Environment;
 
@@ -30,45 +27,60 @@ namespace SolarDigest.Deploy
                 }
             });
 
-            var iam = new IamConstruct(stack, apiProps.AppName);
-
-            var serviceRole = new Role(stack, "ResolverServiceRole", new RoleProps
-            {
-                AssumedBy = new ServicePrincipal("appsync.amazonaws.com"),
-                InlinePolicies = new Dictionary<string, PolicyDocument>
-                {
-                    {"InvokeFunctionPolicy",  new PolicyDocument(new PolicyDocumentProps
-                    {
-                        Statements = new[] { iam.InvokeFunctionAccessPolicyStatement }
-                    })}
-                }
-            });
+            var iam = new Iam(stack, apiProps.AppName);
+            var tables = new DynamoDbTables(stack);
+            var functions = new Functions(stack, apiProps, iam, tables);
+            var cloudWatch = new LogGroups(stack, apiProps);
+            _ = new EventBridge(stack, apiProps, functions, cloudWatch);
 
 
-            var authMode = new AuthorizationMode
-            {
-                AuthorizationType = AuthorizationType.API_KEY,
-                //OpenIdConnectConfig = 
-                //UserPoolConfig = 
-            };
 
 
-            var dataSourceRoles = new DataSourceRoleCache();
+            // builds a cache of roles to be associated with each lambda datasource
+            //var dataSourceRoles = CreateDatasourceRoleCache(stack, iam);
 
-            dataSourceRoles.AddRole(
-                serviceRole,
-                Constants.ServiceName,
-                Constants.DataSource.GetSite
-                //Constants.DataSource.HydrateAllSitesPower, Constants.DataSource.HydrateSitePower, Constants.DataSource.EmailException
-            );
 
-            _ = new SolarDigestApiConstruct(stack, apiProps, authMode, dataSourceRoles);
+            //var authMode = new AuthorizationMode
+            //{
+            //    AuthorizationType = AuthorizationType.API_KEY,
+            //    //OpenIdConnectConfig = 
+            //    //UserPoolConfig = 
+            //};
+
+
+
+            //_ = new SolarDigestApiConstruct(stack, apiProps, authMode, dataSourceRoles);
 
 
 
 
             app.Synth();
-
         }
+
+        //private static DataSourceRoleCache CreateDatasourceRoleCache(Stack stack, Iam iam)
+        //{
+        //    var serviceRole = new Role(stack, "ResolverServiceRole", new RoleProps
+        //    {
+        //        AssumedBy = new ServicePrincipal("appsync.amazonaws.com"),
+        //        InlinePolicies = new Dictionary<string, PolicyDocument>
+        //        {
+        //            {"InvokeFunctionPolicy",  new PolicyDocument(new PolicyDocumentProps
+        //            {
+        //                Statements = new[] { iam.InvokeFunctionAccessPolicyStatement }
+        //            })}
+        //        }
+        //    });
+
+        //    var dataSourceRoles = new DataSourceRoleCache();
+
+        //    dataSourceRoles.AddRole(
+        //        serviceRole,
+        //        Constants.ServiceName,
+        //        Constants.DataSource.GetSite
+        //        //Constants.DataSource.HydrateAllSitesPower, Constants.DataSource.HydrateSitePower, Constants.DataSource.EmailException
+        //    );
+
+        //    return dataSourceRoles;
+        //}
     }
 }
