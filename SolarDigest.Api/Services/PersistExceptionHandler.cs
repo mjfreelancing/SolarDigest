@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Services
 {
-    internal sealed class FunctionExceptionHandler : IExceptionHandler
+    internal sealed class PersistExceptionHandler : IExceptionHandler
     {
         private readonly IFunctionLogger _logger;
 
-        public FunctionExceptionHandler(IFunctionLogger logger)
+        public PersistExceptionHandler(IFunctionLogger logger)
         {
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
         public async Task HandleAsync(Exception exception)
         {
-            _logger.LogDebug($"Received an exception to persist: {exception.Message}");
+            _logger.LogDebug($"Persisting an exception: {exception.Message}");
 
             try
             {

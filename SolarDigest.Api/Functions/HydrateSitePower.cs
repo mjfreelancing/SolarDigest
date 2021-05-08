@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    public sealed class HydrateSitePowerFunction : FunctionBase<HydrateSitePowerPayload, bool>
+    public sealed class HydrateSitePower : FunctionBase<HydrateSitePowerPayload, bool>
     {
         protected override Task<bool> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
         {

@@ -12,12 +12,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
         private readonly IDictionary<string, BaseDataSource> _dataSourceCache = new Dictionary<string, BaseDataSource>();
 
         private readonly IGraphqlApi _graphQlApi;
-        private readonly IDataSourceRoleCache _serviceRoles;
+        //private readonly IDataSourceRoleCache _serviceRoles;
 
-        public DataSourceFactory(IGraphqlApi graphQlApi, IDataSourceRoleCache serviceRoles)
+        public DataSourceFactory(IGraphqlApi graphQlApi/*, IDataSourceRoleCache serviceRoles*/)
         {
             _graphQlApi = graphQlApi.WhenNotNull(nameof(graphQlApi));
-            _serviceRoles = serviceRoles.WhenNotNull(nameof(serviceRoles));
+            //_serviceRoles = serviceRoles.WhenNotNull(nameof(serviceRoles));
         }
 
         public BaseDataSource CreateDataSource(DataSourceAttribute attribute)
@@ -44,7 +44,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
             {
                 Api = _graphQlApi,
                 Name = $"{attribute.LookupKey}DataSource",
-                ServiceRole = _serviceRoles.GetRole(attribute.ServiceName, attribute.FunctionName),
+                //ServiceRole = _serviceRoles.GetRole(attribute.ServiceName, attribute.FunctionName),
 
                 LambdaFunction = Function.FromFunctionArn(stack, $"{attribute.ServiceName}{attribute.FunctionName}Function",
                     $"arn:aws:lambda:{stack.Region}:{stack.Account}:function:{attribute.ServiceName}_{attribute.FunctionName}")

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    public sealed class GetSiteFunction : FunctionBase<GetSitePayload, SiteInfo>
+    public sealed class GetSiteInfo : FunctionBase<GetSiteInfoPayload, SiteInfo>
     {
-        protected override Task<SiteInfo> InvokeHandlerAsync(FunctionContext<GetSitePayload> context)
+        protected override Task<SiteInfo> InvokeHandlerAsync(FunctionContext<GetSiteInfoPayload> context)
         {
             var logger = context.Logger;
 

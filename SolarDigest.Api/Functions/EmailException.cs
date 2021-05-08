@@ -68,7 +68,7 @@ namespace SolarDigest.Api.Functions
     //    }
     //}
 
-    public sealed class EmailExceptionFunction : FunctionBase<DynamoDBEvent, bool>
+    public sealed class EmailException : FunctionBase<DynamoDBEvent, bool>
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<DynamoDBEvent> context)
         {

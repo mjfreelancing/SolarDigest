@@ -7,7 +7,7 @@ namespace SolarDigest.Deploy.Schema
     internal interface ISolarDigestQueryDefinition : IQueryDefinition
     {
         [GraphqlTypeRequired]
-        [LambdaDataSource(Constants.ServiceName, Constants.DataSource.GetSite)]
+        [LambdaDataSource(Constants.ServiceName, Constants.Function.GetSiteInfo)]
         Site Site([GraphqlTypeRequired] int id);
 
         //[LambdaDataSource(Constants.ServiceName, Constants.DataSource.HydrateAllSitesPower)]

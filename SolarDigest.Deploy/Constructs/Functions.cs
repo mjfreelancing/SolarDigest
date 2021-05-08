@@ -1,8 +1,6 @@
 ﻿using Amazon.CDK;
-using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
-using Amazon.CDK.AWS.Lambda.EventSources;
 using Amazon.CDK.AWS.S3;
 using System.Collections.Generic;
 using AwsBucket = Amazon.CDK.AWS.S3.Bucket;
@@ -16,24 +14,22 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction HydrateSitePowerFunction { get; }
         internal IFunction EmailExceptionFunction { get; }
 
-        public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables)
+        public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam)
             : base(scope, "Functions")
         {
             var codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
-            GetSiteInfoFunction = CreateFunction(apiProps.AppName, "GetSiteInfo", "Get site details", codeBucket,
-                new[] {iam.ReadWriteDynamoDbPolicyStatement});
+            GetSiteInfoFunction = CreateFunction(apiProps.AppName, Constants.Function.GetSiteInfo, "Get site details", codeBucket);
+                //,new[] {iam.ReadDynamoDbPolicyStatement});
 
-            HydrateAllSitesPowerFunction = CreateFunction(apiProps.AppName, "HydrateAllSitesPower", "Hydrate power data for all sites", codeBucket,
-                new[] { iam.ReadWriteDynamoDbPolicyStatement });
+            HydrateAllSitesPowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites", codeBucket);
+                //,new[] { iam.ReadDynamoDbPolicyStatement, iam.ReadDynamoDbPolicyStatement });
 
-            HydrateSitePowerFunction = CreateFunction(apiProps.AppName, "HydrateSitePower", "Hydrate power data for a specified site", codeBucket,
-                new[] { iam.ReadWriteDynamoDbPolicyStatement });
+            HydrateSitePowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", codeBucket);
+                //,new[] { iam.ReadDynamoDbPolicyStatement, iam.ReadDynamoDbPolicyStatement });
 
-            EmailExceptionFunction = CreateFunction(apiProps.AppName, "EmailException", "Sends unexpected exception reports via email", codeBucket,
-                new[] { iam.ReadWriteDynamoDbPolicyStatement });
-
-            AddEventSource(tables.ExceptionTable, EmailExceptionFunction);
+            EmailExceptionFunction = CreateFunction(apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email", codeBucket,
+                new[] { /*iam.ReadDynamoDbStreamPolicyStatement,*/ iam.SendEmailPolicyStatement });
         }
 
         private IFunction CreateFunction(string appName, string name, string description, IBucket s3Bucket,
@@ -63,17 +59,6 @@ namespace SolarDigest.Deploy.Constructs
             }
 
             return function;
-        }
-
-        private static void AddEventSource(ITable sourceTable, IFunction function)
-        {
-            var exceptionTableEventSource = new DynamoEventSource(sourceTable, new DynamoEventSourceProps
-            {
-                StartingPosition = StartingPosition.LATEST,
-                RetryAttempts = 0
-            });
-
-            function.AddEventSource(exceptionTableEventSource);
         }
     }
 }

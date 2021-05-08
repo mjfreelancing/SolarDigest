@@ -13,7 +13,7 @@ namespace SolarDigest.Api.Functions
         public const string Source = "SolarDigest.Api";
     }
 
-    public sealed class HydrateAllSitesPowerFunction : FunctionBase<HydrateAllSitesPowerPayload, bool>
+    public sealed class HydrateAllSitesPower : FunctionBase<HydrateAllSitesPowerPayload, bool>
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<HydrateAllSitesPowerPayload> context)
         {

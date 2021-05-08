@@ -1,5 +1,7 @@
 ﻿using Amazon.CDK;
+using Amazon.CDK.AWS.AppSync;
 using SolarDigest.Deploy.Constructs;
+using SolarDigest.Deploy.Extensions;
 using Environment = Amazon.CDK.Environment;
 using SystemEnvironment = System.Environment;
 
@@ -29,9 +31,12 @@ namespace SolarDigest.Deploy
 
             var iam = new Iam(stack, apiProps.AppName);
             var tables = new DynamoDbTables(stack);
-            var functions = new Functions(stack, apiProps, iam, tables);
+            var functions = new Functions(stack, apiProps, iam);
             var cloudWatch = new LogGroups(stack, apiProps);
             _ = new EventBridge(stack, apiProps, functions, cloudWatch);
+
+
+            ConfigureTables(tables, functions);
 
 
 
@@ -40,22 +45,40 @@ namespace SolarDigest.Deploy
             //var dataSourceRoles = CreateDatasourceRoleCache(stack, iam);
 
 
-            //var authMode = new AuthorizationMode
-            //{
-            //    AuthorizationType = AuthorizationType.API_KEY,
-            //    //OpenIdConnectConfig = 
-            //    //UserPoolConfig = 
-            //};
+            var authMode = new AuthorizationMode
+            {
+                AuthorizationType = AuthorizationType.API_KEY,
+                //OpenIdConnectConfig = 
+                //UserPoolConfig = 
+            };
 
 
 
-            //_ = new SolarDigestApiConstruct(stack, apiProps, authMode, dataSourceRoles);
+            _ = new AppSync(stack, apiProps, authMode/*, dataSourceRoles*/);
 
 
 
 
             app.Synth();
         }
+
+        private static void ConfigureTables(DynamoDbTables tables, Functions functions)
+        {
+            tables.ExceptionTable.GrantStreamRead(functions.EmailExceptionFunction);
+
+            tables.SiteTable.GrantReadDataToFunctions(
+                functions.GetSiteInfoFunction,
+                functions.HydrateAllSitesPowerFunction,
+                functions.HydrateSitePowerFunction);
+
+            tables.ExceptionTable.GrantWriteDataToFunctions(
+                functions.GetSiteInfoFunction,
+                functions.HydrateAllSitesPowerFunction,
+                functions.HydrateSitePowerFunction);
+
+            tables.ExceptionTable.AddEventSource(functions.EmailExceptionFunction);
+        }
+
 
         //private static DataSourceRoleCache CreateDatasourceRoleCache(Stack stack, Iam iam)
         //{

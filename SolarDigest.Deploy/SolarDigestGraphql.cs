@@ -6,37 +6,37 @@ using Amazon.CDK.AWS.AppSync;
 
 namespace SolarDigest.Deploy
 {
-    internal sealed class SolarDigestGraphqlApi : GraphqlApi
+    internal sealed class SolarDigestGraphql : GraphqlApi
     {
         private readonly ISchemaBuilder _schemaBuilder;
 
-        public SolarDigestGraphqlApi(Construct scope, SolarDigestApiProps apiProps, IAuthorizationMode authMode, IDataSourceRoleCache serviceRoles)
-            : base(scope, "Graphql", new GraphqlApiProps
+        public SolarDigestGraphql(Construct scope, SolarDigestApiProps apiProps, IAuthorizationMode authMode/*, IDataSourceRoleCache serviceRoles*/)
+            : base(scope, "GraphQl", new GraphqlApiProps
             {
-                Name = $"{apiProps.AppName} V{apiProps.Version}",
+                Name = $"{apiProps.AppName} v{apiProps.Version}",
                 AuthorizationConfig = new AuthorizationConfig { DefaultAuthorization = authMode }
             })
         {
             // these require the GraphqlApi reference
-            var dataSourceFactory = new DataSourceFactory(this, serviceRoles);
+            var dataSourceFactory = new DataSourceFactory(this/*, serviceRoles*/);
             var resolverFactory = new ResolverFactory(this, apiProps.MappingTemplates, dataSourceFactory);
             var gqlTypeCache = new GraphqlTypeStore(resolverFactory);
             _schemaBuilder = new SchemaBuilder(this, apiProps.MappingTemplates, gqlTypeCache, dataSourceFactory);
         }
 
-        public SolarDigestGraphqlApi AddSchemaQuery<TType>() where TType : IQueryDefinition
+        public SolarDigestGraphql AddSchemaQuery<TType>() where TType : IQueryDefinition
         {
             _schemaBuilder.AddQuery<TType>();
             return this;
         }
 
-        public SolarDigestGraphqlApi AddSchemaMutation<TType>() where TType : IMutationDefinition
+        public SolarDigestGraphql AddSchemaMutation<TType>() where TType : IMutationDefinition
         {
             _schemaBuilder.AddMutation<TType>();
             return this;
         }
 
-        public SolarDigestGraphqlApi AddSchemaSubscription<TType>() where TType : ISubscriptionDefinition
+        public SolarDigestGraphql AddSchemaSubscription<TType>() where TType : ISubscriptionDefinition
         {
             _schemaBuilder.AddSubscription<TType>();
             return this;

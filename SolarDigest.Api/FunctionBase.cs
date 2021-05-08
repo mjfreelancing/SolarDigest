@@ -34,19 +34,13 @@ namespace SolarDigest.Api
                     });
 
                 return builder.Build().Services;
-
-                //var serviceCollection = new ServiceCollection();
-
-                //ConfigureServices(serviceCollection);
-
-                //return serviceCollection.BuildServiceProvider();
             });
         }
 
         protected virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IFunctionLogger, FunctionLogger>();
-            services.AddScoped<IExceptionHandler, FunctionExceptionHandler>();
+            services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);

@@ -6,12 +6,13 @@ namespace SolarDigest.Deploy.Constructs
     internal class DynamoDbTables : Construct
     {
         internal ITable ExceptionTable { get; }
+        internal ITable SiteTable { get; }
 
         public DynamoDbTables(Construct scope)
             : base(scope, "DynamoDB")
         {
             ExceptionTable = CreateTable("Exception", StreamViewType.NEW_IMAGE);
-            _ = CreateTable("Site");
+            SiteTable = CreateTable("Site");
         }
 
         private ITable CreateTable(string tableName, StreamViewType? streamViewType = default)
