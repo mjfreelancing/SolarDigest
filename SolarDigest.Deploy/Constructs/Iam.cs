@@ -56,7 +56,7 @@ namespace SolarDigest.Deploy.Constructs
                 },
                 Resources = new[]
                 {
-                    $"arn:aws:events:{stack.Region}:{stack.Account}:event-bus/{appName}"
+                    $"arn:aws:events:{stack.Region}:{stack.Account}:event-bus/default"
                 }
             });
         }

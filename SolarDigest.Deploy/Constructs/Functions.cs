@@ -20,16 +20,14 @@ namespace SolarDigest.Deploy.Constructs
             var codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
             GetSiteInfoFunction = CreateFunction(apiProps.AppName, Constants.Function.GetSiteInfo, "Get site details", codeBucket);
-                //,new[] {iam.ReadDynamoDbPolicyStatement});
 
-            HydrateAllSitesPowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites", codeBucket);
-                //,new[] { iam.ReadDynamoDbPolicyStatement, iam.ReadDynamoDbPolicyStatement });
+            HydrateAllSitesPowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites", codeBucket,
+                new[] { iam.PutEventBridgeEventsPolicyStatement });
 
             HydrateSitePowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", codeBucket);
-                //,new[] { iam.ReadDynamoDbPolicyStatement, iam.ReadDynamoDbPolicyStatement });
 
             EmailExceptionFunction = CreateFunction(apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email", codeBucket,
-                new[] { /*iam.ReadDynamoDbStreamPolicyStatement,*/ iam.SendEmailPolicyStatement });
+                new[] { iam.SendEmailPolicyStatement });
         }
 
         private IFunction CreateFunction(string appName, string name, string description, IBucket s3Bucket,
