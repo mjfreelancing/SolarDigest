@@ -8,7 +8,7 @@ namespace SolarDigest.Deploy.Schema
     {
         [GraphqlTypeRequired]
         [LambdaDataSource(Constants.ServiceName, Constants.Function.GetSiteInfo)]
-        Site Site([GraphqlTypeRequired] int id);
+        Site Site([GraphqlTypeRequired] string id);
 
         //[LambdaDataSource(Constants.ServiceName, Constants.DataSource.HydrateAllSitesPower)]
         //Site HydrateAllSitesPower();

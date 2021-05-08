@@ -6,7 +6,7 @@ namespace SolarDigest.Deploy.Schema.Types
     internal interface Site
     {
         [GraphqlTypeRequired]
-        public int Id { get; }
+        public string Id { get; }
 
         [GraphqlTypeRequired]
         public string StartDate { get; }
