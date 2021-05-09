@@ -1,17 +1,32 @@
-﻿using SolarDigest.Api.Payloads.GraphQL;
+﻿using Amazon.DynamoDBv2.DocumentModel;
+using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Payloads.GraphQL;
+using SolarDigest.Api.Services;
 using SolarDigest.Models;
 using System;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    public sealed class GetSiteInfo : FunctionBase<GetSiteInfoPayload, SiteInfo>
+    public sealed class AddSite : FunctionBase<AddSitePayload, Site>
     {
-        protected override Task<SiteInfo> InvokeHandlerAsync(FunctionContext<GetSiteInfoPayload> context)
+        protected override Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
             var logger = context.Logger;
 
-            logger.LogDebug($"Reading site info for Id '{context.Payload.Id}'");
+            var payload = context.Payload;
+
+            logger.LogDebug($"Creating site info for Id '{payload.Id}'");
+
+            var dynamoDb = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
+            var table = dynamoDb!.GetTable("Site");
+
+            var doc = new Document();
+
+
+            //doc["id"] = payload.Id;
+
+
 
             // todo: update to read the data from DynamoDb
 
@@ -20,7 +35,7 @@ namespace SolarDigest.Api.Functions
             var lastSummaryDate = DateTime.Today.Date;
             var lastRefreshDateTime = DateTime.Now;
 
-            var siteInfo = new SiteInfo
+            var site = new Site
             {
                 Id = "1514817",
                 TimeZoneId = "AUS Eastern Standard Time",
@@ -33,7 +48,7 @@ namespace SolarDigest.Api.Functions
                 LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
             };
 
-            return Task.FromResult(siteInfo);
+            return Task.FromResult(site);
         }
     }
 }

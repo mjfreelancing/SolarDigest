@@ -9,7 +9,8 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal class Functions : Construct
     {
-        internal IFunction GetSiteInfoFunction { get; }
+        internal IFunction AddSiteFunction { get; }
+        internal IFunction GetSiteFunction { get; }
         internal IFunction HydrateAllSitesPowerFunction { get; }
         internal IFunction HydrateSitePowerFunction { get; }
         internal IFunction EmailExceptionFunction { get; }
@@ -19,7 +20,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             var codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
-            GetSiteInfoFunction = CreateFunction(apiProps.AppName, Constants.Function.GetSiteInfo, "Get site details", codeBucket);
+            AddSiteFunction = CreateFunction(apiProps.AppName, Constants.Function.AddSite, "Add site details", codeBucket);
+            GetSiteFunction = CreateFunction(apiProps.AppName, Constants.Function.GetSite, "Get site details", codeBucket);
 
             HydrateAllSitesPowerFunction = CreateFunction(apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites", codeBucket,
                 new[] { iam.PutEventBridgeEventsPolicyStatement });

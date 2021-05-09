@@ -25,7 +25,7 @@ namespace SolarDigest.Console.DynamoDb
 
         public Task<int> Execute()
         {
-            return CreateSiteInfoIfMissing(
+            return CreateSiteIfMissing(
                 _configuration["SolarEdgeApiKey"],
                 _configuration["AwsAccessKey"],
                 _configuration["AwsSecretKey"]
@@ -38,7 +38,7 @@ namespace SolarDigest.Console.DynamoDb
         //  - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DotNetSDKHighLevel.html
 
 
-        private static async Task<int> CreateSiteInfoIfMissing(string solarEdgeApiKey, string awsAccessKey, string awsSecretKey)
+        private static async Task<int> CreateSiteIfMissing(string solarEdgeApiKey, string awsAccessKey, string awsSecretKey)
         {
             var credentials = new BasicAWSCredentials(awsAccessKey, awsSecretKey);
             var dbClient = new AmazonDynamoDBClient(credentials);
@@ -74,7 +74,7 @@ namespace SolarDigest.Console.DynamoDb
                         var lastSummaryDate = DateTime.Today.Date;
                         var lastRefreshDateTime = DateTime.Now;
 
-                        var siteInfo = new SiteInfo
+                        var site = new Site
                         {
                             Id = "1514817",
                             TimeZoneId = "AUS Eastern Standard Time",
@@ -87,7 +87,7 @@ namespace SolarDigest.Console.DynamoDb
                             LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
                         };
 
-                        var siteValues = siteInfo.ToPropertyDictionary();
+                        var siteValues = site.ToPropertyDictionary();
 
                         var attributeValues = siteValues.ToDictionary(
                             kvp => kvp.Key,

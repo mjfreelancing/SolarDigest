@@ -2,6 +2,7 @@
 using Amazon.CDK.AWS.AppSync;
 using SolarDigest.Deploy.Constructs;
 using SolarDigest.Deploy.Extensions;
+using System;
 using Environment = Amazon.CDK.Environment;
 using SystemEnvironment = System.Environment;
 
@@ -48,6 +49,10 @@ namespace SolarDigest.Deploy
             var authMode = new AuthorizationMode
             {
                 AuthorizationType = AuthorizationType.API_KEY,
+                ApiKeyConfig = new ApiKeyConfig
+                {
+                    Expires = Expiration.AtDate(DateTime.Now.AddDays(365))
+                }
                 //OpenIdConnectConfig = 
                 //UserPoolConfig = 
             };
@@ -66,13 +71,20 @@ namespace SolarDigest.Deploy
         {
             tables.ExceptionTable.GrantStreamRead(functions.EmailExceptionFunction);
 
+            // lambdas that can read from the Site table
             tables.SiteTable.GrantReadDataToFunctions(
-                functions.GetSiteInfoFunction,
+                functions.GetSiteFunction,
                 functions.HydrateAllSitesPowerFunction,
                 functions.HydrateSitePowerFunction);
 
+            // lambdas that can write to the Site table
+            tables.SiteTable.GrantWriteDataToFunctions(
+                functions.AddSiteFunction);
+
+            // lambdas that can write to the Exception table
             tables.ExceptionTable.GrantWriteDataToFunctions(
-                functions.GetSiteInfoFunction,
+                functions.GetSiteFunction, 
+                functions.AddSiteFunction,
                 functions.HydrateAllSitesPowerFunction,
                 functions.HydrateSitePowerFunction);
 

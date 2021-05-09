@@ -6,7 +6,7 @@ namespace SolarDigest.Deploy.Schema
 {
     internal interface ISolarDigestSubscriptionDefinition : ISubscriptionDefinition
     {
-        [SubscriptionMutation(nameof(ISolarDigestMutationDefinition.AddSite), nameof(ISolarDigestMutationDefinition.AddSite2))]
+        [SubscriptionMutation(nameof(ISolarDigestMutationDefinition.AddSite)/*, nameof(ISolarDigestMutationDefinition.AddSite2)*/)]
         [GraphqlTypeRequired]
         Site AddedSite(string id);
     }

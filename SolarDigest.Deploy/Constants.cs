@@ -10,7 +10,8 @@
 
         internal static class Function
         {
-            internal const string GetSiteInfo = "GetSiteInfo";
+            internal const string GetSite = "GetSite";
+            internal const string AddSite = "AddSite";
             internal const string HydrateAllSitesPower = "HydrateAllSitesPower";
             internal const string HydrateSitePower = "HydrateSitePower";
             internal const string EmailException = "EmailException";

@@ -19,7 +19,9 @@ namespace SolarDigest.Api
     {
         private readonly Lazy<IServiceProvider> _services;
         private IServiceProvider Services => _services.Value;
-        private IConfiguration Configuration => Services.GetService<IConfiguration>();
+
+        // This can be shared across scopes since it is registered as a Singleton
+        protected IConfiguration Configuration => Services.GetService<IConfiguration>();
 
         protected FunctionBase()
         {
@@ -41,6 +43,7 @@ namespace SolarDigest.Api
         {
             services.AddScoped<IFunctionLogger, FunctionLogger>();
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
+            services.AddScoped<ISolarDigestDynamoDb, SolarDigestDynamoDb>();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);

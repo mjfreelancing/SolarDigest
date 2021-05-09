@@ -1,6 +1,7 @@
-﻿namespace SolarDigest.Models
+﻿namespace SolarDigest.Api.Payloads.GraphQL
 {
-    public class SiteInfo
+    // associated with a lambda resolver request
+    public sealed class GetSitePayload
     {
         public string Id { get; set; }
         public string StartDate { get; set; }

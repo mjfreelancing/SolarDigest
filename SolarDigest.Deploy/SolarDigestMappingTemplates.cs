@@ -28,7 +28,7 @@ namespace SolarDigest.Deploy
                     "{",
                     @"  ""version"" : ""2017-02-28"",",
                     @"  ""operation"": ""Invoke"",",
-                    @"  ""payload"": $util.toJson($context.args)",
+                    @"  ""payload"": $util.toJson($context.arguments)",
                     @"}"
                 );
 

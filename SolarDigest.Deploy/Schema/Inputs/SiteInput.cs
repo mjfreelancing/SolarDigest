@@ -6,9 +6,6 @@ namespace SolarDigest.Deploy.Schema.Inputs
     internal interface SiteInput
     {
         [GraphqlTypeRequired]
-        public string Id { get; }
-
-        [GraphqlTypeRequired]
         public string StartDate { get; }
 
         [GraphqlTypeRequired]
