@@ -1,9 +1,10 @@
-﻿using Amazon.DynamoDBv2.DocumentModel;
+﻿using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Services
 {
     public interface ISolarDigestDynamoDb
     {
-        Table GetTable(string tableName);
+        Task<TItem> GetItemAsync<TItem>(string tableName, string id);
+        Task PutItemAsync<TItem>(string tableName, TItem item);
     }
 }

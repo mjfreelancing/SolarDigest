@@ -1,29 +1,41 @@
-﻿using AllOverIt.Helpers;
-using Amazon.DynamoDBv2;
+﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.Runtime;
-using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using SolarDigest.Api.Extensions;
+using System;
+using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Services
 {
     internal sealed class SolarDigestDynamoDb : ISolarDigestDynamoDb
     {
-        private readonly IConfiguration _configuration;
+        private readonly Lazy<AmazonDynamoDBClient> _dbClient = new Lazy<AmazonDynamoDBClient>(() => new AmazonDynamoDBClient());
+        private AmazonDynamoDBClient DbClient => _dbClient.Value;
 
-        public SolarDigestDynamoDb(IConfiguration configuration)
+        public async Task<TItem> GetItemAsync<TItem>(string tableName, string id)
         {
-            _configuration = configuration.WhenNotNull(nameof(configuration));
+            var table = Table.LoadTable(DbClient, new TableConfig("Site"));
+            var document = await table.GetItemAsync(new Primitive(id));
+
+            return JsonConvert.DeserializeObject<TItem>(document.ToJson());
+
+            //var key = new Dictionary<string, AttributeValue>
+            //{
+            //    {"Id", new AttributeValue {S = id}}
+            //};
+
+            //var response = await dbClient.GetItemAsync(tableName, key);
+
+            //var item = response.Item;
+
+            //var itemJson = Document.FromAttributeMap(item).ToJson();
+
+            //return JsonConvert.DeserializeObject<TItem>(itemJson);
         }
 
-        public Table GetTable(string tableName)
+        public Task PutItemAsync<TItem>(string tableName, TItem item)
         {
-            var accessKey = _configuration["AwsAccessKey"];
-            var secretKey = _configuration["AwsSecretKey"];
-
-            var credentials = new BasicAWSCredentials(accessKey, secretKey);
-            var dbClient = new AmazonDynamoDBClient(credentials);
-
-            return Table.LoadTable(dbClient, tableName);
+            return DbClient.PutItemAsync(tableName, item);
         }
     }
 }

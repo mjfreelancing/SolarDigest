@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.AppSync;
+using Amazon.CDK.AWS.IAM;
 using SolarDigest.Deploy.Constructs;
 using SolarDigest.Deploy.Extensions;
 using System;
@@ -71,6 +72,10 @@ namespace SolarDigest.Deploy
         {
             tables.ExceptionTable.GrantStreamRead(functions.EmailExceptionFunction);
 
+
+
+            //tables.SiteTable.Grant()
+
             // lambdas that can read from the Site table
             tables.SiteTable.GrantReadDataToFunctions(
                 functions.GetSiteFunction,
@@ -81,6 +86,10 @@ namespace SolarDigest.Deploy
             tables.SiteTable.GrantWriteDataToFunctions(
                 functions.AddSiteFunction);
 
+
+            //tables.SiteTable.GrantReadWriteData(functions.AddSiteFunction);
+
+
             // lambdas that can write to the Exception table
             tables.ExceptionTable.GrantWriteDataToFunctions(
                 functions.GetSiteFunction, 
@@ -89,6 +98,25 @@ namespace SolarDigest.Deploy
                 functions.HydrateSitePowerFunction);
 
             tables.ExceptionTable.AddEventSource(functions.EmailExceptionFunction);
+
+
+
+            functions.GetSiteFunction.AddToRolePolicy(new PolicyStatement(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "dynamodb:DescribeTable"
+                },
+                Resources = new[]
+                {
+                    "arn:aws:dynamodb:ap-southeast-2:550269505143:table/Site"
+                    //$"arn:aws:events:{stack.Region}:{stack.Account}:table/site"
+                }
+            }));
+
+
+
         }
 
 

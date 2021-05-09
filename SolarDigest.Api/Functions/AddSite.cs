@@ -1,16 +1,14 @@
-﻿using Amazon.DynamoDBv2.DocumentModel;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Payloads.GraphQL;
 using SolarDigest.Api.Services;
 using SolarDigest.Models;
-using System;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
     public sealed class AddSite : FunctionBase<AddSitePayload, Site>
     {
-        protected override Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
+        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
             var logger = context.Logger;
 
@@ -18,37 +16,28 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Creating site info for Id '{payload.Id}'");
 
-            var dynamoDb = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
-            var table = dynamoDb!.GetTable("Site");
+            var site = payload.Site;
 
-            var doc = new Document();
-
-
-            //doc["id"] = payload.Id;
-
-
-
-            // todo: update to read the data from DynamoDb
-
-            var startDate = new DateTime(2020, 5, 9);
-            var lastAggregationDate = DateTime.Today.Date;
-            var lastSummaryDate = DateTime.Today.Date;
-            var lastRefreshDateTime = DateTime.Now;
-
-            var site = new Site
+            var entity = new Site
             {
-                Id = "1514817",
-                TimeZoneId = "AUS Eastern Standard Time",
-                StartDate = $"{startDate:yyyy-MM-dd}",
-                ApiKey = "XYZ",
-                ContactName = "Malcolm Smith",
-                ContactEmail = "malcolm@mjfreelancing.com",
-                LastAggregationDate = $"{lastAggregationDate:yyyy-MM-dd}",
-                LastSummaryDate = $"{lastSummaryDate:yyyy-MM-dd}",
-                LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
+                Id = payload.Id,
+                TimeZoneId = site.TimeZoneId, //"AUS Eastern Standard Time",
+                StartDate = site.StartDate,   //$"{startDate:yyyy-MM-dd}",
+                ApiKey = site.ApiKey,
+                ContactName = site.ContactName,
+                ContactEmail = site.ContactEmail,
+                LastAggregationDate = site.LastAggregationDate,
+                LastSummaryDate = site.LastSummaryDate,
+                LastRefreshDateTime = site.LastRefreshDateTime
             };
 
-            return Task.FromResult(site);
+            var db = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
+
+            await db!.PutItemAsync(Api.Constants.Table.Site, entity);
+
+            logger.LogDebug($"Site '{payload.Id}' added");
+
+            return entity;
         }
     }
 }

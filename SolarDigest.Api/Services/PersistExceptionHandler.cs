@@ -1,7 +1,5 @@
 ﻿using AllOverIt.Helpers;
-using Amazon.DynamoDBv2;
 using SolarDigest.Api.Data;
-using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Logging;
 using System;
 using System.Threading.Tasks;
@@ -10,10 +8,12 @@ namespace SolarDigest.Api.Services
 {
     internal sealed class PersistExceptionHandler : IExceptionHandler
     {
+        private readonly ISolarDigestDynamoDb _dynamoDb;
         private readonly IFunctionLogger _logger;
 
-        public PersistExceptionHandler(IFunctionLogger logger)
+        public PersistExceptionHandler(ISolarDigestDynamoDb dynamoDb, IFunctionLogger logger)
         {
+            _dynamoDb = dynamoDb.WhenNotNull(nameof(dynamoDb));
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
@@ -23,15 +23,13 @@ namespace SolarDigest.Api.Services
 
             try
             {
-                var dbClient = new AmazonDynamoDBClient();
-
                 var entity = new ExceptionEntity
                 {
                     Message = exception.Message,
                     StackTrace = exception.StackTrace
                 };
 
-                await dbClient.PutItemAsync("Exception", entity);
+                await _dynamoDb.PutItemAsync(Constants.Table.Exception, entity);
 
                 _logger.LogDebug($"Exception persisted: {exception.Message}");
             }

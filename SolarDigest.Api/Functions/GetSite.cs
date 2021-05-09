@@ -1,6 +1,7 @@
-﻿using SolarDigest.Api.Payloads.GraphQL;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Payloads.GraphQL;
+using SolarDigest.Api.Services;
 using SolarDigest.Models;
-using System;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
@@ -33,33 +34,39 @@ namespace SolarDigest.Api.Functions
 
     public sealed class GetSite : FunctionBase<GetSitePayload, Site>
     {
-        protected override Task<Site> InvokeHandlerAsync(FunctionContext<GetSitePayload> context)
+        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<GetSitePayload> context)
         {
             var logger = context.Logger;
+            var payload = context.Payload;
 
-            logger.LogDebug($"Reading site info for Id '{context.Payload.Id}'");
+            logger.LogDebug($"Reading site info for Id '{payload.Id}'");
 
-            // todo: update to read the data from DynamoDb
+            var db = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
 
-            var startDate = new DateTime(2020, 5, 9);
-            var lastAggregationDate = DateTime.Today.Date;
-            var lastSummaryDate = DateTime.Today.Date;
-            var lastRefreshDateTime = DateTime.Now;
+            // await here in case there is an exception
+            return await db!.GetItemAsync<Site>(Api.Constants.Table.Site, payload.Id);
+            
 
-            var site = new Site
-            {
-                Id = "1514817",
-                TimeZoneId = "AUS Eastern Standard Time",
-                StartDate = $"{startDate:yyyy-MM-dd}",
-                ApiKey = "XYZ",
-                ContactName = "Malcolm Smith",
-                ContactEmail = "malcolm@mjfreelancing.com",
-                LastAggregationDate = $"{lastAggregationDate:yyyy-MM-dd}",
-                LastSummaryDate = $"{lastSummaryDate:yyyy-MM-dd}",
-                LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
-            };
 
-            return Task.FromResult(site);
+            //var startDate = new DateTime(2020, 5, 9);
+            //var lastAggregationDate = DateTime.Today.Date;
+            //var lastSummaryDate = DateTime.Today.Date;
+            //var lastRefreshDateTime = DateTime.Now;
+
+            //var site = new Site
+            //{
+            //    Id = "1514817",
+            //    TimeZoneId = "AUS Eastern Standard Time",
+            //    StartDate = $"{startDate:yyyy-MM-dd}",
+            //    ApiKey = "XYZ",
+            //    ContactName = "Malcolm Smith",
+            //    ContactEmail = "malcolm@mjfreelancing.com",
+            //    LastAggregationDate = $"{lastAggregationDate:yyyy-MM-dd}",
+            //    LastSummaryDate = $"{lastSummaryDate:yyyy-MM-dd}",
+            //    LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
+            //};
+
+            //return Task.FromResult(site);
         }
     }
 }
