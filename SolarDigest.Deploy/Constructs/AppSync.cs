@@ -6,10 +6,10 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class AppSync : Construct
     {
-        public AppSync(Construct scope, SolarDigestApiProps apiProps, AuthorizationMode authMode/*, IDataSourceRoleCache dataSourceRoleCache*/)
+        public AppSync(Construct scope, SolarDigestApiProps apiProps, AuthorizationMode authMode)
             : base(scope, "Api")
         {
-            var graphQl = new SolarDigestGraphql(this, apiProps, authMode/*, dataSourceRoleCache*/);
+            var graphQl = new SolarDigestGraphql(this, apiProps, authMode);
 
             graphQl
                 .AddSchemaQuery<ISolarDigestQueryDefinition>()

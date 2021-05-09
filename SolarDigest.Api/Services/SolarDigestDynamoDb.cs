@@ -14,7 +14,7 @@ namespace SolarDigest.Api.Services
 
         public async Task<TItem> GetItemAsync<TItem>(string tableName, string id)
         {
-            var table = Table.LoadTable(DbClient, new TableConfig("Site"));
+            var table = Table.LoadTable(DbClient, new TableConfig(tableName));
             var document = await table.GetItemAsync(new Primitive(id));
 
             return JsonConvert.DeserializeObject<TItem>(document.ToJson());
