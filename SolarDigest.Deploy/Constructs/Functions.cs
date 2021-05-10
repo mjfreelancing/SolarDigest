@@ -1,10 +1,8 @@
 ﻿using AllOverIt.Helpers;
 using Amazon.CDK;
-using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.S3;
 using SolarDigest.Deploy.Extensions;
-using System.Collections.Generic;
 using AwsBucket = Amazon.CDK.AWS.S3.Bucket;
 
 namespace SolarDigest.Deploy.Constructs
@@ -38,11 +36,10 @@ namespace SolarDigest.Deploy.Constructs
             CreateEmailExceptionFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description, IBucket s3Bucket,
-            IEnumerable<PolicyStatement> statements = null, IDictionary<string, string> variables = null)
+        private IFunction CreateFunction(string appName, string name, string description)
+            //IDictionary<string, string> variables = null)
         {
-            variables ??= new Dictionary<string, string>();
-            statements ??= new List<PolicyStatement>();
+            //variables ??= new Dictionary<string, string>();
 
             var props = new FunctionProps
             {
@@ -52,23 +49,18 @@ namespace SolarDigest.Deploy.Constructs
                 Runtime = Runtime.DOTNET_CORE_3_1,
                 MemorySize = 128,
                 Timeout = Duration.Seconds(60),
-                Code = new S3Code(s3Bucket, Constants.S3CodeBucketKeyName),
-                Environment = variables
+                Code = new S3Code(_codeBucket, Constants.S3CodeBucketKeyName)
+                //Environment = variables
             };
 
             var function = new Function(this, $"{name}Function", props);
-
-            foreach (var statement in statements)
-            {
-                function.AddToRolePolicy(statement);
-            }
 
             return function;
         }
 
         private void CreateAddSiteFunction()
         {
-            AddSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details", _codeBucket);
+            AddSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details");
 
             _tables.ExceptionTable.GrantWriteData(AddSiteFunction);
 
@@ -77,44 +69,44 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateGetSiteFunction()
         {
-            GetSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details", _codeBucket,
-                new[] { _iam.DynamoDescribeTablePolicy });
+            GetSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details");
 
             _tables.ExceptionTable.GrantWriteData(GetSiteFunction);
-
             _tables.SiteTable.GrantReadData(GetSiteFunction);
+
+            GetSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
         }
 
         private void CreateHydrateAllSitesPowerFunction()
         {
-            HydrateAllSitesPowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites", _codeBucket,
-                new[] { _iam.PutDefaultEventBridgeEventsPolicyStatement });
-
+            HydrateAllSitesPowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites");
 
             _tables.ExceptionTable.GrantWriteData(HydrateAllSitesPowerFunction);
-
             _tables.SiteTable.GrantReadData(HydrateAllSitesPowerFunction);
+
+            HydrateAllSitesPowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
         }
 
         private void CreateHydrateSitePowerFunction()
         {
-            HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", _codeBucket);
+            HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site");
 
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
-
             _tables.SiteTable.GrantReadData(HydrateSitePowerFunction);
         }
 
         private void CreateEmailExceptionFunction()
         {
-            EmailExceptionFunction = CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email", _codeBucket,
-                new[] { _iam.SendEmailPolicyStatement });
+            EmailExceptionFunction = CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email");
 
-            _tables.ExceptionTable.GrantWriteData(EmailExceptionFunction);
+            // the EmailException function would never write to ExceptionTable as it would potentially cause an endless loop of processing
+            //_tables.ExceptionTable.GrantWriteData(EmailExceptionFunction);
 
             // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
             _tables.ExceptionTable.AddEventSource(EmailExceptionFunction);
             _tables.ExceptionTable.GrantStreamRead(EmailExceptionFunction);
+
+            EmailExceptionFunction.AddPolicyStatements(_iam.SendEmailPolicyStatement);
         }
     }
 }

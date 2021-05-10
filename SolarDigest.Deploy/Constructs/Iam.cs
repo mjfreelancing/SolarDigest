@@ -7,7 +7,6 @@ namespace SolarDigest.Deploy.Constructs
     {
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
         internal PolicyStatement GetParameterPolicyStatement { get; private set; }
-        internal PolicyStatement DynamoDescribeTablePolicy { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
         public Iam(Construct stack, string appName)
@@ -15,8 +14,25 @@ namespace SolarDigest.Deploy.Constructs
         {
             CreateDefaultEventBridgePolicyStatement();
             CreateGetParameterPolicyStatement();
-            CreateDynamoDescribeTablePolicyStatement();
             SendEmailPolicyStatements();
+        }
+
+        public PolicyStatement GetDynamoDescribeTablePolicy(string tableName)
+        {
+            var stack = Stack.Of(this);
+
+            return new PolicyStatement(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "dynamodb:DescribeTable"
+                },
+                Resources = new[]
+                {
+                    $"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
+                }
+            });
         }
 
         private void CreateDefaultEventBridgePolicyStatement()
@@ -50,25 +66,7 @@ namespace SolarDigest.Deploy.Constructs
                 },
                 Resources = new[]
                 {
-                    $"arn:aws:events:{stack.Region}:{stack.Account}:parameter/*"
-                }
-            });
-        }
-
-        private void CreateDynamoDescribeTablePolicyStatement()
-        {
-            var stack = Stack.Of(this);
-
-            DynamoDescribeTablePolicy = new PolicyStatement(new PolicyStatementProps
-            {
-                Effect = Effect.ALLOW,
-                Actions = new[]
-                {
-                    "dynamodb:DescribeTable"
-                },
-                Resources = new[]
-                {
-                    $"arn:aws:events:{stack.Region}:{stack.Account}:table/*"
+                    $"arn:aws:ssm:{stack.Region}:{stack.Account}:parameter/*"
                 }
             });
         }

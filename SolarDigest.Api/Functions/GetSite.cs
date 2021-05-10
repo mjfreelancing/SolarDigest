@@ -22,7 +22,7 @@ namespace SolarDigest.Api.Functions
 
 
     mutation MyMutation {
-      addSite(id: "df", site: {apiKey: "cvbcvb", contactEmail: "", contactName: "", lastAggregationDate: "", lastRefreshDateTime: "", lastSummaryDate: "", startDate: "", timeZoneId: ""}) {
+      addSite(id: "1514817", site: {apiKey: "api-key-here", contactEmail: "malcolm@mjfreelancing.com", contactName: "Malcolm Smith", lastAggregationDate: "2020-05-09", lastRefreshDateTime: "2020-05-09", lastSummaryDate: "2020-05-09", startDate: "2020-05-09", timeZoneId: "AUS Eastern Standard Time"}) {
         id
         contactEmail
         contactName
