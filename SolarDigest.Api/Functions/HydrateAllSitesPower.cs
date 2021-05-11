@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    public static class Constants
-    {
-        public const string Source = "SolarDigest.Api";
-    }
-
     public sealed class HydrateAllSitesPower : FunctionBase<HydrateAllSitesPowerPayload, bool>
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<HydrateAllSitesPowerPayload> context)
@@ -25,7 +20,7 @@ namespace SolarDigest.Api.Functions
                 {
                     new PutEventsRequestEntry
                     {
-                        Source = Constants.Source,
+                        Source = Constants.Events.Source,
                         EventBusName = "default",
                         DetailType = nameof(HydrateSitePowerEvent),
                         Time = DateTime.Now,
@@ -38,7 +33,7 @@ namespace SolarDigest.Api.Functions
                     },
                     new PutEventsRequestEntry
                     {
-                        Source = Constants.Source,
+                        Source = Constants.Events.Source,
                         EventBusName = "default",
                         DetailType = nameof(HydrateSitePowerEvent),
                         Time = DateTime.Now,
@@ -51,7 +46,7 @@ namespace SolarDigest.Api.Functions
                     },
                     new PutEventsRequestEntry
                     {
-                        Source = Constants.Source,
+                        Source = Constants.Events.Source,
                         EventBusName = "default",
                         DetailType = nameof(HydrateSitePowerEvent),
                         Time = DateTime.Now,
