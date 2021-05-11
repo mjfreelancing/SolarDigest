@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
+using System.Collections.Generic;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -73,8 +74,6 @@ namespace SolarDigest.Deploy.Constructs
 
         private void SendEmailPolicyStatements()
         {
-            var stack = Stack.Of(this);
-
             SendEmailPolicyStatement = new PolicyStatement(new PolicyStatementProps
             {
                 Effect = Effect.ALLOW,
@@ -85,6 +84,17 @@ namespace SolarDigest.Deploy.Constructs
                 Resources = new[]
                 {
                     "*"      //$"arn:aws:ses:{stack.Region}:{stack.Account}:identity/*",
+                },
+                Conditions = new Dictionary<string, object>
+                {
+                    {
+                        "ForAllValues:StringLike",
+                        new Dictionary<string, object>
+                        {
+                            {"ses:Recipients", "*@mjfreelancing.com"},
+                            {"ses:FromAddress", "*@mjfreelancing.com"}
+                        }
+                    }
                 }
             });
         }
