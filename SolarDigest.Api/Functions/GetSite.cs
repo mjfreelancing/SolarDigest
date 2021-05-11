@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Payloads.GraphQL;
-using SolarDigest.Api.Services;
+using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
@@ -41,10 +41,10 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Reading site info for Id '{payload.Id}'");
 
-            var db = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
+            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
             // await here in case there is an exception
-            return await db!.GetItemAsync<Site>(Api.Constants.Table.Site, payload.Id);
+            return await siteTable!.GetItemAsync<Site>(payload.Id);
             
 
 

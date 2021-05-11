@@ -1,5 +1,5 @@
 using AllOverIt.Helpers;
-using SolarDigest.Api.Services.SolarEdge.Dto.Response;
+using SolarDigest.Api.Services.SolarEdge.Response;
 using System.Net;
 
 namespace SolarDigest.Api.Services.SolarEdge.Result

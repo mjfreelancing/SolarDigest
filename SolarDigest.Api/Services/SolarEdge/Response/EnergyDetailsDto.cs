@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace SolarDigest.Api.Services.SolarEdge.Dto.Response
+namespace SolarDigest.Api.Services.SolarEdge.Response
 {
-    public class PowerDetailsDto
+    public class EnergyDetailsDto
     {
         public IEnumerable<MeterDto> Meters { get; set; }
     }

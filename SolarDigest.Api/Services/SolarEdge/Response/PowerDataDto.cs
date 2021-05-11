@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Services.SolarEdge.Dto.Response
+﻿namespace SolarDigest.Api.Services.SolarEdge.Response
 {
     public class PowerDataDto
     {

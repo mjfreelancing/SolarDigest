@@ -6,7 +6,7 @@ using Flurl;
 using Flurl.Http;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models.SolarEdge;
-using SolarDigest.Api.Services.SolarEdge.Dto.Response;
+using SolarDigest.Api.Services.SolarEdge.Response;
 using SolarDigest.Api.Services.SolarEdge.Result;
 using System;
 using System.Net;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Payloads.GraphQL;
-using SolarDigest.Api.Services;
+using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
@@ -31,9 +31,9 @@ namespace SolarDigest.Api.Functions
                 LastRefreshDateTime = site.LastRefreshDateTime
             };
 
-            var db = context.ScopedServiceProvider.GetService<ISolarDigestDynamoDb>();
+            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            await db!.PutItemAsync(Api.Constants.Table.Site, entity);
+            await siteTable!.PutItemAsync(entity);
 
             logger.LogDebug($"Site '{payload.Id}' added");
 

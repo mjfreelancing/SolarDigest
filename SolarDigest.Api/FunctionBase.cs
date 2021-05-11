@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Logging;
+using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
 using System;
@@ -44,7 +45,8 @@ namespace SolarDigest.Api
         {
             services.AddScoped<IFunctionLogger, FunctionLogger>();
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
-            services.AddScoped<ISolarDigestDynamoDb, SolarDigestDynamoDb>();
+            services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
+            services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
         }
 

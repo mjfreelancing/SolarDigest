@@ -3,7 +3,6 @@ using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Services.SolarEdge;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
@@ -29,14 +28,14 @@ namespace SolarDigest.Api.Functions
                     EndDateTime = "2020-07-09 21:00:00"
                 });
 
-                if (powerResults.StatusCode == HttpStatusCode.OK)
+                if (powerResults.IsError)
                 {
-                    var meterCount = powerResults.PowerData.PowerDetails.Meters.Count();
-                    context.Logger.LogDebug($"Received {meterCount} power results");
+                    context.Logger.LogDebug($"Failed to call SolarEdge, status code {powerResults.StatusCode}");
                 }
                 else
                 {
-                    context.Logger.LogDebug($"Failed to call SolarEdge, status code {powerResults.StatusCode}");
+                    var meterCount = powerResults.PowerData.PowerDetails.Meters.Count();
+                    context.Logger.LogDebug($"Received {meterCount} power results");
                 }
 
 
@@ -50,14 +49,14 @@ namespace SolarDigest.Api.Functions
                     EndDateTime = "2020-07-09 21:00:00"
                 });
 
-                if (energyResults.StatusCode == HttpStatusCode.OK)
+                if (energyResults.IsError)
                 {
-                    var meterCount = energyResults.EnergyData.EnergyDetails.Meters.Count();
-                    context.Logger.LogDebug($"Received {meterCount} energy results");
+                    context.Logger.LogDebug($"Failed to call SolarEdge, status code {energyResults.StatusCode}");
                 }
                 else
                 {
-                    context.Logger.LogDebug($"Failed to call SolarEdge, status code {energyResults.StatusCode}");
+                    var meterCount = energyResults.EnergyData.EnergyDetails.Meters.Count();
+                    context.Logger.LogDebug($"Received {meterCount} energy results");
                 }
             }
 
