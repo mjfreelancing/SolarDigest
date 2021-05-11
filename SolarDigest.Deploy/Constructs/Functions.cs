@@ -91,6 +91,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site");
 
+            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetParameterPolicyStatement);
+
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
             _tables.SiteTable.GrantReadData(HydrateSitePowerFunction);
         }

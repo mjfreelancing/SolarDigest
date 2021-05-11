@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Services;
+using SolarDigest.Api.Services.SolarEdge;
 using System;
 using System.Threading.Tasks;
 
@@ -44,6 +45,7 @@ namespace SolarDigest.Api
             services.AddScoped<IFunctionLogger, FunctionLogger>();
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
             services.AddScoped<ISolarDigestDynamoDb, SolarDigestDynamoDb>();
+            services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);
