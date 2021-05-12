@@ -4,10 +4,10 @@ using Amazon.SimpleSystemsManagement;
 using Amazon.SimpleSystemsManagement.Model;
 using Flurl;
 using Flurl.Http;
+using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Services.SolarEdge.Response;
-using SolarDigest.Api.Services.SolarEdge.Result;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace SolarDigest.Api.Services.SolarEdge
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
-        public async Task<PowerDataResult> GetPowerDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
+        public async Task<PowerDataDto> GetPowerDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
         {
             var apiKey = await _apiKey;
 
@@ -47,7 +47,7 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 _logger.LogDebug("Success response received");
                 
-                return new PowerDataResult(solarData);
+                return solarData;
 
             }
             catch (FlurlHttpException exception)
@@ -57,11 +57,15 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 _logger.LogDebug($"Failed to get power data for site {powerQuery.SiteId}: {exception.Message}");
 
-                return PowerDataResult.Error((HttpStatusCode)exception.Call.Response.StatusCode);
+                throw new SolarEdgeResponseException(
+                    (HttpStatusCode) exception.Call.Response.StatusCode,
+                    powerQuery.SiteId,
+                    powerQuery.StartDateTime,
+                    powerQuery.EndDateTime);
             }
         }
 
-        public async Task<EnergyDataResult> GetEnergyDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
+        public async Task<EnergyDataDto> GetEnergyDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
         {
             var apiKey = await _apiKey;
 
@@ -85,7 +89,7 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 _logger.LogDebug("Success response received");
 
-                return new EnergyDataResult(solarData);
+                return solarData;
 
             }
             catch (FlurlHttpException exception)
@@ -95,7 +99,11 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 _logger.LogDebug($"Failed to get power data for site {powerQuery.SiteId}: {exception.Message}");
 
-                return EnergyDataResult.Error((HttpStatusCode)exception.Call.Response.StatusCode);
+                throw new SolarEdgeResponseException(
+                    (HttpStatusCode)exception.Call.Response.StatusCode,
+                    powerQuery.SiteId,
+                    powerQuery.StartDateTime,
+                    powerQuery.EndDateTime);
             }
         }
 

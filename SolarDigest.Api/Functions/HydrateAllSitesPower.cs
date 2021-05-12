@@ -14,6 +14,8 @@ namespace SolarDigest.Api.Functions
         {
             context.Logger.LogDebug("Hydrating power for all sites");
 
+            // todo: query all available sites and create a suitable request (max 10 per request)
+
             var putRequest = new PutEventsRequest
             {
                 Entries =
@@ -26,35 +28,9 @@ namespace SolarDigest.Api.Functions
                         Time = DateTime.Now,
                         Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
                         {
-                            Id = "1",
-                            StartDate = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd}",
-                            EndDate = $"{DateTime.Now:yyyy-MM-dd}"
-                        })
-                    },
-                    new PutEventsRequestEntry
-                    {
-                        Source = Constants.Events.Source,
-                        EventBusName = "default",
-                        DetailType = nameof(HydrateSitePowerEvent),
-                        Time = DateTime.Now,
-                        Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
-                        {
-                            Id = "2",
-                            StartDate = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd}",
-                            EndDate = $"{DateTime.Now:yyyy-MM-dd}"
-                        })
-                    },
-                    new PutEventsRequestEntry
-                    {
-                        Source = Constants.Events.Source,
-                        EventBusName = "default",
-                        DetailType = nameof(HydrateSitePowerEvent),
-                        Time = DateTime.Now,
-                        Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
-                        {
-                            Id = "3",
-                            StartDate = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd}",
-                            EndDate = $"{DateTime.Now:yyyy-MM-dd}"
+                            Id = "1514817",
+                            //StartDate = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd}",
+                            //EndDate = $"{DateTime.Now:yyyy-MM-dd}"
                         })
                     }
                 }

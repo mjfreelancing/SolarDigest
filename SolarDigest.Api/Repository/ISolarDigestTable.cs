@@ -3,20 +3,19 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Repository
 {
-    public interface ISolarDigestTable
+    public interface IReadDynamoDbTable
     {
-        string TableName { get; }
         Task<TItem> GetItemAsync<TItem>(string id, CancellationToken cancellationToken = default);
+    }
+
+    public interface IWriteDynamoDbTable
+    {
         Task PutItemAsync<TItem>(TItem item, CancellationToken cancellationToken = default);
     }
 
-    public interface ISolarDigestSiteTable : ISolarDigestTable
+
+    public interface ISolarDigestTable
     {
-
-    }
-
-    public interface ISolarDigestExceptionTable : ISolarDigestTable
-    {
-
+        string TableName { get; }
     }
 }

@@ -71,20 +71,20 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details");
 
+            GetSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+
             _tables.ExceptionTable.GrantWriteData(GetSiteFunction);
             _tables.SiteTable.GrantReadData(GetSiteFunction);
-
-            GetSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
         }
 
         private void CreateHydrateAllSitesPowerFunction()
         {
             HydrateAllSitesPowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites");
 
+            HydrateAllSitesPowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
+
             _tables.ExceptionTable.GrantWriteData(HydrateAllSitesPowerFunction);
             _tables.SiteTable.GrantReadData(HydrateAllSitesPowerFunction);
-
-            HydrateAllSitesPowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
         }
 
         private void CreateHydrateSitePowerFunction()
@@ -92,6 +92,7 @@ namespace SolarDigest.Deploy.Constructs
             HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site");
 
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetParameterPolicyStatement);
+            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
             _tables.SiteTable.GrantReadData(HydrateSitePowerFunction);
@@ -101,14 +102,14 @@ namespace SolarDigest.Deploy.Constructs
         {
             EmailExceptionFunction = CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email");
 
+            EmailExceptionFunction.AddPolicyStatements(_iam.SendEmailPolicyStatement);
+
             // the EmailException function would never write to ExceptionTable as it would potentially cause an endless loop of processing
             //_tables.ExceptionTable.GrantWriteData(EmailExceptionFunction);
 
             // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
             _tables.ExceptionTable.AddEventSource(EmailExceptionFunction);
             _tables.ExceptionTable.GrantStreamRead(EmailExceptionFunction);
-
-            EmailExceptionFunction.AddPolicyStatements(_iam.SendEmailPolicyStatement);
         }
     }
 }

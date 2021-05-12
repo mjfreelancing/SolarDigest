@@ -80,6 +80,9 @@ namespace SolarDigest.Api
                     await exceptionHandler!.HandleAsync(exception);
                 }
 
+                // todo: Possible exceptions include
+                //       SolarEdgeResponseException
+
                 // todo: really should wrap the result in a response object with a success / fail status ?
                 return default;
             }
