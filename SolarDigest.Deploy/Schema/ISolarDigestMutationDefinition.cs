@@ -11,6 +11,10 @@ namespace SolarDigest.Deploy.Schema
         [LambdaDataSource(Constants.ServiceName, Constants.Function.AddSite)]
         Site AddSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteInput site);
 
+        [GraphqlTypeRequired]
+        [LambdaDataSource(Constants.ServiceName, Constants.Function.UpdateSite)]
+        Site UpdateSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteExtendedInput site);
+
         //[GraphqlTypeRequired]
         //[LambdaDataSource(Constants.DataSource.CreateSite)]
         //Site AddSite2([GraphqlTypeRequired] SiteInput site);

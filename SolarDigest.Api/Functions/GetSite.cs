@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace SolarDigest.Api.Functions
 {
     /*
+
      query MyQuery {
       site(id: "1514817") {
         id
@@ -29,8 +30,7 @@ namespace SolarDigest.Api.Functions
       }
     }
 
-     */
-
+    */
 
     public sealed class GetSite : FunctionBase<GetSitePayload, Site>
     {
@@ -45,28 +45,6 @@ namespace SolarDigest.Api.Functions
 
             // await here in case there is an exception
             return await siteTable!.GetItemAsync<Site>(payload.Id);
-            
-
-
-            //var startDate = new DateTime(2020, 5, 9);
-            //var lastAggregationDate = DateTime.Today.Date;
-            //var lastSummaryDate = DateTime.Today.Date;
-            //var lastRefreshDateTime = DateTime.Now;
-
-            //var site = new Site
-            //{
-            //    Id = "1514817",
-            //    TimeZoneId = "AUS Eastern Standard Time",
-            //    StartDate = $"{startDate:yyyy-MM-dd}",
-            //    ApiKey = "XYZ",
-            //    ContactName = "Malcolm Smith",
-            //    ContactEmail = "malcolm@mjfreelancing.com",
-            //    LastAggregationDate = $"{lastAggregationDate:yyyy-MM-dd}",
-            //    LastSummaryDate = $"{lastSummaryDate:yyyy-MM-dd}",
-            //    LastRefreshDateTime = $"{lastRefreshDateTime:yyyy-MM-dd}"
-            //};
-
-            //return Task.FromResult(site);
         }
     }
 }

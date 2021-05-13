@@ -19,11 +19,5 @@ namespace SolarDigest.Deploy.Schema.Inputs
 
         [GraphqlTypeRequired]
         public string TimeZoneId { get; }
-
-        public string LastAggregationDate { get; }
-
-        public string LastSummaryDate { get; }
-
-        public string LastRefreshDateTime { get; }
     }
 }

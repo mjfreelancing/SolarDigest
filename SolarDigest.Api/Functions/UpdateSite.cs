@@ -9,6 +9,8 @@ namespace SolarDigest.Api.Functions
     /*
      
     Test payload to use in the console (lambda test):
+
+    * Leave out any of lastAggregationDate, lastRefreshDateTime, lastSummaryDate to delete them
      
         {
             "id": "1514817",
@@ -17,17 +19,20 @@ namespace SolarDigest.Api.Functions
                 "startDate": "2020-05-09",
                 "apiKey": "api-key-here",
                 "contactName": "Malcolm Smith",
-                "contactEmail": "malcolm@mjfreelancing.com"
+                "contactEmail": "malcolm@mjfreelancing.com",
+                "lastAggregationDate": "2020-05-10",
+                "lastRefreshDateTime": "2020-05-11 13:00:20",
+                "lastSummaryDate": "2020-05-11"
             }
         }
 
     */
 
-    public sealed class AddSite : FunctionBase<AddSitePayload, Site>
+    public sealed class UpdateSite : FunctionBase<UpdateSitePayload, Site>
     {
         // although Site includes LastAggregationDate, LastSummaryDate, and LastRefreshDateTime, these
         // will not be returned in the response because they will not yet exist in the table.
-        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
+        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<UpdateSitePayload> context)
         {
             var logger = context.Logger;
 
@@ -44,12 +49,15 @@ namespace SolarDigest.Api.Functions
                 StartDate = site.StartDate,
                 ApiKey = site.ApiKey,
                 ContactName = site.ContactName,
-                ContactEmail = site.ContactEmail
+                ContactEmail = site.ContactEmail,
+                LastAggregationDate = site.LastAggregationDate,
+                LastSummaryDate = site.LastSummaryDate,
+                LastRefreshDateTime = site.LastRefreshDateTime
             };
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            await siteTable!.AddItemAsync(entity);
+            await siteTable!.PutItemAsync(entity);
 
             logger.LogDebug($"Site '{payload.Id}' added");
 

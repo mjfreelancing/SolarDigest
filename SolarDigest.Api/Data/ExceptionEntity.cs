@@ -2,9 +2,8 @@
 
 namespace SolarDigest.Api.Data
 {
-    public class ExceptionEntity
+    public sealed class ExceptionEntity : EntityBase
     {
-        public string Id { get; set; }
         public string TimestampUtc { get; set; }
         public string Message { get; set; }
         public string StackTrace { get; set; }

@@ -15,6 +15,7 @@ namespace SolarDigest.Deploy.Constructs
         private readonly IBucket _codeBucket;
 
         internal IFunction AddSiteFunction { get; private set; }
+        internal IFunction UpdateSiteFunction { get; private set; }
         internal IFunction GetSiteFunction { get; private set; }
         internal IFunction HydrateAllSitesPowerFunction { get; private set; }
         internal IFunction HydrateSitePowerFunction { get; private set; }
@@ -30,6 +31,7 @@ namespace SolarDigest.Deploy.Constructs
             _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
             CreateAddSiteFunction();
+            CreateUpdateSiteFunction();
             CreateGetSiteFunction();
             CreateHydrateAllSitesPowerFunction();
             CreateHydrateSitePowerFunction();
@@ -67,6 +69,17 @@ namespace SolarDigest.Deploy.Constructs
             _tables.ExceptionTable.GrantWriteData(AddSiteFunction);
 
             _tables.SiteTable.GrantReadWriteData(AddSiteFunction);
+        }
+
+        private void CreateUpdateSiteFunction()
+        {
+            UpdateSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.UpdateSite, "Update site details");
+
+            UpdateSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+
+            _tables.ExceptionTable.GrantWriteData(UpdateSiteFunction);
+
+            _tables.SiteTable.GrantReadWriteData(UpdateSiteFunction);
         }
 
         private void CreateGetSiteFunction()

@@ -55,7 +55,7 @@ namespace SolarDigest.Deploy
                 //);
 
                 _responseMapping ??= CreateTemplate(
-                    "$util.toJson($context.result)"
+                    "$util.toJson($context.result.payload)"
                 );
 
                 return _responseMapping;

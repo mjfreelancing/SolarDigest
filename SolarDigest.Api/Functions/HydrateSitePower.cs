@@ -2,6 +2,7 @@
 using AllOverIt.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Data;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Models.SolarEdgeData;
@@ -121,14 +122,18 @@ namespace SolarDigest.Api.Functions
             var powerData = mapper!.Map<SolarData>(powerResults);
             var energyData = mapper.Map<SolarData>(energyResults);
 
-            var solarDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
+            var solarViewDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
             
             //var str = JsonConvert.SerializeObject(solarDays);
             //logger.LogDebug(str);
 
-            foreach (var solarDay in solarDays)
+            foreach (var solarViewDay in solarViewDays)
             {
-                
+                var entities = solarViewDay.Meters
+                    .SelectMany(
+                        meter => meter.Points,
+                        (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
+                    .AsReadOnlyList();
             }
 
 
