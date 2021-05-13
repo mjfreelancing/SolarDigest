@@ -3,6 +3,7 @@ using Amazon.Lambda.Serialization.SystemTextJson;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
 using SolarDigest.Api.Repository;
@@ -59,39 +60,56 @@ namespace SolarDigest.Api
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);
 
         // This is the function called by AWS services
-        public async Task<TResultType> InvokeAsync(TPayload payload, ILambdaContext context)
+        public async Task<LambdaResult<TResultType>> InvokeAsync(TPayload payload, ILambdaContext context)
         {
             using (var scope = Services.CreateScope())
             {
                 var scopedServiceProvider = scope.ServiceProvider;
 
+                var logger = scopedServiceProvider.GetService<IFunctionLogger>();
+
+                if (logger is FunctionLogger functionLogger)
+                {
+                    // the logger is context specific so needs to be injected manually
+                    functionLogger.SetLambdaLogger(context.Logger);
+                }
+
+                logger!.LogDebug($"Invoked: {context.FunctionName}");
+
                 try
                 {
-                    var logger = scopedServiceProvider.GetService<IFunctionLogger>();
-
-                    if (logger is FunctionLogger functionLogger)
-                    {
-                        // the logger is context specific so needs to be injected manually
-                        functionLogger.SetLambdaLogger(context.Logger);
-                    }
-
-                    logger!.LogDebug($"Invoked: {context.FunctionName}");
-
                     var handlerContext = new FunctionContext<TPayload>(scopedServiceProvider, logger, payload);
-                    return await InvokeHandlerAsync(handlerContext).ConfigureAwait(false);
+                    var result = await InvokeHandlerAsync(handlerContext).ConfigureAwait(false);
+
+                    return new LambdaResult<TResultType>(result);
+                }
+
+                // todo: consider creating a registration of exception handlers and consolidate this code
+
+                catch (SolarEdgeResponseException exception)
+                {
+                    await ReportException(scopedServiceProvider, exception, logger);
+                    return new LambdaResult<TResultType>(exception);
+                }
+                catch (DynamoDbConflictException exception)
+                {
+                    await ReportException(scopedServiceProvider, exception, logger);
+                    return new LambdaResult<TResultType>(exception);
                 }
                 catch (Exception exception)
                 {
-                    var exceptionHandler = scopedServiceProvider.GetService<IExceptionHandler>();
-                    await exceptionHandler!.HandleAsync(exception);
+                    await ReportException(scopedServiceProvider, exception, logger);
+                    return new LambdaResult<TResultType>(exception);
                 }
-
-                // todo: Possible exceptions include
-                //       SolarEdgeResponseException
-
-                // todo: really should wrap the result in a response object with a success / fail status ?
-                return default;
             }
+        }
+
+        private static Task ReportException(IServiceProvider serviceProvider, Exception exception, IFunctionLogger logger)
+        {
+            logger.LogException(exception);
+
+            var exceptionHandler = serviceProvider.GetService<IExceptionHandler>();
+            return exceptionHandler!.HandleAsync(exception);
         }
     }
 }

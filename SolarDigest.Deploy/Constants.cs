@@ -6,7 +6,9 @@
         internal const string ServiceName = "SolarDigest";
 
         internal const string S3LambdaCodeBucketName = "solardigest-code";
-        internal const string S3CodeBucketKeyName = "publish.zip";      // should really be something like {ServiceName}-V{ApiVersion}
+
+        // should really be something like {ServiceName}-V{ApiVersion} - needs a file version too
+        internal const string S3CodeBucketKeyName = "publish0001.zip";
 
         internal static class Function
         {

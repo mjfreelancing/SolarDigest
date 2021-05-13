@@ -62,9 +62,11 @@ namespace SolarDigest.Deploy.Constructs
         {
             AddSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details");
 
+            AddSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+
             _tables.ExceptionTable.GrantWriteData(AddSiteFunction);
 
-            _tables.SiteTable.GrantWriteData(AddSiteFunction);
+            _tables.SiteTable.GrantReadWriteData(AddSiteFunction);
         }
 
         private void CreateGetSiteFunction()

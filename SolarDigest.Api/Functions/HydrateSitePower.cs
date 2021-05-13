@@ -122,10 +122,15 @@ namespace SolarDigest.Api.Functions
             var energyData = mapper.Map<SolarData>(energyResults);
 
             var solarDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
-
-
+            
             //var str = JsonConvert.SerializeObject(solarDays);
             //logger.LogDebug(str);
+
+            foreach (var solarDay in solarDays)
+            {
+                
+            }
+
 
 
             return true;

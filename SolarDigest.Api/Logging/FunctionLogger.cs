@@ -1,4 +1,5 @@
 ﻿using Amazon.Lambda.Core;
+using System;
 
 namespace SolarDigest.Api.Logging
 {
@@ -9,6 +10,11 @@ namespace SolarDigest.Api.Logging
         public void LogDebug(string message)
         {
             _lambdaLogger?.Log(message);
+        }
+
+        public void LogException(Exception exception)
+        {
+            _lambdaLogger?.Log($"ERR: {exception.Message}");
         }
 
         internal void SetLambdaLogger(ILambdaLogger logger)
