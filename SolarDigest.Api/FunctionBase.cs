@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Logging;
+using SolarDigest.Api.Mapping;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
@@ -48,6 +49,11 @@ namespace SolarDigest.Api
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
+            services.AddAutoMapper(typeof(SolarViewProfile));
+
+            // for troubleshooting mapping
+            //var provider = services.AddAutoMapper(typeof(SolarViewProfile)).BuildServiceProvider();
+            //provider.GetService<IMapper>()!.ConfigurationProvider.AssertConfigurationIsValid();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);

@@ -1,12 +1,12 @@
 ﻿namespace SolarDigest.Api.Events
 {
-    // when this event is processed, the handling lambda will determine the date range to hydrate based
-    // on when the site was last refreshed and what the current date/time is, less 1 hour (local for that site).
     public sealed class HydrateSitePowerEvent
     {
-        public string Id { get; set; }              // Site Id
+        public string SiteId { get; set; }
 
-        //public string StartDate { get; set; }       // hydration start date
-        //public string EndDate { get; set; }         // hydration end date
+        // Optional. When not provided the refresh is performed based on the last refreshed timestamp and
+        // what the current date/time is, less 1 hour (local time for that site).
+        public string StartDateTime { get; set; }
+        public string EndDateTime { get; set; }
     }
 }

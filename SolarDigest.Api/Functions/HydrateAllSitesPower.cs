@@ -28,9 +28,11 @@ namespace SolarDigest.Api.Functions
                         Time = DateTime.Now,
                         Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
                         {
-                            Id = "1514817",
-                            //StartDate = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd}",
-                            //EndDate = $"{DateTime.Now:yyyy-MM-dd}"
+                            SiteId = "1514817"
+
+                            // only for testing - these are only used when forcing a refresh (and the timestamps need to be in local time)
+                            // StartDateTime = $"{DateTime.Now.AddDays(-1).AddHours(-1):yyyy-MM-dd HH:mm:ss}",
+                            // EndDateTime = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd HH:mm:ss}"
                         })
                     }
                 }
