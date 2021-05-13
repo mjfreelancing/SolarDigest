@@ -1,5 +1,6 @@
 ﻿using SolarDigest.Models;
 using System;
+using TimeZoneConverter;
 
 namespace SolarDigest.Api.Extensions
 {
@@ -7,7 +8,7 @@ namespace SolarDigest.Api.Extensions
     {
         public static DateTime UtcToLocalTime(this Site site, DateTime utcTime)
         {
-            var tzi = TimeZoneInfo.FindSystemTimeZoneById(site.TimeZoneId);
+            var tzi = TZConvert.GetTimeZoneInfo(site.TimeZoneId);
             return TimeZoneInfo.ConvertTimeFromUtc(utcTime, tzi);
         }
     }

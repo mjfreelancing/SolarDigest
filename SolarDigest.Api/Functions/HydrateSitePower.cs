@@ -1,7 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AllOverIt.Extensions;
+using AllOverIt.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
+using SolarDigest.Api.Services.SolarEdge;
 using SolarDigest.Models;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
@@ -18,41 +25,51 @@ namespace SolarDigest.Api.Functions
 
             context.Logger.LogDebug($"Hydrating power for site Id '{siteId}'");
 
+            // get site info
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
             var site = await siteTable!.GetItemAsync<Site>(siteId);
 
 
+            // determine the refresh period to hydrate (local time)
+            var lastRefreshDateTime = site.LastRefreshDateTime.IsNullOrEmpty()
+                ? site.StartDate.ParseSolarDate()
+                : site.LastRefreshDateTime.ParseSolarDateTime();
 
+            var hydrateStartDateTime = lastRefreshDateTime;
+            var hydrateEndDateTime = site.UtcToLocalTime(DateTime.UtcNow).AddHours(-1).TrimToHour();
 
-            // local time
-            //var lastRefreshDateTime = site.LastRefreshDateTime.IsNullOrEmpty()
-            //    ? site.StartDate.ParseSolarDate()
-            //    : site.LastRefreshDateTime.ParseSolarDateTime();
-
-            //var hydrateStartDateTime = lastRefreshDateTime;
-            //var hydrateEndDateTime = site.UtcToLocalTime(DateTime.UtcNow).AddHours(-1);
-
-            //context.Logger.LogDebug($"Site '{siteId}' will be hydrating for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
-            //                        $"{hydrateEndDateTime.GetSolarDateTimeString()} (local time)");
-
+            context.Logger.LogDebug($"Site '{siteId}' will be hydrating for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
+                                    $"{hydrateEndDateTime.GetSolarDateTimeString()} (local time)");
 
 
 
+            // todo: for testing only
+            hydrateEndDateTime = hydrateStartDateTime.AddHours(1);
+
+
+            // get the power / energy data
+            var solarEdgeApi = context.ScopedServiceProvider.GetService<ISolarEdgeApi>();
+
+            var powerQuery = new PowerQuery
+            {
+                SiteId = siteId,
+                StartDateTime = hydrateStartDateTime.GetSolarDateTimeString(),
+                EndDateTime = hydrateEndDateTime.GetSolarDateTimeString()
+            };
+
+            var (powerResults, energyResults) = await TaskHelper.WhenAll(
+                solarEdgeApi!.GetPowerDetailsAsync(Constants.SolarEdge.MonitoringUri, powerQuery),
+                solarEdgeApi!.GetEnergyDetailsAsync(Constants.SolarEdge.MonitoringUri, powerQuery)
+            );
 
 
 
-            //var solarEdgeApi = context.ScopedServiceProvider.GetService<ISolarEdgeApi>();
 
 
-            //var powerResults = await solarEdgeApi!.GetPowerDetailsAsync(Constants.SolarEdge.MonitoringUri, new PowerQuery
-            //{
-            //    SiteId = siteId,
-            //    StartDateTime = "2020-07-09 20:00:00",
-            //    EndDateTime = "2020-07-09 21:00:00"
-            //});
-
-            //var meterCount1 = powerResults.PowerDetails.Meters.Count();
-            //context.Logger.LogDebug($"Received {meterCount1} power results");
+            var meterCount = powerResults.PowerDetails.Meters.Count();
+            var energyCount = energyResults.EnergyDetails.Meters.Count();
+            
+            context.Logger.LogDebug($"Received {meterCount} power meter and {energyCount} energy meter results");
 
 
 

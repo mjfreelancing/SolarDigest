@@ -45,7 +45,7 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 var solarData = await uri.GetJsonAsync<PowerDataDto>();
 
-                _logger.LogDebug("Success response received");
+                _logger.LogDebug("Power details received successfully");
                 
                 return solarData;
 
@@ -87,7 +87,7 @@ namespace SolarDigest.Api.Services.SolarEdge
 
                 var solarData = await uri.GetJsonAsync<EnergyDataDto>();
 
-                _logger.LogDebug("Success response received");
+                _logger.LogDebug("Energy details received successfully");
 
                 return solarData;
 
