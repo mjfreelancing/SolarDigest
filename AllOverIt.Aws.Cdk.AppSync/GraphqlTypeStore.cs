@@ -75,6 +75,12 @@ namespace AllOverIt.Aws.Cdk.AppSync
                 var isInputType = type.GetTypeInfo().IsGqlInputType();
                 var properties = type.GetProperties();
 
+                if (type.IsInterface)
+                {
+                    var inheritedProperties = type.GetInterfaces().SelectMany(item => item.GetProperties());
+                    properties = properties.Concat(inheritedProperties).ToArray();
+                }
+
                 foreach (var propertyInfo in properties)
                 {
                     var propertyType = propertyInfo.PropertyType;

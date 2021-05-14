@@ -88,6 +88,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 
             var methods = schemaType.GetMethodInfo();
 
+            if (schemaType.IsInterface)
+            {
+                var inheritedProperties = schemaType.GetInterfaces().SelectMany(item => item.GetMethods());
+                methods = methods.Concat(inheritedProperties);
+            }
+
             foreach (var methodInfo in methods)
             {
                 var dataSource = GetMethodDataSource(methodInfo);           // optionally specified via a custom attribute
