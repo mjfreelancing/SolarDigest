@@ -14,60 +14,6 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    //public sealed class EmailExceptionFunction : FunctionBase<ExceptionPayload, bool>
-    //{
-    //    protected override async Task<bool> InvokeHandlerAsync(FunctionContext<ExceptionPayload> context)
-    //    {
-    //        var message = context.Payload.Detail.Message;
-
-    //        context.Logger.LogDebug($"Error: {message}");
-
-    //        using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.APSoutheast2))
-    //        {
-    //            var sendRequest = new SendEmailRequest
-    //            {
-    //                Source = "malcolm@mjfreelancing.com",
-    //                Destination = new Destination
-    //                {
-    //                    ToAddresses = new List<string> { "malcolm@mjfreelancing.com" }
-    //                },
-    //                Message = new Message
-    //                {
-    //                    Subject = new Content("Exception in AWS"),
-    //                    Body = new Body
-    //                    {
-    //                        Html = new Content
-    //                        {
-    //                            Charset = "UTF-8",
-    //                            Data = message
-    //                        },
-    //                        Text = new Content
-    //                        {
-    //                            Charset = "UTF-8",
-    //                            Data = message
-    //                        }
-    //                    }
-    //                }
-    //            };
-
-    //            try
-    //            {
-    //                context.Logger.LogDebug("Sending email using Amazon SES...");
-
-    //                var response = await client.SendEmailAsync(sendRequest);
-
-    //                context.Logger.LogDebug($"Email status response: {response.HttpStatusCode}");
-    //            }
-    //            catch (Exception exception)
-    //            {
-    //                context.Logger.LogDebug($"Failed to send the email: {exception.Message}");
-    //            }
-    //        }
-
-    //        return true;
-    //    }
-    //}
-
     public sealed class EmailException : FunctionBase<DynamoDBEvent, bool>
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<DynamoDBEvent> context)
@@ -78,9 +24,6 @@ namespace SolarDigest.Api.Functions
             foreach (var item in records)
             {
                 var dbRecord = item.Dynamodb;
-
-                //var json = JsonConvert.SerializeObject(dbRecord);
-                //logger.LogDebug($"Error record: {json}");
 
                 if (dbRecord.StreamViewType == StreamViewType.NEW_IMAGE)
                 {
@@ -95,7 +38,7 @@ namespace SolarDigest.Api.Functions
 
                     logger.LogDebug($"Exception event: {fullMessage}");
 
-                    await SendEmail(fullMessage, logger);
+                    await SendEmail(fullMessage, logger).ConfigureAwait(false);
                 }
             }
 
@@ -136,7 +79,7 @@ namespace SolarDigest.Api.Functions
                 {
                     logger.LogDebug("Sending email...");
 
-                    var response = await client.SendEmailAsync(sendRequest);
+                    var response = await client.SendEmailAsync(sendRequest).ConfigureAwait(false);
 
                     logger.LogDebug($"Email status response: {response.HttpStatusCode}");
                 }

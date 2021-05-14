@@ -60,7 +60,7 @@ namespace SolarDigest.Api.Functions
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            await siteTable!.PutItemAsync(entity);
+            await siteTable!.PutItemAsync(entity).ConfigureAwait(false);
 
             logger.LogDebug($"Site '{payload.Id}' added");
 

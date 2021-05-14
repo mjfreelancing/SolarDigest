@@ -49,6 +49,10 @@ namespace SolarDigest.Api
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
+            services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();
+            services.AddScoped<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
+            services.AddScoped<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
+            services.AddScoped<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
             services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
             services.AddAutoMapper(typeof(SolarViewProfile));
 

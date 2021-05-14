@@ -1,6 +1,6 @@
 ﻿namespace SolarDigest.Api.Repository
 {
-    public interface ISolarDigestExceptionTable : ISolarDigestTable, IWriteDynamoDbTable
+    public interface ISolarDigestExceptionTable : ISolarDigestTable
     {
     }
 }

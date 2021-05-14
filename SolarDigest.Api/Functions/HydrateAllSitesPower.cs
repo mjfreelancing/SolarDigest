@@ -40,7 +40,7 @@ namespace SolarDigest.Api.Functions
 
             var client = new AmazonEventBridgeClient();
 
-            await client.PutEventsAsync(putRequest);
+            await client.PutEventsAsync(putRequest).ConfigureAwait(false);
 
             return true;
         }

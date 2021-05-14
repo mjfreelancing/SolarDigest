@@ -108,6 +108,7 @@ namespace SolarDigest.Deploy.Constructs
 
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetParameterPolicyStatement);
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
             _tables.SiteTable.GrantReadData(HydrateSitePowerFunction);

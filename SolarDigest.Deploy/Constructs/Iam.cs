@@ -36,6 +36,24 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
+        public PolicyStatement GetDynamoBatchWriteTablePolicy(string tableName)
+        {
+            var stack = Stack.Of(this);
+
+            return new PolicyStatement(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "dynamodb:BatchWriteItem"
+                },
+                Resources = new[]
+                {
+                    $"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
+                }
+            });
+        }
+
         private void CreateDefaultEventBridgePolicyStatement()
         {
             var stack = Stack.Of(this);
