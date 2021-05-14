@@ -1,14 +1,11 @@
 ﻿using AllOverIt.Extensions;
-using AllOverIt.Tasks;
-using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
-using SolarDigest.Api.Data;
 using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Helpers;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Models.SolarEdgeData;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
-using SolarDigest.Api.Services.SolarEdge;
 using SolarDigest.Models;
 using System;
 using System.Collections.Generic;
@@ -85,56 +82,76 @@ namespace SolarDigest.Api.Functions
                             $"{hydrateEndDateTime.GetSolarDateTimeString()} (local time)");
 
 
+            // todo: add this
+            // await NotifyPowerUpdated(context, PowerUpdatedStatus.Started, triggeredPowerQuery);
 
 
-            // todo: for testing only
-            hydrateEndDateTime = hydrateStartDateTime.AddHours(1);
+            // The solarEdge API can only process, at most, 1 month of data at a time
+            var dateRanges = SolarViewHelpers
+                .GetMonthlyDateRanges(hydrateStartDateTime, hydrateEndDateTime)
+                .AsReadOnlyList();
 
 
-            // get the power / energy data
-            var solarEdgeApi = context.ScopedServiceProvider.GetService<ISolarEdgeApi>();
-
-            var powerQuery = new PowerQuery
+            foreach (var dateRange in dateRanges)
             {
-                SiteId = siteId,
-                StartDateTime = hydrateStartDateTime.GetSolarDateTimeString(),
-                EndDateTime = hydrateEndDateTime.GetSolarDateTimeString()
-            };
+                logger.LogDebug($"Processing period: {dateRange.StartDateTime.GetSolarDateTimeString()} to {dateRange.EndDateTime.GetSolarDateTimeString()}");
 
-            var (powerResults, energyResults) = await TaskHelper.WhenAll(
-                solarEdgeApi!.GetPowerDetailsAsync(Constants.SolarEdge.MonitoringUri, powerQuery),
-                solarEdgeApi!.GetEnergyDetailsAsync(Constants.SolarEdge.MonitoringUri, powerQuery)
-            );
+                // Refer to HydratePowerOrchestrator for code...
 
-
-
-
-
-            var meterCount = powerResults.PowerDetails.Meters.Count();
-            var energyCount = energyResults.EnergyDetails.Meters.Count();
-
-            logger.LogDebug($"Received {meterCount} power meter and {energyCount} energy meter results");
-
-
-
-            var mapper = context.ScopedServiceProvider.GetService<IMapper>();
-
-            var powerData = mapper!.Map<SolarData>(powerResults);
-            var energyData = mapper.Map<SolarData>(energyResults);
-
-            var solarViewDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
-            
-            //var str = JsonConvert.SerializeObject(solarDays);
-            //logger.LogDebug(str);
-
-            foreach (var solarViewDay in solarViewDays)
-            {
-                var entities = solarViewDay.Meters
-                    .SelectMany(
-                        meter => meter.Points,
-                        (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
-                    .AsReadOnlyList();
             }
+
+
+
+
+
+
+
+
+            //// get the power / energy data
+            //var solarEdgeApi = context.ScopedServiceProvider.GetService<ISolarEdgeApi>();
+
+            //var powerQuery = new PowerQuery
+            //{
+            //    SiteId = siteId,
+            //    StartDateTime = hydrateStartDateTime.GetSolarDateTimeString(),
+            //    EndDateTime = hydrateEndDateTime.GetSolarDateTimeString()
+            //};
+
+            //var (powerResults, energyResults) = await TaskHelper.WhenAll(
+            //    solarEdgeApi!.GetPowerDetailsAsync(powerQuery),
+            //    solarEdgeApi!.GetEnergyDetailsAsync(powerQuery)
+            //);
+
+
+
+
+
+            //var meterCount = powerResults.PowerDetails.Meters.Count();
+            //var energyCount = energyResults.EnergyDetails.Meters.Count();
+
+            //logger.LogDebug($"Received {meterCount} power meter and {energyCount} energy meter results");
+
+
+
+            //var mapper = context.ScopedServiceProvider.GetService<IMapper>();
+
+            //var powerData = mapper!.Map<SolarData>(powerResults);
+            //var energyData = mapper.Map<SolarData>(energyResults);
+
+            //var solarViewDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
+
+            //foreach (var solarViewDay in solarViewDays)
+            //{
+            //    var entities = solarViewDay.Meters
+            //        .SelectMany(
+            //            meter => meter.Points,
+            //            (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
+            //        .AsReadOnlyList();
+            //}
+
+
+
+
 
 
 

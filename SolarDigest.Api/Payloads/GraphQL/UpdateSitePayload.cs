@@ -6,6 +6,7 @@ namespace SolarDigest.Api.Payloads.GraphQL
     {
         public string Id { get; set; }
 
-        public SiteExtendedDetails Site { get; set; }       // only contains core details, no refresh details
+        public SiteDetails Site { get; set; }
+        public SiteTimestamps Timestamps { get; set; }
     }
 }

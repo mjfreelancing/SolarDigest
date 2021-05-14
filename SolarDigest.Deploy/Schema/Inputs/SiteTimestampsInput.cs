@@ -3,7 +3,7 @@
 namespace SolarDigest.Deploy.Schema.Inputs
 {
     [GraphqlInput]
-    internal interface SiteExtendedInput : SiteInput
+    internal interface SiteTimestampsInput
     {
         public string LastAggregationDate { get; }
 

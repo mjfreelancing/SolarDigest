@@ -19,7 +19,9 @@ namespace SolarDigest.Api.Functions
                 "startDate": "2020-05-09",
                 "apiKey": "api-key-here",
                 "contactName": "Malcolm Smith",
-                "contactEmail": "malcolm@mjfreelancing.com",
+                "contactEmail": "malcolm@mjfreelancing.com"
+            },
+            "timestamps": {
                 "lastAggregationDate": "2020-05-10",
                 "lastRefreshDateTime": "2020-05-11 13:00:20",
                 "lastSummaryDate": "2020-05-11"
@@ -41,6 +43,7 @@ namespace SolarDigest.Api.Functions
             logger.LogDebug($"Creating site info for Id '{payload.Id}'");
 
             var site = payload.Site;
+            var timestamps = payload.Timestamps;
 
             var entity = new Site
             {
@@ -50,9 +53,9 @@ namespace SolarDigest.Api.Functions
                 ApiKey = site.ApiKey,
                 ContactName = site.ContactName,
                 ContactEmail = site.ContactEmail,
-                LastAggregationDate = site.LastAggregationDate,
-                LastSummaryDate = site.LastSummaryDate,
-                LastRefreshDateTime = site.LastRefreshDateTime
+                LastAggregationDate = timestamps.LastAggregationDate,
+                LastSummaryDate = timestamps.LastSummaryDate,
+                LastRefreshDateTime = timestamps.LastRefreshDateTime
             };
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();

@@ -1,6 +1,6 @@
 ﻿namespace SolarDigest.Models
 {
-    public class SiteExtendedDetails : SiteDetails
+    public class SiteTimestamps : ISiteTimestamps
     {
         public string LastAggregationDate { get; set; }
         public string LastSummaryDate { get; set; }

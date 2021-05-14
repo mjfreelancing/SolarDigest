@@ -9,11 +9,11 @@ namespace SolarDigest.Deploy.Schema
     {
         [GraphqlTypeRequired]
         [LambdaDataSource(Constants.ServiceName, Constants.Function.AddSite)]
-        Site AddSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteInput site);
+        Site AddSite([GraphqlTypeRequired] SiteInput site);
 
         [GraphqlTypeRequired]
         [LambdaDataSource(Constants.ServiceName, Constants.Function.UpdateSite)]
-        Site UpdateSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteExtendedInput site);
+        Site UpdateSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteInput site, SiteTimestampsInput timestamps);
 
         //[GraphqlTypeRequired]
         //[LambdaDataSource(Constants.DataSource.CreateSite)]

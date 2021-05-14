@@ -6,7 +6,7 @@ namespace SolarDigest.Api.Services.SolarEdge
 {
     public interface ISolarEdgeApi
     {
-        Task<PowerDataDto> GetPowerDetailsAsync(string solarEdgeUri, PowerQuery powerQuery);
-        Task<EnergyDataDto> GetEnergyDetailsAsync(string solarEdgeUri, PowerQuery powerQuery);
+        Task<PowerDataDto> GetPowerDetailsAsync(PowerQuery powerQuery);
+        Task<EnergyDataDto> GetEnergyDetailsAsync(PowerQuery powerQuery);
     }
 }

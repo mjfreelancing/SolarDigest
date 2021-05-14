@@ -23,5 +23,17 @@ namespace SolarDigest.Api.Extensions
         {
             return new(dateTime.Year, dateTime.Month, day, 0, 0, 0);
         }
+
+        public static DateTime GetEndOfMonth(this DateTime dateTime)
+        {
+            return new DateTime(
+                dateTime.Year, dateTime.Month,
+                DateTime.DaysInMonth(dateTime.Year, dateTime.Month), 23, 59, 59);
+        }
+
+        public static bool IsSameMonthYear(this DateTime dateTime, DateTime other)
+        {
+            return dateTime.Year == other.Year && dateTime.Month == other.Month;
+        }
     }
 }

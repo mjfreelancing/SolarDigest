@@ -24,11 +24,11 @@ namespace SolarDigest.Api.Services.SolarEdge
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
-        public async Task<PowerDataDto> GetPowerDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
+        public async Task<PowerDataDto> GetPowerDetailsAsync(PowerQuery powerQuery)
         {
             var apiKey = await _apiKey;
 
-            var uri = new Uri(solarEdgeUri)
+            var uri = new Uri(Constants.SolarEdge.MonitoringUri)
                 .AppendPathSegments("site", $"{powerQuery.SiteId}", "powerDetails")
                 .SetQueryParams(new
                 {
@@ -65,11 +65,11 @@ namespace SolarDigest.Api.Services.SolarEdge
             }
         }
 
-        public async Task<EnergyDataDto> GetEnergyDetailsAsync(string solarEdgeUri, PowerQuery powerQuery)
+        public async Task<EnergyDataDto> GetEnergyDetailsAsync(PowerQuery powerQuery)
         {
             var apiKey = await _apiKey;
 
-            var uri = new Uri(solarEdgeUri)
+            var uri = new Uri(Constants.SolarEdge.MonitoringUri)
                 .AppendPathSegments("site", $"{powerQuery.SiteId}", "energyDetails")
                 .SetQueryParams(new
                 {
