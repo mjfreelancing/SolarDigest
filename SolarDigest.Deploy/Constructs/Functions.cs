@@ -112,7 +112,8 @@ namespace SolarDigest.Deploy.Constructs
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
-            _tables.SiteTable.GrantReadData(HydrateSitePowerFunction);
+            _tables.PowerUpdateHistoryTable.GrantWriteData(HydrateSitePowerFunction);
+            _tables.SiteTable.GrantReadWriteData(HydrateSitePowerFunction);
         }
 
         private void CreateEmailExceptionFunction()

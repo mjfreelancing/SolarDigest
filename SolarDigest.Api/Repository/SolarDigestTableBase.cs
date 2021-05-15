@@ -104,7 +104,7 @@ namespace SolarDigest.Api.Repository
 
             _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
-            var retryPolicy = Polly.Policy
+            var retryPolicy = Policy
                 .Handle<ProvisionedThroughputExceededException>()
                 .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
