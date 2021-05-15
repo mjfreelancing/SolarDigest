@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Newtonsoft.Json;
+using Polly;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using System;
@@ -103,6 +104,10 @@ namespace SolarDigest.Api.Repository
 
             _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
+            var retryPolicy = Polly.Policy
+                .Handle<ProvisionedThroughputExceededException>()
+                .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
             foreach (var batch in batches)
             {
                 var requests = batch
@@ -111,7 +116,8 @@ namespace SolarDigest.Api.Repository
                     .ToList();
 
                 var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
-                var response = await DbClient.BatchWriteItemAsync(batchRequest, cancellationToken);
+
+                var response = await retryPolicy.ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken));
                 
                 yield return response;
             }
