@@ -38,7 +38,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateEmailExceptionFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description)
+        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default)
             //IDictionary<string, string> variables = null)
         {
             //variables ??= new Dictionary<string, string>();
@@ -49,8 +49,8 @@ namespace SolarDigest.Deploy.Constructs
                 Description = description,
                 Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}::InvokeAsync",
                 Runtime = Runtime.DOTNET_CORE_3_1,
-                MemorySize = 128,
-                Timeout = Duration.Seconds(60),
+                MemorySize = memorySize,
+                Timeout = Duration.Minutes(5),
                 Code = new S3Code(_codeBucket, Constants.S3CodeBucketKeyName)
                 //Environment = variables
             };
@@ -104,9 +104,10 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateHydrateSitePowerFunction()
         {
-            HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site");
+            HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192);
 
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetParameterPolicyStatement);
+            HydrateSitePowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
             HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName));
 

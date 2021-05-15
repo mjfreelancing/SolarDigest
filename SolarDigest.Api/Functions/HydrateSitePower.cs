@@ -1,10 +1,13 @@
 ﻿using AllOverIt.Extensions;
 using AllOverIt.Tasks;
+using Amazon.EventBridge;
+using Amazon.EventBridge.Model;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using SolarDigest.Api.Data;
+using SolarDigest.Api.Events;
 using SolarDigest.Api.Extensions;
-using SolarDigest.Api.Helpers;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
@@ -38,124 +41,105 @@ namespace SolarDigest.Api.Functions
           "detail": {
             "siteId": "1514817",
             "startDateTime": "2020-05-09 00:00:00",
-            "endDateTime": "2020-05-31 23:59:59"
+            "endDateTime": "2020-05-09 01:00:00"
           }
         }
 
     */
 
-    public sealed class HydrateSitePower : FunctionBase<HydrateSitePowerPayload, bool>
+    public sealed class HydrateSitePower : FunctionBase<HydrateSitePowerPayload, NoResult>
     {
-        protected override async Task<bool> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
-        {
-            var logger = context.Logger;
+        // The solarEdge API can process, at most, 1 month of data at a time but we are limiting requests
+        // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb.
+        private const int MaxDaysToProcess = 7;
 
+        protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
+        {
             var request = context.Payload.Detail;
+            var siteId = request.SiteId;
 
             // todo: add request validation
 
-            var siteId = request.SiteId;
+            var logger = context.Logger;
 
             logger.LogDebug($"Hydrating power for site Id '{siteId}'");
 
             var serviceProvider = context.ScopedServiceProvider;
 
-
             // get site info
             var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
             var site = await siteTable!.GetItemAsync<Site>(siteId).ConfigureAwait(false);
 
-
             // determine the refresh period to hydrate (local time)
             // - the start/end date/time are optional - a forced re-fresh can be achieved when providing them
-            DateTime hydrateStartDateTime;
+            var (hydrateStartDateTime, hydrateEndDateTime) = GetHydrationPeriodInSiteLocalTime(site, request);
 
-            if (request.StartDateTime.IsNullOrEmpty())
+            // see if we need to process in smaller time periods
+            if (hydrateEndDateTime - hydrateStartDateTime > TimeSpan.FromDays(MaxDaysToProcess))
             {
-                hydrateStartDateTime = site.LastRefreshDateTime.IsNullOrEmpty()
-                    ? site.StartDate.ParseSolarDate()
-                    : site.LastRefreshDateTime.ParseSolarDateTime();
-            }
-            else
-            {
-                hydrateStartDateTime = request.StartDateTime.ParseSolarDateTime();
+                // todo: add this - some other status to indicate the request is being made more granular
+                // await NotifyPowerUpdated(context, PowerUpdatedStatus.Started, triggeredPowerQuery);
+
+                await SendEventsToProcessWeeklyAsync(siteId, hydrateStartDateTime, hydrateEndDateTime, logger).ConfigureAwait(false);
+                return NoResult.Default;
             }
 
-            var hydrateEndDateTime = request.EndDateTime.IsNullOrEmpty() 
-                ? site.UtcToLocalTime(DateTime.UtcNow).AddHours(-1).TrimToHour() 
-                : request.EndDateTime.ParseSolarDateTime();
-
-            // todo: validate the start date <= the last refresh timestamp
-
-            logger.LogDebug($"Site '{siteId}' will be hydrating for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
-                            $"{hydrateEndDateTime.GetSolarDateTimeString()} (local time)");
+            logger.LogDebug($"Site '{siteId}' will be hydrated for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
+                            $"{hydrateEndDateTime.GetSolarDateTimeString()} (site local time)");
 
 
             // todo: add this
             // await NotifyPowerUpdated(context, PowerUpdatedStatus.Started, triggeredPowerQuery);
 
 
-            // The solarEdge API can only process, at most, 1 month of data at a time
-            var dateRanges = SolarViewHelpers
-                .GetMonthlyDateRanges(hydrateStartDateTime, hydrateEndDateTime)
-                .AsReadOnlyList();
-
             var solarEdgeApi = serviceProvider.GetService<ISolarEdgeApi>();
             var mapper = serviceProvider.GetService<IMapper>();
             var repository = serviceProvider.GetService<ISolarDigestPowerTable>();
 
-            await ProcessPowerForDateRange(siteId, solarEdgeApi, repository, dateRanges, mapper, logger).ConfigureAwait(false);
+            await ProcessPowerForDateRange(siteId, solarEdgeApi, repository, hydrateStartDateTime, hydrateEndDateTime, mapper, logger).ConfigureAwait(false);
 
 
+            // todo: add this
             // NotifyPowerUpdated
 
 
-
-
-            return true;
+            return NoResult.Default;
         }
 
         private static async Task ProcessPowerForDateRange(string siteId, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable repository,
-            IEnumerable<DateRange> dateRanges, IMapper mapper, IFunctionLogger logger)
+            DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
         {
-            foreach (var dateRange in dateRanges)
+            var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // in site local time
+            var endDateTime = hydrateEndDateTime.GetSolarDateTimeString();
+
+            logger.LogDebug($"Processing period: {startDateTime} to {endDateTime}");
+
+            var powerQuery = new PowerQuery
             {
-                logger.LogDebug($"Processing period: {dateRange.StartDateTime.GetSolarDateTimeString()} to {dateRange.EndDateTime.GetSolarDateTimeString()}");
+                SiteId = siteId,
+                StartDateTime = startDateTime,
+                EndDateTime = endDateTime
+            };
 
-                var powerQuery = new PowerQuery
-                {
-                    SiteId = siteId,
-                    StartDateTime = dateRange.StartDateTime.GetSolarDateTimeString(),
-                    EndDateTime = dateRange.EndDateTime.GetSolarDateTimeString()
-                };
+            var (powerResults, energyResults) = await TaskHelper.WhenAll(
+                solarEdgeApi!.GetPowerDetailsAsync(powerQuery),
+                solarEdgeApi!.GetEnergyDetailsAsync(powerQuery)
+            ).ConfigureAwait(false);
 
-                var (powerResults, energyResults) = await TaskHelper.WhenAll(
-                    solarEdgeApi!.GetPowerDetailsAsync(powerQuery),
-                    solarEdgeApi!.GetEnergyDetailsAsync(powerQuery)
-                ).ConfigureAwait(false);
+            var powerData = mapper!.Map<SolarData>(powerResults);
+            var energyData = mapper.Map<SolarData>(energyResults);
 
+            var solarViewDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
 
-                //var meterCount = powerResults.PowerDetails.Meters.Count();
-                //var energyCount = energyResults.EnergyDetails.Meters.Count();
+            foreach (var solarViewDay in solarViewDays)
+            {
+                var entities = solarViewDay.Meters
+                    .SelectMany(
+                        meter => meter.Points,
+                        (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
+                    .AsReadOnlyList();
 
-                //logger.LogDebug($"Received {meterCount} power meter and {energyCount} energy meter results");
-
-
-                var powerData = mapper!.Map<SolarData>(powerResults);
-                var energyData = mapper.Map<SolarData>(energyResults);
-
-                var solarViewDays = GetSolarViewDays(powerQuery.SiteId, powerData, energyData);
-
-                foreach (var solarViewDay in solarViewDays)
-                {
-                    var entities = solarViewDay.Meters
-                        .SelectMany(
-                            meter => meter.Points,
-                            (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
-                        .AsReadOnlyList();
-
-                    await repository.PutItemsAsync(entities).ConfigureAwait(false);
-                }
+                await repository.PutItemsAsync(entities).ConfigureAwait(false);
             }
         }
 
@@ -224,6 +208,74 @@ namespace SolarDigest.Api.Functions
                       })
                   }
               };
+        }
+
+        private static (DateTime, DateTime) GetHydrationPeriodInSiteLocalTime(Site site, HydrateSitePowerEvent request)
+        {
+            DateTime hydrateStartDateTime;
+
+            if (request.StartDateTime.IsNullOrEmpty())
+            {
+                hydrateStartDateTime = site.LastRefreshDateTime.IsNullOrEmpty()
+                    ? site.StartDate.ParseSolarDate()
+                    : site.LastRefreshDateTime.ParseSolarDateTime();
+            }
+            else
+            {
+                hydrateStartDateTime = request.StartDateTime.ParseSolarDateTime();
+            }
+
+            var hydrateEndDateTime = request.EndDateTime.IsNullOrEmpty()
+                ? site.UtcToLocalTime(DateTime.UtcNow).AddHours(-1).TrimToHour()
+                : request.EndDateTime.ParseSolarDateTime();
+
+            return (hydrateStartDateTime, hydrateEndDateTime);
+        }
+
+        private static async Task SendEventsToProcessWeeklyAsync(string siteId, DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IFunctionLogger logger)
+        {
+            var requestStartDate = hydrateStartDateTime.ToUniversalTime();
+            var requestEndDate = hydrateEndDateTime.ToUniversalTime();
+
+            if (requestEndDate - requestStartDate > TimeSpan.FromDays(7))
+            {
+                var client = new AmazonEventBridgeClient();
+
+                var weeklyPeriods = requestStartDate
+                    .GetWeeklyDateRangesUntil(requestEndDate)
+                    .AsReadOnlyCollection();
+
+                logger.LogDebug($"Posting events to handle the range {hydrateStartDateTime.GetSolarDateTimeString()} to {hydrateEndDateTime.GetSolarDateTimeString()} as " +
+                                $"{weeklyPeriods.Count} weekly periods");
+
+                var putBatches = weeklyPeriods.Batch(4);
+
+                foreach (var batch in putBatches)
+                {
+                    var entries = batch
+                        .Select(item => new PutEventsRequestEntry
+                        {
+                            Source = Constants.Events.Source,
+                            EventBusName = "default",
+                            DetailType = nameof(HydrateSitePowerEvent),
+                            Time = DateTime.Now,
+                            Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
+                            {
+                                SiteId = siteId,
+                                StartDateTime = $"{item.StartDateTime.GetSolarDateTimeString()}",
+                                EndDateTime = $"{item.EndDateTime.GetSolarDateTimeString()}"
+                            })
+                        })
+                        .ToList();
+
+                    var putRequest = new PutEventsRequest
+                    {
+                        Entries = entries
+                    };
+
+                    await client.PutEventsAsync(putRequest).ConfigureAwait(false);
+                }
+            }
         }
     }
 }

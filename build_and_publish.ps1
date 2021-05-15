@@ -1,4 +1,5 @@
-dotnet build --force --configuration Release SolarDigest.sln
+dotnet clean
+dotnet build --force --configuration Release
 cd SolarDigest.Api
 dotnet publish
 cd..

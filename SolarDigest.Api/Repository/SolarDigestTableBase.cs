@@ -86,7 +86,10 @@ namespace SolarDigest.Api.Repository
             {
                 var unprocessed = response.UnprocessedItems;
 
-                _logger.LogDebug($"Unprocessed count = {unprocessed.Count}");
+                if (unprocessed.Count > 0)
+                {
+                    _logger.LogDebug($"Unprocessed count = {unprocessed.Count}");
+                }
             }
         }
 
@@ -95,7 +98,10 @@ namespace SolarDigest.Api.Repository
         {
             // A single call to BatchWriteItemAsync can write up to 16 MB of data, which can comprise
             // as many as 25 put requests. Individual items to be written can be as large as 400 KB.
-            var batches = items.Batch(25);
+            var entities = items.AsReadOnlyCollection();
+            var batches = entities.Batch(25).AsReadOnlyCollection();
+
+            _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
             foreach (var batch in batches)
             {
@@ -107,8 +113,6 @@ namespace SolarDigest.Api.Repository
                 var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
                 var response = await DbClient.BatchWriteItemAsync(batchRequest, cancellationToken);
                 
-                _logger.LogDebug($"A batch of {requests.Count} PUT requests have been processed");
-
                 yield return response;
             }
         }
