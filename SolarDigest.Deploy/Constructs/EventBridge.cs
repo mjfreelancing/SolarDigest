@@ -8,14 +8,11 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal class EventBridge : Construct
     {
-        private enum TriggeredEventType
+        private enum SolarEdgeEventType
         {
-            HydrateSitePowerEvent
-        }
-
-        private enum ScheduledEventType
-        {
+            CatchAll,
             HydrateAllSitesPower,
+            HydrateSitePowerEvent
         }
 
         public EventBridge(Construct scope, SolarDigestApiProps apiProps, Functions functions, LogGroups logGroups)
@@ -23,20 +20,21 @@ namespace SolarDigest.Deploy.Constructs
         {
             var appName = apiProps.AppName;
 
-            CreateTriggerCatchAll(appName, logGroups.CatchAllLogGroup);
-            CreateTriggerHydrateSitePower(appName, functions.HydrateSitePowerFunction);
-            CreateScheduleHydrateAllSitesPowerFunction(appName, functions.HydrateAllSitesPowerFunction);
+            CreateCatchAll(appName, logGroups.CatchAllLogGroup);
+            CreateHydrateSitePower(appName, functions.HydrateSitePowerFunction);
+            CreateHydrateAllSitesPowerFunction(appName, functions.HydrateAllSitesPowerFunction);
         }
 
-        private void CreateTriggerCatchAll(string appName, ILogGroup catchAllLogGroup)
+        // Logs all events received for this account
+        private void CreateCatchAll(string appName, ILogGroup catchAllLogGroup)
         {
             var stack = Stack.Of(this);
             var catchAllLogGroupTarget = new CloudWatchLogGroup(catchAllLogGroup);
 
-            _ = new Rule(this, $"{appName}_Triggered_CatchAll", new RuleProps
+            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.CatchAll}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_Triggered_CatchAll",
+                RuleName = $"{appName}_{SolarEdgeEventType.CatchAll}",
                 Description = "Log all received events",
                 EventPattern = new EventPattern
                 {
@@ -46,27 +44,29 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        private void CreateTriggerHydrateSitePower(string appName, IFunction targetFunction)
+        // calls the target function when a HydrateSitePowerEvent message is received
+        private void CreateHydrateSitePower(string appName, IFunction targetFunction)
         {
-            _ = new Rule(this, $"Triggered{TriggeredEventType.HydrateSitePowerEvent}", new RuleProps
+            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.HydrateSitePowerEvent}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_Triggered_{TriggeredEventType.HydrateSitePowerEvent}",
+                RuleName = $"{appName}_{SolarEdgeEventType.HydrateSitePowerEvent}",
                 Description = "Hydrates power data for a given site",
                 EventPattern = new EventPattern
                 {
-                    DetailType = new[] { $"{TriggeredEventType.HydrateSitePowerEvent}" }
+                    DetailType = new[] { $"{SolarEdgeEventType.HydrateSitePowerEvent}" }
                 },
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
             });
         }
 
-        private void CreateScheduleHydrateAllSitesPowerFunction(string appName, IFunction targetFunction)
+        // calls the target function once per hour, at the top of the hour
+        private void CreateHydrateAllSitesPowerFunction(string appName, IFunction targetFunction)
         {
-            _ = new Rule(this, $"Scheduled{ScheduledEventType.HydrateAllSitesPower}", new RuleProps
+            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.HydrateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_Scheduled_{ScheduledEventType.HydrateAllSitesPower}",
+                RuleName = $"{appName}_{SolarEdgeEventType.HydrateAllSitesPower}",
                 Description = "Hydrates power data for all sites every hour",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
