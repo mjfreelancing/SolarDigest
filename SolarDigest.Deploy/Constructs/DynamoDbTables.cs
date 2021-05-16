@@ -20,11 +20,11 @@ namespace SolarDigest.Deploy.Constructs
         {
             ExceptionTable = CreateTable("Exception", false, StreamViewType.NEW_IMAGE);
             SiteTable = CreateTable("Site");
-            EnergyCostsTable = CreateTable("EnergyCosts");
+            EnergyCostsTable = CreateTable("EnergyCosts", true);
 
             PowerTable = CreateTable("Power", true, default, table =>
             {
-                ConfigureReadAutoScaling(table);
+                //ConfigureReadAutoScaling(table);
                 ConfigureWriteAutoScaling(table);
             });
 
@@ -40,7 +40,7 @@ namespace SolarDigest.Deploy.Constructs
                 TableName = tableName,
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
-                Stream = streamViewType,
+                Stream = streamViewType
                 //TimeToLiveAttribute =             ?? apply to the exception table
             });
 

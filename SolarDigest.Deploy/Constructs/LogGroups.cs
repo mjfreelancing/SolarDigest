@@ -12,7 +12,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             CatchAllLogGroup = new LogGroup(this, "CatchAllLogGroup", new LogGroupProps
             {
-                LogGroupName = $"{apiProps.AppName}_CatchAll"
+                LogGroupName = $"{apiProps.AppName}_CatchAll",
+                Retention = RetentionDays.ONE_WEEK
             });
         }
     }
