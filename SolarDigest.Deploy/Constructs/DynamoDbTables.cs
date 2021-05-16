@@ -30,7 +30,7 @@ namespace SolarDigest.Deploy.Constructs
 
             PowerMonthlyTable = CreateTable("PowerMonthly", true);
             PowerYearlyTable = CreateTable("PowerYearly", true);
-            PowerUpdateHistoryTable = CreateTable("PowerUpdateHistory");
+            PowerUpdateHistoryTable = CreateTable("PowerUpdateHistory", true);
         }
 
         private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default, Action<Table> configAction = default)
@@ -40,7 +40,8 @@ namespace SolarDigest.Deploy.Constructs
                 TableName = tableName,
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
-                Stream = streamViewType
+                Stream = streamViewType,
+                //TimeToLiveAttribute =             ?? apply to the exception table
             });
 
             configAction?.Invoke(table);

@@ -24,9 +24,39 @@ namespace SolarDigest.Api.Repository
 
         public abstract string TableName { get; }
 
-        public SolarDigestTableBase(IFunctionLogger logger)
+        protected SolarDigestTableBase(IFunctionLogger logger)
         {
             _logger = logger.WhenNotNull(nameof(logger));
+        }
+
+        public async IAsyncEnumerable<TItem> ScanAsync<TItem>(Action<ScanFilter> filterAction, IEnumerable<string> properties, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var filter = new ScanFilter();
+
+            filterAction?.Invoke(filter);       // eg., filter.AddCondition( "year", ScanOperator.Between, new DynamoDBEntry[ ] { 1950, 1959 } );
+
+            var scanConfig = new ScanOperationConfig
+            {
+                Filter = filter,
+                // Select defaults to SelectValues.AllAttributes
+            };
+
+
+            if (properties != null)
+            {
+                scanConfig.Select = SelectValues.SpecificAttributes;
+                scanConfig.AttributesToGet = properties.ToList();
+            }
+
+            var table = Table.LoadTable(DbClient, new TableConfig(TableName));
+            var search = table.Scan(scanConfig);
+
+            var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
+
+            await foreach (var result in results.WithCancellation(cancellationToken))
+            {
+                yield return result;
+            }
         }
 
         public async Task<TItem> GetItemAsync<TItem>(string id, CancellationToken cancellationToken)
@@ -35,6 +65,20 @@ namespace SolarDigest.Api.Repository
             var document = await table.GetItemAsync(id, cancellationToken).ConfigureAwait(false);
 
             return JsonConvert.DeserializeObject<TItem>(document.ToJson());
+        }
+
+        public async IAsyncEnumerable<TItem> GetItemsAsync<TItem>(string id, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var table = Table.LoadTable(DbClient, new TableConfig(TableName));
+
+            var search = table.Query(id, new Expression());
+
+            var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
+
+            await foreach (var result in results.WithCancellation(cancellationToken))
+            {
+                yield return result;
+            }
         }
 
         public async Task AddItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
@@ -147,6 +191,19 @@ namespace SolarDigest.Api.Repository
             }
 
             throw new InvalidOperationException($"Unexpected attribute value type: {valueType.FullName}");
+        }
+
+        private static async IAsyncEnumerable<TItem> GetSearchResultsAsync<TItem>(Search search, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            while (!search.IsDone)
+            {
+                var documents = await search.GetNextSetAsync(cancellationToken);
+
+                foreach (var document in documents)
+                {
+                    yield return JsonConvert.DeserializeObject<TItem>(document.ToJson());
+                }
+            }
         }
     }
 }

@@ -62,9 +62,9 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateAddSiteFunction()
         {
-            AddSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details");
-
-            AddSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+            AddSiteFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details")
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(AddSiteFunction);
 
@@ -73,9 +73,9 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateUpdateSiteFunction()
         {
-            UpdateSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.UpdateSite, "Update site details");
-
-            UpdateSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+            UpdateSiteFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.UpdateSite, "Update site details")
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(UpdateSiteFunction);
 
@@ -84,9 +84,9 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateGetSiteFunction()
         {
-            GetSiteFunction = CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details");
-
-            GetSiteFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+            GetSiteFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details")
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(GetSiteFunction);
             _tables.SiteTable.GrantReadData(GetSiteFunction);
@@ -94,9 +94,10 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateHydrateAllSitesPowerFunction()
         {
-            HydrateAllSitesPowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites");
-
-            HydrateAllSitesPowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
+            HydrateAllSitesPowerFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                    .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
 
             _tables.ExceptionTable.GrantWriteData(HydrateAllSitesPowerFunction);
             _tables.SiteTable.GrantReadData(HydrateAllSitesPowerFunction);
@@ -104,12 +105,12 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateHydrateSitePowerFunction()
         {
-            HydrateSitePowerFunction = CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192);
-
-            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetParameterPolicyStatement);
-            HydrateSitePowerFunction.AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement);
-            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
-            HydrateSitePowerFunction.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName));
+            HydrateSitePowerFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192)
+                    .AddPolicyStatements(_iam.GetParameterPolicyStatement)
+                    .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName));
 
             _tables.ExceptionTable.GrantWriteData(HydrateSitePowerFunction);
             _tables.PowerUpdateHistoryTable.GrantWriteData(HydrateSitePowerFunction);
@@ -118,9 +119,9 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateEmailExceptionFunction()
         {
-            EmailExceptionFunction = CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email");
-
-            EmailExceptionFunction.AddPolicyStatements(_iam.SendEmailPolicyStatement);
+            EmailExceptionFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
+                    .AddPolicyStatements(_iam.SendEmailPolicyStatement);
 
             // the EmailException function would never write to ExceptionTable as it would potentially cause an endless loop of processing
             //_tables.ExceptionTable.GrantWriteData(EmailExceptionFunction);

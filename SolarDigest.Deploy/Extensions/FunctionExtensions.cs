@@ -5,12 +5,14 @@ namespace SolarDigest.Deploy.Extensions
 {
     public static class FunctionExtensions
     {
-        public static void AddPolicyStatements(this IFunction function, params PolicyStatement[] statements)
+        public static IFunction AddPolicyStatements(this IFunction function, params PolicyStatement[] statements)
         {
             foreach (var statement in statements)
             {
                 function.AddToRolePolicy(statement);
             }
+
+            return function;
         }
     }
 }

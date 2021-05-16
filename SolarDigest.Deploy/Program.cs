@@ -20,7 +20,7 @@ namespace SolarDigest.Deploy
                 MappingTemplates = new SolarDigestMappingTemplates()
             };
 
-            var stack = new Stack(app, $"{apiProps.AppName}v{apiProps.Version}", new StackProps
+            var stack = new Stack(app, $"{apiProps.AppName}V{apiProps.Version}", new StackProps
             {
                 Description = $"Creates all resources for the {apiProps.AppName} API",
                 Env = new Environment

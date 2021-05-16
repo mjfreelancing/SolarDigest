@@ -6,7 +6,7 @@ using System;
 namespace SolarDigest.Api.Data
 {
     // HydrateSitePower will raise events that are later used for reporting a summary via email
-    public sealed class PowerUpdateHistoryEntity : EntityBase
+    public sealed class PowerUpdateHistoryEntity : EntityCompositeBase
     {
         public string SiteId { get; set; }
         public string StartDateTime { get; set; }
@@ -22,6 +22,7 @@ namespace SolarDigest.Api.Data
 
             var startDate = startDateTime.Date.GetSolarDateString();
             Id = $"{siteId}_{startDate}";
+            Sort = $"{Guid.NewGuid()}";
         }
     }
 }

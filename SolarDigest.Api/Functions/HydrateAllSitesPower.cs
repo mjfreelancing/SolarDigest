@@ -1,8 +1,11 @@
 ﻿using Amazon.EventBridge;
 using Amazon.EventBridge.Model;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SolarDigest.Api.Events;
 using SolarDigest.Api.Payloads.EventBridge;
+using SolarDigest.Api.Repository;
+using SolarDigest.Models;
 using System;
 using System.Threading.Tasks;
 
@@ -12,35 +15,44 @@ namespace SolarDigest.Api.Functions
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<HydrateAllSitesPowerPayload> context)
         {
-            context.Logger.LogDebug("Hydrating power for all sites");
+            var logger = context.Logger;
+            logger.LogDebug("Hydrating power for all sites");
 
-            // todo: query all available sites and create a suitable request (max 10 per request)
+            AmazonEventBridgeClient client = null;
 
-            var putRequest = new PutEventsRequest
+            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
+
+            // only retrieve the Id since that's all we need or the event(s) to be sent
+            var sites = siteTable!.ScanAsync<Site>(null, new[] {"Id"});
+
+            await foreach (var site in sites)
             {
-                Entries =
+                logger.LogDebug($"Sending a hydration request for site '{site.Id}'");
+
+                client ??= new AmazonEventBridgeClient();
+
+                var putRequest = new PutEventsRequest
                 {
-                    new PutEventsRequestEntry
+                    Entries =
                     {
-                        Source = Constants.Events.Source,
-                        EventBusName = "default",
-                        DetailType = nameof(HydrateSitePowerEvent),
-                        Time = DateTime.Now,
-                        Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
+                        new PutEventsRequestEntry
                         {
-                            SiteId = "1514817"
-
-                            // only for testing - these are only used when forcing a refresh (and the timestamps need to be in local time)
-                            // StartDateTime = $"{DateTime.Now.AddDays(-1).AddHours(-1):yyyy-MM-dd HH:mm:ss}",
-                            // EndDateTime = $"{DateTime.Now.AddDays(-1):yyyy-MM-dd HH:mm:ss}"
-                        })
+                            Source = Constants.Events.Source,
+                            EventBusName = "default",
+                            DetailType = nameof(HydrateSitePowerEvent),
+                            Time = DateTime.Now,
+                            Detail = JsonConvert.SerializeObject(new HydrateSitePowerEvent
+                            {
+                                SiteId = site.Id
+                            })
+                        }
                     }
-                }
-            };
+                };
 
-            var client = new AmazonEventBridgeClient();
+                await client.PutEventsAsync(putRequest).ConfigureAwait(false);
+            }
 
-            await client.PutEventsAsync(putRequest).ConfigureAwait(false);
+            logger.LogDebug("All Sites have been iterated");
 
             return true;
         }
