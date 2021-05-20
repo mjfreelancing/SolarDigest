@@ -1,6 +1,6 @@
 ﻿namespace SolarDigest.Models
 {
-    public class Site : ISiteDetails, ISiteTimestamps
+    public class Site : ISite
     {
         public string Id { get; set; }
         public string StartDate { get; set; }

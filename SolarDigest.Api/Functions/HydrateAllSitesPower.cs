@@ -22,8 +22,8 @@ namespace SolarDigest.Api.Functions
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            // only retrieve the Id since that's all we need or the event(s) to be sent
-            var sites = siteTable!.ScanAsync<Site>(null, new[] {"Id"});
+            // only retrieve the properties we need
+            var sites = siteTable!.ScanAsync<Site>(null, new[] {nameof(Site.Id)});
 
             await foreach (var site in sites)
             {

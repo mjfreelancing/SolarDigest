@@ -27,5 +27,11 @@
             internal const string PowerYearly = "PowerYearly";
             internal const string PowerUpdateHistory = "PowerUpdateHistory";
         }
+
+        internal static class RefreshHour
+        {
+            public const int SummaryEmail = 1;    // 1am each day
+            public const int Aggregation = 2;     // 2am each day
+        }
     }
 }
