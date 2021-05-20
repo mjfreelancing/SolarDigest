@@ -66,11 +66,10 @@ namespace SolarDigest.Api.Functions
 
             var serviceProvider = context.ScopedServiceProvider;
 
-            // get site info
             var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
             var site = await siteTable!.GetItemAsync<Site>(siteId).ConfigureAwait(false);
 
-            // determine the refresh period to hydrate (local time)
+            // Determine the refresh period to hydrate (local time)
             // - the start/end date/time are optional - a forced re-fresh can be achieved when providing them
             var (hydrateStartDateTime, hydrateEndDateTime) = GetHydrationPeriodInSiteLocalTime(site, request);
 
@@ -103,7 +102,16 @@ namespace SolarDigest.Api.Functions
 
             var updateHistoryTable = serviceProvider.GetService<ISolarDigestPowerUpdateHistoryTable>();
 
-            await UpdatePowerStatusHistory(siteId, hydrateStartDateTime, processingToEndDate, PowerUpdateStatus.Started, updateHistoryTable).ConfigureAwait(false);
+            Task UpdatePowerHistoryAsync(PowerUpdateStatus status)
+            {
+                var entity = new PowerUpdateHistoryEntity(siteId, hydrateStartDateTime, processingToEndDate, status);
+
+                logger.LogDebug($"Updating power history for site '{siteId}' as '{status}' ({entity.StartDateTime} to {entity.EndDateTime})");
+
+                return updateHistoryTable!.PutItemAsync(entity);
+            }
+
+            await UpdatePowerHistoryAsync(PowerUpdateStatus.Started).ConfigureAwait(false);
 
             var solarEdgeApi = serviceProvider.GetService<ISolarEdgeApi>();
             var mapper = serviceProvider.GetService<IMapper>();
@@ -112,19 +120,21 @@ namespace SolarDigest.Api.Functions
             try
             {
                 await ProcessPowerForDateRange(siteId, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
-                await UpdatePowerStatusHistory(siteId, hydrateStartDateTime, processingToEndDate, PowerUpdateStatus.Completed, updateHistoryTable).ConfigureAwait(false);
+                await UpdatePowerHistoryAsync(PowerUpdateStatus.Completed).ConfigureAwait(false);
 
-                // todo: log this being updated
-                // update the most recent refresh timestamp
-                // todo: handle concurrency issues - reload the site table only if there is a conflict
+                // Update the most recent refresh timestamp.
                 site.LastRefreshDateTime = processingToEndDate.GetSolarDateTimeString();
+
+                logger.LogDebug($"Updating site '{siteId}' last refresh timestamp as {site.LastRefreshDateTime} (local)");
+
+                // todo: handle concurrency issues - reload the site table only if there is a conflict
                 await siteTable.PutItemAsync(site).ConfigureAwait(false);
             }
             catch (Exception)
             {
-                // this will result in any pending dates to be aborted, but they will be processed the next time there
+                // This will result in any pending dates to be aborted, but they will be processed the next time there
                 // is a scheduled trigger because the refresh timestamp will have not been updated.
-                await UpdatePowerStatusHistory(siteId, hydrateStartDateTime, processingToEndDate, PowerUpdateStatus.Error, updateHistoryTable).ConfigureAwait(false);
+                await UpdatePowerHistoryAsync(PowerUpdateStatus.Error).ConfigureAwait(false);
 
                 throw;
             }
@@ -137,18 +147,10 @@ namespace SolarDigest.Api.Functions
             return NoResult.Default;
         }
 
-        private static Task UpdatePowerStatusHistory(string siteId, DateTime startDateTime, DateTime endDateTime, PowerUpdateStatus status,
-            ISolarDigestPowerUpdateHistoryTable historyTable)
-        {
-            // todo: log this being updated
-            var entity = new PowerUpdateHistoryEntity(siteId, startDateTime, endDateTime, status);
-            return historyTable.PutItemAsync(entity);
-        }
-
         private static async Task ProcessPowerForDateRange(string siteId, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
             DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
         {
-            var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // in site local time
+            var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time.
             var endDateTime = hydrateEndDateTime.GetSolarDateTimeString();
 
             logger.LogDebug($"Processing period: {startDateTime} to {endDateTime}");
@@ -186,7 +188,7 @@ namespace SolarDigest.Api.Functions
 
         private static IEnumerable<SolarViewDay> GetSolarViewDays(string siteId, SolarData powerData, SolarData energyData)
         {
-            // flattened list of data points - so we can group into days and meter types
+            // Flattened list of data points - so we can group into days and meter types.
             var powerMeterPoints =
               from meter in powerData.MeterValues.Meters
               let meterType = meter.Type.As<MeterType>()
