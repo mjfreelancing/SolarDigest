@@ -28,8 +28,7 @@ namespace SolarDigest.Api.Functions
             // only retrieve the properties we need
             var sites = siteTable!.ScanAsync<Site>(null, new[]
             {
-                nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate),
-                nameof(Site.LastAggregationDate)
+                nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate), nameof(Site.LastAggregationDate)
             });
 
             await foreach (var site in sites)
@@ -51,7 +50,6 @@ namespace SolarDigest.Api.Functions
                         var aggregateEvent = new AggregateSitePowerEvent
                         {
                             SiteId = site.Id,
-                            SiteStartDate = site.StartDate,
                             StartDate = lastAggregationDate.GetSolarDateString(),
                             EndDate = nextEndDate.GetSolarDateString(),
                         };

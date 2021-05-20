@@ -22,6 +22,7 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction HydrateSitePowerFunction { get; private set; }
         internal IFunction EmailExceptionFunction { get; private set; }
         internal IFunction AggregateAllSitesPowerFunction { get; private set; }
+        internal IFunction AggregateSitePowerFunction { get; private set; }
 
         public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables)
             : base(scope, "Functions")
@@ -32,13 +33,14 @@ namespace SolarDigest.Deploy.Constructs
 
             _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
+            CreateGetSiteFunction();
             CreateAddSiteFunction();
             CreateUpdateSiteFunction();
-            CreateGetSiteFunction();
+            CreateEmailExceptionFunction();
             CreateHydrateAllSitesPowerFunction();
             CreateHydrateSitePowerFunction();
-            CreateEmailExceptionFunction();
             CreateAggregateAllSitesPowerFunction();
+            CreateAggregateSitePowerFunction();
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default)
@@ -64,6 +66,15 @@ namespace SolarDigest.Deploy.Constructs
             return function;
         }
 
+        private void CreateGetSiteFunction()
+        {
+            GetSiteFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details")
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                    .GrantReadTableData(_tables.SiteTable)
+                    .GrantWriteTableData(_tables.ExceptionTable);
+        }
+
         private void CreateAddSiteFunction()
         {
             AddSiteFunction =
@@ -82,13 +93,17 @@ namespace SolarDigest.Deploy.Constructs
                     .GrantReadWriteTableData(_tables.SiteTable);
         }
 
-        private void CreateGetSiteFunction()
+        private void CreateEmailExceptionFunction()
         {
-            GetSiteFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .GrantReadTableData(_tables.SiteTable)
-                    .GrantWriteTableData(_tables.ExceptionTable);
+            // Note: the EmailException function would never write to ExceptionTable as it would potentially cause an endless loop of processing
+
+            // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
+
+            EmailExceptionFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
+                    .AddPolicyStatements(_iam.SendEmailPolicyStatement)
+                    .AddEventSource(_tables.ExceptionTable)
+                    .GrantStreamReadData(_tables.ExceptionTable);
         }
 
         private void CreateHydrateAllSitesPowerFunction()
@@ -113,19 +128,6 @@ namespace SolarDigest.Deploy.Constructs
                     .GrantReadWriteTableData(_tables.SiteTable);
         }
 
-        private void CreateEmailExceptionFunction()
-        {
-            // Note: the EmailException function would never write to ExceptionTable as it would potentially cause an endless loop of processing
-
-            // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
-
-            EmailExceptionFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
-                    .AddPolicyStatements(_iam.SendEmailPolicyStatement)
-                    .AddEventSource(_tables.ExceptionTable)
-                    .GrantStreamReadData(_tables.ExceptionTable);
-        }
-
         private void CreateAggregateAllSitesPowerFunction()
         {
             AggregateAllSitesPowerFunction =
@@ -134,6 +136,17 @@ namespace SolarDigest.Deploy.Constructs
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
                     .GrantReadTableData(_tables.SiteTable)
                     .GrantWriteTableData(_tables.ExceptionTable);
+        }
+
+        private void CreateAggregateSitePowerFunction()
+        {
+            AggregateSitePowerFunction =
+                CreateFunction(_apiProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192)
+                    //.AddPolicyStatements(_iam.GetParameterPolicyStatement)
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                    //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName))
+                    //.GrantWriteTableData(_tables.ExceptionTable, _tables.PowerUpdateHistoryTable)
+                    .GrantReadWriteTableData(_tables.SiteTable);
         }
     }
 }

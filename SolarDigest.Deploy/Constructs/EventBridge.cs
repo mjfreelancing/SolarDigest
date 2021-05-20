@@ -13,7 +13,8 @@ namespace SolarDigest.Deploy.Constructs
             CatchAll,
             HydrateAllSitesPower,
             HydrateSitePowerEvent,
-            AggregateAllSitesPower
+            AggregateAllSitesPower,
+            AggregateSitePowerEvent
         }
 
         public EventBridge(Construct scope, SolarDigestApiProps apiProps, Functions functions, LogGroups logGroups)
@@ -24,6 +25,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateCatchAll(appName, logGroups.CatchAllLogGroup);
             CreateHydrateSitePower(appName, functions.HydrateSitePowerFunction);
             CreateHydrateAllSitesPowerFunction(appName, functions.HydrateAllSitesPowerFunction);
+            CreateAggregateSitePower(appName, functions.AggregateSitePowerFunction);
             CreateAggregateAllSitesPowerFunction(appName, functions.AggregateAllSitesPowerFunction);
         }
 
@@ -74,6 +76,22 @@ namespace SolarDigest.Deploy.Constructs
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
             });
 
+        }
+
+        // calls the target function when a AggregateSitePowerEvent message is received
+        private void CreateAggregateSitePower(string appName, IFunction targetFunction)
+        {
+            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.AggregateSitePowerEvent}", new RuleProps
+            {
+                // using the default EventBus
+                RuleName = $"{appName}_{SolarEdgeEventType.AggregateSitePowerEvent}",
+                Description = "Aggregates power data for a given site",
+                EventPattern = new EventPattern
+                {
+                    DetailType = new[] { $"{SolarEdgeEventType.AggregateSitePowerEvent}" }
+                },
+                Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
+            });
         }
 
         // calls the target function once per hour, at the top of the hour
