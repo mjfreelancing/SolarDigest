@@ -10,6 +10,7 @@ using SolarDigest.Api.Events;
 using SolarDigest.Api.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
@@ -28,17 +29,26 @@ namespace SolarDigest.Api.Functions
                 if (dbRecord.StreamViewType == StreamViewType.NEW_IMAGE)
                 {
                     var newImage = dbRecord.NewImage;
-                    var imageJson = Document.FromAttributeMap(newImage).ToJson();
 
-                    var exceptionEvent = JsonConvert.DeserializeObject<ExceptionEvent>(imageJson);
+                    // check to make sure it isn't a deleted item
+                    if (newImage.Any())
+                    {
+                        var imageJson = Document.FromAttributeMap(newImage).ToJson();
 
-                    var fullMessage = exceptionEvent!.StackTrace.IsNullOrEmpty()
-                        ? $"{exceptionEvent!.Message}"
-                        : $"{exceptionEvent!.Message}{Environment.NewLine}{Environment.NewLine}{exceptionEvent.StackTrace}";
+                        var exceptionEvent = JsonConvert.DeserializeObject<ExceptionEvent>(imageJson);
 
-                    logger.LogDebug($"Exception event: {fullMessage}");
+                        var fullMessage = exceptionEvent!.StackTrace.IsNullOrEmpty()
+                            ? $"{exceptionEvent!.Message}"
+                            : $"{exceptionEvent!.Message}{Environment.NewLine}{Environment.NewLine}{exceptionEvent.StackTrace}";
 
-                    await SendEmail(fullMessage, logger).ConfigureAwait(false);
+                        logger.LogDebug($"Exception event: {fullMessage}");
+
+                        await SendEmail(fullMessage, logger).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        logger.LogDebug("Exception document manually deleted");
+                    }
                 }
             }
 

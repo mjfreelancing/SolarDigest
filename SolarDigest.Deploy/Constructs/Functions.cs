@@ -43,7 +43,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateAggregateSitePowerFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default)
+        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
             //IDictionary<string, string> variables = null)
         {
             //variables ??= new Dictionary<string, string>();
@@ -55,7 +55,7 @@ namespace SolarDigest.Deploy.Constructs
                 Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}::InvokeAsync",
                 Runtime = Runtime.DOTNET_CORE_3_1,
                 MemorySize = memorySize,
-                Timeout = Duration.Minutes(5),
+                Timeout = Duration.Minutes(timeoutMinutes),
                 Code = new S3Code(_codeBucket, Constants.S3CodeBucketKeyName),
                 LogRetention = RetentionDays.ONE_WEEK
                 //Environment = variables
@@ -119,8 +119,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateHydrateSitePowerFunction()
         {
             HydrateSitePowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192)
-                    .AddPolicyStatements(_iam.GetParameterPolicyStatement)
+                CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192, 15)
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
                     .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
                     .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName))
@@ -141,13 +140,14 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAggregateSitePowerFunction()
         {
             AggregateSitePowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192)
+                CreateFunction(_apiProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192, 15)
 
                     .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
                     .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
                     .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
 
                     .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerMonthlyTable.TableName))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerYearlyTable.TableName))
 
                     .GrantReadWriteTableData(_tables.SiteTable)
                     .GrantWriteTableData(_tables.ExceptionTable);

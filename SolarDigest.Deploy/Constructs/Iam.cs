@@ -7,14 +7,14 @@ namespace SolarDigest.Deploy.Constructs
     internal sealed class Iam : Construct
     {
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
-        internal PolicyStatement GetParameterPolicyStatement { get; private set; }
+        //internal PolicyStatement GetParameterPolicyStatement { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
         public Iam(Construct stack, string appName)
             : base(stack, $"{appName}IAM")
         {
             CreateDefaultEventBridgePolicyStatement();
-            CreateGetParameterPolicyStatement();
+            //CreateGetParameterPolicyStatement();
             SendEmailPolicyStatements();
         }
 
@@ -90,23 +90,23 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        private void CreateGetParameterPolicyStatement()
-        {
-            var stack = Stack.Of(this);
+        //private void CreateGetParameterPolicyStatement()
+        //{
+        //    var stack = Stack.Of(this);
 
-            GetParameterPolicyStatement = new PolicyStatement(new PolicyStatementProps
-            {
-                Effect = Effect.ALLOW,
-                Actions = new[]
-                {
-                    "ssm:GetParameter"
-                },
-                Resources = new[]
-                {
-                    $"arn:aws:ssm:{stack.Region}:{stack.Account}:parameter/*"
-                }
-            });
-        }
+        //    GetParameterPolicyStatement = new PolicyStatement(new PolicyStatementProps
+        //    {
+        //        Effect = Effect.ALLOW,
+        //        Actions = new[]
+        //        {
+        //            "ssm:GetParameter"
+        //        },
+        //        Resources = new[]
+        //        {
+        //            $"arn:aws:ssm:{stack.Region}:{stack.Account}:parameter/*"
+        //        }
+        //    });
+        //}
 
         private void SendEmailPolicyStatements()
         {

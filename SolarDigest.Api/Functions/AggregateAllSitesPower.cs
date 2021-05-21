@@ -28,20 +28,30 @@ namespace SolarDigest.Api.Functions
             // only retrieve the properties we need
             var sites = siteTable!.ScanAsync<Site>(null, new[]
             {
-                nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate), nameof(Site.LastAggregationDate)
+                nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate), nameof(Site.LastRefreshDateTime), nameof(Site.LastAggregationDate)
             });
 
             await foreach (var site in sites)
             {
-                logger.LogDebug($"Converting {currentTimeUtc.GetSolarDateTimeString()} to site {site.Id} local time ({site.TimeZoneId})");
-
                 var siteLocalTime = site.UtcToLocalTime(currentTimeUtc);
+
+                logger.LogDebug($"Converted {currentTimeUtc.GetSolarDateTimeString()} to site {site.Id} local time " +
+                                $"{siteLocalTime.GetSolarDateTimeString()} ({site.TimeZoneId})");
 
                 // check subsequent hours in case a trigger was missed
                 if (siteLocalTime.Hour >= Constants.RefreshHour.Aggregation)
                 {
                     var lastAggregationDate = site.GetLastAggregationDate();
                     var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
+
+                    // make sure we don't aggregate beyond the last refresh timestamp
+                    var lastRefreshTimestamp = site.LastRefreshDateTime.ParseSolarDate().Date;
+
+                    if (nextEndDate > lastRefreshTimestamp)
+                    {
+                        logger.LogDebug($"Trimming the next aggregation end date to match the last refresh date {lastRefreshTimestamp.GetSolarDateString()}");
+                        nextEndDate = lastRefreshTimestamp;
+                    }
 
                     if (nextEndDate > lastAggregationDate)
                     {

@@ -7,10 +7,10 @@
             public const string MonitoringUri = "https://monitoringapi.solaredge.com/";
         }
 
-        internal static class Parameters
-        {
-            public const string SolarEdgeApiKey = "/SolarDigest/SolarEdgeApiKey";
-        }
+        //internal static class Parameters
+        //{
+        //    public const string SolarEdgeApiKey = "/SolarDigest/SolarEdgeApiKey";
+        //}
 
         internal static class Events
         {

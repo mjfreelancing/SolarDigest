@@ -153,26 +153,30 @@ namespace SolarDigest.Api.Repository
             // A single call to BatchWriteItemAsync can write up to 16 MB of data, which can comprise
             // as many as 25 put requests. Individual items to be written can be as large as 400 KB.
             var entities = items.AsReadOnlyCollection();
-            var batches = entities.Batch(25).AsReadOnlyCollection();
 
-            _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
-
-            var retryPolicy = Policy
-                .Handle<ProvisionedThroughputExceededException>()
-                .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
-
-            foreach (var batch in batches)
+            if (entities.Any())
             {
-                var requests = batch
-                    .Select(entity => new PutRequest {Item = GetAttributeValues(entity)})
-                    .Select(putRequest => new WriteRequest(putRequest))
-                    .ToList();
+                var batches = entities.Batch(25).AsReadOnlyCollection();
 
-                var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
+                _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
-                var response = await retryPolicy.ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken));
-                
-                yield return response;
+                var retryPolicy = Policy
+                    .Handle<ProvisionedThroughputExceededException>()
+                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+                foreach (var batch in batches)
+                {
+                    var requests = batch
+                        .Select(entity => new PutRequest { Item = GetAttributeValues(entity) })
+                        .Select(putRequest => new WriteRequest(putRequest))
+                        .ToList();
+
+                    var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
+
+                    var response = await retryPolicy.ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken));
+
+                    yield return response;
+                }
             }
         }
 

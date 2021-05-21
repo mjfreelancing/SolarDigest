@@ -35,10 +35,10 @@ namespace SolarDigest.Api.Processors
             var cultureInfo = new CultureInfo(Constants.AggregationOptions.CultureName);
             var calendar = cultureInfo.Calendar;
 
-            void LogSkippingDates(DateTime skipStartDate, DateTime skipEndDate)
+            void LogSkippingDatesPriorToSiteStartDate(DateTime skipStartDate, DateTime skipEndDate)
             {
-                _logger.LogDebug($"Skipping {skipStartDate.GetSolarDateString()} to {skipEndDate.GetSolarDateString()} for site {site.Id} " +
-                                 $"(prior to the site start date of {siteStartDate.GetSolarDateString()})");
+                _logger.LogDebug($"Skipping monthly aggregation between {skipStartDate.GetSolarDateString()} and {skipEndDate.GetSolarDateString()} " +
+                                 $"for site {site.Id} (prior to the site start date of {siteStartDate.GetSolarDateString()})");
             }
 
             IEnumerable<Task> GetMonthlyTasks()
@@ -54,14 +54,14 @@ namespace SolarDigest.Api.Processors
 
                     if (monthEndDate < siteStartDate)
                     {
-                        LogSkippingDates(monthStartDate, monthEndDate);
+                        LogSkippingDatesPriorToSiteStartDate(monthStartDate, monthEndDate);
                         continue;
                     }
 
                     // the first/last month may not be a complete month
                     if (monthStartDate < siteStartDate)
                     {
-                        LogSkippingDates(monthStartDate, siteStartDate.AddDays(-1));
+                        LogSkippingDatesPriorToSiteStartDate(monthStartDate, siteStartDate.AddDays(-1));
                         monthStartDate = siteStartDate;
                     }
 
@@ -77,9 +77,10 @@ namespace SolarDigest.Api.Processors
                 }
             }
 
-            var tasks = GetMonthlyTasks();
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            // running these (and others) all in parallel was too much for the free tier in AWS so they are being processed sequentially
+            await GetMonthlyTasks()
+                .InvokeTasksSequentially()
+                .ConfigureAwait(false);
 
             _logger.LogDebug($"Completed monthly power aggregation for site {site.Id} between {startDate.GetSolarDateString()} and {endDate.GetSolarDateString()}");
         }

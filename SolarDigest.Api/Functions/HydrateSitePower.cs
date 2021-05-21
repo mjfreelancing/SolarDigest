@@ -119,16 +119,9 @@ namespace SolarDigest.Api.Functions
 
             try
             {
-                await ProcessPowerForDateRange(siteId, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
+                await ProcessPowerForDateRange(site, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
                 await UpdatePowerHistoryAsync(PowerUpdateStatus.Completed).ConfigureAwait(false);
-
-                // Update the most recent refresh timestamp.
-                site.LastRefreshDateTime = processingToEndDate.GetSolarDateTimeString();
-
-                logger.LogDebug($"Updating site {siteId} last refresh timestamp as {site.LastRefreshDateTime} (local)");
-
-                // todo: handle concurrency issues - reload the site table only if there is a conflict
-                await siteTable.PutItemAsync(site).ConfigureAwait(false);
+                await UpdateSiteLastRefreshTimestamp(site, processingToEndDate, siteTable, logger).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -147,7 +140,25 @@ namespace SolarDigest.Api.Functions
             return NoResult.Default;
         }
 
-        private static async Task ProcessPowerForDateRange(string siteId, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
+        private static Task UpdateSiteLastRefreshTimestamp(Site site, DateTime timestamp, ISolarDigestSiteTable siteTable, IFunctionLogger logger)
+        {
+            if (!site.LastRefreshDateTime.IsNullOrEmpty() && site.LastRefreshDateTime.ParseSolarDateTime() > timestamp)
+            {
+                logger.LogDebug($"Site {site.Id} already has a newer 'LastRefreshDateTime' so not updating ({site.LastRefreshDateTime} " +
+                                $"compared to {timestamp.GetSolarDateTimeString()})");
+
+                return Task.CompletedTask;
+            }
+
+            site.LastRefreshDateTime = timestamp.GetSolarDateTimeString();
+
+            logger.LogDebug($"Updating site {site.Id} last refresh timestamp as {site.LastRefreshDateTime} (local)");
+
+            // todo: handle concurrency issues - reload the site table only if there is a conflict
+            return siteTable.PutItemAsync(site);
+        }
+
+        private static async Task ProcessPowerForDateRange(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
             DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
         {
             var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time.
@@ -157,14 +168,14 @@ namespace SolarDigest.Api.Functions
 
             var powerQuery = new PowerQuery
             {
-                SiteId = siteId,
+                SiteId = site.Id,
                 StartDateTime = startDateTime,
                 EndDateTime = endDateTime
             };
 
             var (powerResults, energyResults) = await TaskHelper.WhenAll(
-                solarEdgeApi!.GetPowerDetailsAsync(powerQuery),
-                solarEdgeApi!.GetEnergyDetailsAsync(powerQuery)
+                solarEdgeApi!.GetPowerDetailsAsync(site.ApiKey, powerQuery),
+                solarEdgeApi!.GetEnergyDetailsAsync(site.ApiKey, powerQuery)
             ).ConfigureAwait(false);
 
             var powerData = mapper!.Map<SolarData>(powerResults);
@@ -227,7 +238,7 @@ namespace SolarDigest.Api.Functions
                                   power.Date,
                                   power.Timestamp,
                                   power.Watts,
-                                  WattHour = energy.WattHour
+                                  energy.WattHour
                               };
 
             return

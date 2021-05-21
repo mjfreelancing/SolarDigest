@@ -18,13 +18,13 @@ namespace SolarDigest.Deploy.Constructs
         public DynamoDbTables(Construct scope)
             : base(scope, "DynamoDB")
         {
-            ExceptionTable = CreateTable("Exception", false, StreamViewType.NEW_IMAGE);
+            ExceptionTable = CreateTable("Exception", false, StreamViewType.NEW_IMAGE, "TimeToLive");
             SiteTable = CreateTable("Site");
             EnergyCostsTable = CreateTable("EnergyCosts", true);
 
-            PowerTable = CreateTable("Power", true, default, table =>
+            PowerTable = CreateTable("Power", true, default, default, table =>
             {
-                //ConfigureReadAutoScaling(table);
+                ConfigureReadAutoScaling(table);
                 ConfigureWriteAutoScaling(table);
             });
 
@@ -33,15 +33,16 @@ namespace SolarDigest.Deploy.Constructs
             PowerUpdateHistoryTable = CreateTable("PowerUpdateHistory", true);
         }
 
-        private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default, Action<Table> configAction = default)
+        private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
+            string ttlAttribute = default, Action<Table> configAction = default)
         {
             var table = new Table(this, tableName, new TableProps
             {
                 TableName = tableName,
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
-                Stream = streamViewType
-                //TimeToLiveAttribute =             ?? apply to the exception table
+                Stream = streamViewType,
+                TimeToLiveAttribute = ttlAttribute
             });
 
             configAction?.Invoke(table);

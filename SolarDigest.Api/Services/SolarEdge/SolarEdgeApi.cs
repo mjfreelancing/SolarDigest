@@ -1,7 +1,4 @@
 using AllOverIt.Helpers;
-using AllOverIt.Tasks;
-using Amazon.SimpleSystemsManagement;
-using Amazon.SimpleSystemsManagement.Model;
 using Flurl;
 using Flurl.Http;
 using SolarDigest.Api.Exceptions;
@@ -16,7 +13,6 @@ namespace SolarDigest.Api.Services.SolarEdge
 {
     internal sealed class SolarEdgeApi : ISolarEdgeApi
     {
-        private readonly AsyncLazy<string> _apiKey = new(GetApiKeyAsync);
         private readonly IFunctionLogger _logger;
 
         public SolarEdgeApi(IFunctionLogger logger)
@@ -24,10 +20,8 @@ namespace SolarDigest.Api.Services.SolarEdge
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
-        public async Task<PowerDataDto> GetPowerDetailsAsync(PowerQuery powerQuery)
+        public async Task<PowerDataDto> GetPowerDetailsAsync(string apiKey, PowerQuery powerQuery)
         {
-            var apiKey = await _apiKey;
-
             var uri = new Uri(Constants.SolarEdge.MonitoringUri)
                 .AppendPathSegments("site", $"{powerQuery.SiteId}", "powerDetails")
                 .SetQueryParams(new
@@ -65,10 +59,8 @@ namespace SolarDigest.Api.Services.SolarEdge
             }
         }
 
-        public async Task<EnergyDataDto> GetEnergyDetailsAsync(PowerQuery powerQuery)
+        public async Task<EnergyDataDto> GetEnergyDetailsAsync(string apiKey, PowerQuery powerQuery)
         {
-            var apiKey = await _apiKey;
-
             var uri = new Uri(Constants.SolarEdge.MonitoringUri)
                 .AppendPathSegments("site", $"{powerQuery.SiteId}", "energyDetails")
                 .SetQueryParams(new
@@ -107,19 +99,19 @@ namespace SolarDigest.Api.Services.SolarEdge
             }
         }
 
-        private static async Task<string> GetApiKeyAsync()            // todo: create a service that takes a paramName as input
-        {
-            using (var client = new AmazonSimpleSystemsManagementClient(Amazon.RegionEndpoint.APSoutheast2))
-            {
-                var request = new GetParameterRequest
-                {
-                    Name = Constants.Parameters.SolarEdgeApiKey
-                };
+        //private static async Task<string> GetApiKeyAsync()            // todo: create a service that takes a paramName as input
+        //{
+        //    using (var client = new AmazonSimpleSystemsManagementClient(Amazon.RegionEndpoint.APSoutheast2))
+        //    {
+        //        var request = new GetParameterRequest
+        //        {
+        //            Name = Constants.Parameters.SolarEdgeApiKey
+        //        };
 
-                var response = await client.GetParameterAsync(request);
+        //        var response = await client.GetParameterAsync(request);
 
-                return response.Parameter.Value;
-            }
-        }
+        //        return response.Parameter.Value;
+        //    }
+        //}
     }
 }
