@@ -27,7 +27,7 @@ namespace SolarDigest.Api.Functions
 
             await foreach (var site in sites)
             {
-                logger.LogDebug($"Sending a hydration request for site '{site.Id}'");
+                logger.LogDebug($"Sending a hydration request for site {site.Id}");
 
                 client ??= new AmazonEventBridgeClient();
 

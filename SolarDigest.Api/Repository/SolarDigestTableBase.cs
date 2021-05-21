@@ -81,6 +81,20 @@ namespace SolarDigest.Api.Repository
             }
         }
 
+        public async IAsyncEnumerable<TItem> GetItemsAsync<TItem>(QueryOperationConfig config, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            var table = Table.LoadTable(DbClient, new TableConfig(TableName));
+
+            var search = table.Query(config);
+
+            var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
+
+            await foreach (var result in results.WithCancellation(cancellationToken))
+            {
+                yield return result;
+            }
+        }
+
         public async Task AddItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
         {
             var attributeValues = GetAttributeValues(entity);
@@ -120,11 +134,6 @@ namespace SolarDigest.Api.Repository
 
         public async Task PutItemsAsync<TItem>(IEnumerable<TItem> items, CancellationToken cancellationToken = default)
         {
-            // todo: add polly for failure handling
-
-            // todo: handle ProvisionedThroughputExceededException
-            // todo: need to check for failed items and re-try
-
             var entities = items.AsReadOnlyCollection();
 
             await foreach (var response in GetPutBatchResponses(entities, cancellationToken))

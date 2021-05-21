@@ -142,11 +142,15 @@ namespace SolarDigest.Deploy.Constructs
         {
             AggregateSitePowerFunction =
                 CreateFunction(_apiProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192)
-                    //.AddPolicyStatements(_iam.GetParameterPolicyStatement)
+
                     .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName))
-                    //.GrantWriteTableData(_tables.ExceptionTable, _tables.PowerUpdateHistoryTable)
-                    .GrantReadWriteTableData(_tables.SiteTable);
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
+                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
+
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerMonthlyTable.TableName))
+
+                    .GrantReadWriteTableData(_tables.SiteTable)
+                    .GrantWriteTableData(_tables.ExceptionTable);
         }
     }
 }

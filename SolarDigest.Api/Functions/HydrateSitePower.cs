@@ -62,7 +62,7 @@ namespace SolarDigest.Api.Functions
 
             var logger = context.Logger;
 
-            logger.LogDebug($"Hydrating power for site Id '{siteId}'");
+            logger.LogDebug($"Hydrating power for site Id {siteId}");
 
             var serviceProvider = context.ScopedServiceProvider;
 
@@ -97,7 +97,7 @@ namespace SolarDigest.Api.Functions
                 ? maxAllowedEndDate
                 : hydrateEndDateTime;
 
-            logger.LogDebug($"Site '{siteId}' being hydrated for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
+            logger.LogDebug($"Site {siteId} being hydrated for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
                             $"{processingToEndDate.GetSolarDateTimeString()} (site local time)");
 
             var updateHistoryTable = serviceProvider.GetService<ISolarDigestPowerUpdateHistoryTable>();
@@ -106,7 +106,7 @@ namespace SolarDigest.Api.Functions
             {
                 var entity = new PowerUpdateHistoryEntity(siteId, hydrateStartDateTime, processingToEndDate, status);
 
-                logger.LogDebug($"Updating power history for site '{siteId}' as '{status}' ({entity.StartDateTime} to {entity.EndDateTime})");
+                logger.LogDebug($"Updating power history for site {siteId} as '{status}' ({entity.StartDateTime} to {entity.EndDateTime})");
 
                 return updateHistoryTable!.PutItemAsync(entity);
             }
@@ -125,7 +125,7 @@ namespace SolarDigest.Api.Functions
                 // Update the most recent refresh timestamp.
                 site.LastRefreshDateTime = processingToEndDate.GetSolarDateTimeString();
 
-                logger.LogDebug($"Updating site '{siteId}' last refresh timestamp as {site.LastRefreshDateTime} (local)");
+                logger.LogDebug($"Updating site {siteId} last refresh timestamp as {site.LastRefreshDateTime} (local)");
 
                 // todo: handle concurrency issues - reload the site table only if there is a conflict
                 await siteTable.PutItemAsync(site).ConfigureAwait(false);

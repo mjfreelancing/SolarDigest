@@ -18,6 +18,9 @@ namespace SolarDigest.Api.Repository
         // returns all items for a given primary key
         IAsyncEnumerable<TItem> GetItemsAsync<TItem>(string id, CancellationToken cancellationToken = default);
 
+        // search for items based on a query definition
+        IAsyncEnumerable<TItem> GetItemsAsync<TItem>(QueryOperationConfig config, CancellationToken cancellationToken);
+
         // Add, must not already exist. Assumes has an 'Id' property.
         Task AddItemAsync<TItem>(TItem entity, CancellationToken cancellationToken = default);
 

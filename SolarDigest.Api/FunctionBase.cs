@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
+using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
@@ -53,6 +54,8 @@ namespace SolarDigest.Api
             services.AddScoped<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
             services.AddScoped<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
             services.AddScoped<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
+            services.AddTransient<IPowerMonthlyProcessor, PowerMonthlyProcessor>();
+            services.AddTransient<IPowerYearlyProcessor, PowerYearlyProcessor>();
             services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
             services.AddAutoMapper(typeof(SolarViewProfile));
 

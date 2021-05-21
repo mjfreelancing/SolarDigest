@@ -33,7 +33,7 @@ namespace SolarDigest.Api.Functions
 
             await foreach (var site in sites)
             {
-                logger.LogDebug($"Converting {currentTimeUtc.GetSolarDateTimeString()} to site '{site.Id}' local time ({site.TimeZoneId})");
+                logger.LogDebug($"Converting {currentTimeUtc.GetSolarDateTimeString()} to site {site.Id} local time ({site.TimeZoneId})");
 
                 var siteLocalTime = site.UtcToLocalTime(currentTimeUtc);
 
@@ -54,7 +54,7 @@ namespace SolarDigest.Api.Functions
                             EndDate = nextEndDate.GetSolarDateString(),
                         };
 
-                        logger.LogDebug($"Sending an aggregation request for site '{site.Id}' between {aggregateEvent.StartDate} and {aggregateEvent.EndDate} (local)");
+                        logger.LogDebug($"Sending an aggregation request for site {site.Id} between {aggregateEvent.StartDate} and {aggregateEvent.EndDate} (local)");
 
                         var putRequest = new PutEventsRequest
                         {

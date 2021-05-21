@@ -33,5 +33,10 @@
             public const int SummaryEmail = 1;    // 1am each day
             public const int Aggregation = 2;     // 2am each day
         }
+
+        public static class AggregationOptions
+        {
+            public const string CultureName = "en-US";
+        }
     }
 }
