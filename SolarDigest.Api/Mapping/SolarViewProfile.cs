@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using SolarDigest.Api.Data;
+using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdgeData;
 using SolarDigest.Api.Services.SolarEdge.Response;
+using SolarDigest.Models;
 
 namespace SolarDigest.Api.Mapping
 {
@@ -21,6 +24,14 @@ namespace SolarDigest.Api.Mapping
 
             CreateMap<MeterValueDto, MeterValue>()
                 .ForMember(dest => dest.Value, opt => opt.NullSubstitute(0.0d));
+
+            CreateMap<SiteDetails, Site>();
+            CreateMap<SiteDetails, SiteEntity>();
+            CreateMap<SiteEntity, Site>().ReverseMap();
+
+            CreateMap<MeterPowerEntity, MeterPower>();
+            CreateMap<MeterPowerMonthEntity, MeterPowerMonth>().ReverseMap();
+            CreateMap<MeterPowerYearEntity, MeterPowerYear>().ReverseMap();
         }
     }
 }

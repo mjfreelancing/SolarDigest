@@ -1,4 +1,5 @@
-﻿using SolarDigest.Api.Logging;
+﻿using AutoMapper;
+using SolarDigest.Api.Logging;
 
 namespace SolarDigest.Api.Repository
 {
@@ -6,8 +7,8 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.EnergyCosts;
 
-        public SolarDigestEnergyCostsTable(IFunctionLogger logger)
-            : base(logger)
+        public SolarDigestEnergyCostsTable(IMapper mapper, IFunctionLogger logger)
+            : base(mapper, logger)
         {
         }
     }

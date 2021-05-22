@@ -1,4 +1,12 @@
-﻿using SolarDigest.Api.Logging;
+﻿using AllOverIt.Extensions;
+using AutoMapper;
+using SolarDigest.Api.Data;
+using SolarDigest.Api.Logging;
+using SolarDigest.Api.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Repository
 {
@@ -6,9 +14,18 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.PowerMonthly;
 
-        public SolarDigestPowerMonthlyTable(IFunctionLogger logger)
-            : base(logger)
+        public SolarDigestPowerMonthlyTable(IMapper mapper, IFunctionLogger logger)
+            : base(mapper, logger)
         {
+        }
+
+        public Task AddMeterPowerAsync(IEnumerable<MeterPowerMonth> powerData, CancellationToken cancellationToken)
+        {
+            var entities = powerData
+                .Select(Mapper.Map<MeterPowerMonthEntity>)
+                .AsReadOnlyCollection();
+
+            return TableImpl.PutItemsAsync(entities, cancellationToken);
         }
     }
 }

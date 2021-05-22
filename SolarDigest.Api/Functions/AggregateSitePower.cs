@@ -48,7 +48,7 @@ namespace SolarDigest.Api.Functions
             var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
 
             var siteId = request.SiteId;
-            var site = await siteTable!.GetItemAsync<Site>(siteId).ConfigureAwait(false);
+            var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
             var startDate = request.StartDate.ParseSolarDate();
             var endDate = request.EndDate.ParseSolarDate();
@@ -106,17 +106,8 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Updating site {site.Id} last aggregation date as {site.LastAggregationDate} (local)");
 
-
-
-
-            // todo: should be using a SiteEntity for the read/write - which means Id can come off the model ???
-            // CONSIDER ADDING METHODS ONTO THE REPOSITORY THAT TAKES A MODEL AND USES THE ENTITY FOR WRITES
-            // AND USES AN ENTITY AND RETURNS A MODEL FOR READS. There's overhead in doing this but....
-
-
-
             // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return siteTable.PutItemAsync(site);
+            return siteTable.UpsertSiteAsync(site);
         }
     }
 }

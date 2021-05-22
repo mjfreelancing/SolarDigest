@@ -23,11 +23,11 @@ namespace SolarDigest.Api.Functions
 
     */
 
-    public sealed class AddSite : FunctionBase<AddSitePayload, Site>
+    public sealed class AddSite : FunctionBase<AddSitePayload, ISite>
     {
         // although Site includes LastAggregationDate, LastSummaryDate, and LastRefreshDateTime, these
         // will not be returned in the response because they will not yet exist in the table.
-        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
+        protected override async Task<ISite> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
             var logger = context.Logger;
 
@@ -35,25 +35,13 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Creating site info for Id '{payload.Id}'");
 
-            var site = payload.Site;
-
-            var entity = new Site
-            {
-                Id = payload.Id,
-                TimeZoneId = site.TimeZoneId, // "AUS Eastern Standard Time" or "Australia/Sydney",
-                StartDate = site.StartDate,
-                ApiKey = site.ApiKey,
-                ContactName = site.ContactName,
-                ContactEmail = site.ContactEmail
-            };
-
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            await siteTable!.AddItemAsync(entity);
+            var site = await siteTable!.AddSiteAsync(payload.Id, payload.Site);
 
             logger.LogDebug($"Site '{payload.Id}' added");
 
-            return entity;
+            return site;
         }
     }
 }

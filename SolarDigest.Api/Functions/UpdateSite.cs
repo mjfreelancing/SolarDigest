@@ -40,31 +40,15 @@ namespace SolarDigest.Api.Functions
 
             var payload = context.Payload;
 
-            logger.LogDebug($"Creating site info for Id '{payload.Id}'");
-
-            var site = payload.Site;
-            var timestamps = payload.Timestamps;
-
-            var entity = new Site
-            {
-                Id = payload.Id,
-                TimeZoneId = site.TimeZoneId, // "AUS Eastern Standard Time" or "Australia/Sydney",
-                StartDate = site.StartDate,
-                ApiKey = site.ApiKey,
-                ContactName = site.ContactName,
-                ContactEmail = site.ContactEmail,
-                LastAggregationDate = timestamps.LastAggregationDate,
-                LastSummaryDate = timestamps.LastSummaryDate,
-                LastRefreshDateTime = timestamps.LastRefreshDateTime
-            };
+            logger.LogDebug($"Creating site info for Id {payload.Id}");
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            await siteTable!.PutItemAsync(entity).ConfigureAwait(false);
+            var site = await siteTable!.UpsertSiteAsync(payload.Id, payload.Site, payload.Timestamps).ConfigureAwait(false);
 
-            logger.LogDebug($"Site '{payload.Id}' added");
+            logger.LogDebug($"Site {site.Id} added");
 
-            return entity;
+            return site;
         }
     }
 }

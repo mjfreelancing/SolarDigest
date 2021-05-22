@@ -26,7 +26,7 @@ namespace SolarDigest.Api.Functions
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
             // only retrieve the properties we need
-            var sites = siteTable!.ScanAsync<Site>(null, new[]
+            var sites = siteTable!.GetAllSitesAsync(new[]
             {
                 nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate), nameof(Site.LastRefreshDateTime), nameof(Site.LastAggregationDate)
             });

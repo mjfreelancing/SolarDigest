@@ -1,7 +1,7 @@
 ﻿using AllOverIt.Helpers;
-using SolarDigest.Api.Data;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Logging;
+using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
@@ -88,8 +88,7 @@ namespace SolarDigest.Api.Processors
             {
                 var date = startDate.AddDays(dayOffset);
 
-                var primaryKey = $"{siteId}_{date:yyyyMMdd}_{meterType}";
-                var meterEntities = _powerTable.GetItemsAsync<MeterPowerEntity>(primaryKey);
+                var meterEntities = _powerTable.GetMeterPowerAsync(siteId, date, meterType);
 
                 await foreach (var entity in meterEntities)
                 {
@@ -112,15 +111,15 @@ namespace SolarDigest.Api.Processors
             // this will be prior to the actual last day of the week if it is a partial week
             var endDate = startDate.AddDays(daysToCollect - 1);
 
-            var aggregatedEntities = timeWatts.Select(kvp =>
+            var powerData = timeWatts.Select(kvp =>
             {
                 var time = kvp.Key;
                 var (watts, wattHour) = kvp.Value;
 
-                return new MeterPowerYearEntity(siteId, startDate, endDate, time, meterType, watts, wattHour);
+                return new MeterPowerYear(siteId, startDate, endDate, time, meterType, watts, wattHour);
             });
 
-            await _powerYearlyTable.PutItemsAsync(aggregatedEntities).ConfigureAwait(false);
+            await _powerYearlyTable.AddMeterPowerAsync(powerData).ConfigureAwait(false);
         }
     }
 }

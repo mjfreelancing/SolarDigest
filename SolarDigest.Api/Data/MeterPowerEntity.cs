@@ -17,9 +17,9 @@ namespace SolarDigest.Api.Data
         {
         }
 
-        public MeterPowerEntity(string site, DateTime timestamp, MeterType meterType, double watts, double wattHour)
+        public MeterPowerEntity(string siteId, DateTime timestamp, MeterType meterType, double watts, double wattHour)
         {
-            Site = site;
+            Site = siteId;
             Date = $"{timestamp:yyyyMMdd}";
             YearMonth = $"{timestamp:yyyyMM}";
             Time = $"{timestamp:HHmm}";

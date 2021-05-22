@@ -3,8 +3,10 @@ using AllOverIt.Helpers;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using AutoMapper;
 using Newtonsoft.Json;
 using Polly;
+using SolarDigest.Api.Data;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using System;
@@ -16,20 +18,27 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Repository
 {
+    // todo: wrap all methods in Polly
+
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
         private readonly IFunctionLogger _logger;
         private readonly Lazy<AmazonDynamoDBClient> _dbClient = new(() => new AmazonDynamoDBClient());
         private AmazonDynamoDBClient DbClient => _dbClient.Value;
 
+        protected ISolarDigestTable TableImpl => this;
+        protected IMapper Mapper { get; }
+
         public abstract string TableName { get; }
 
-        protected SolarDigestTableBase(IFunctionLogger logger)
+        protected SolarDigestTableBase(IMapper mapper, IFunctionLogger logger)
         {
+            Mapper = mapper.WhenNotNull(nameof(mapper));
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
-        public async IAsyncEnumerable<TItem> ScanAsync<TItem>(Action<ScanFilter> filterAction, IEnumerable<string> properties, [EnumeratorCancellation] CancellationToken cancellationToken)
+        async IAsyncEnumerable<TItem> ISolarDigestTable.ScanAsync<TItem>(IEnumerable<string> properties, Action<ScanFilter> filterAction,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var filter = new ScanFilter();
 
@@ -59,7 +68,7 @@ namespace SolarDigest.Api.Repository
             }
         }
 
-        public async Task<TItem> GetItemAsync<TItem>(string id, CancellationToken cancellationToken)
+        async Task<TItem> ISolarDigestTable.GetItemAsync<TItem>(string id, CancellationToken cancellationToken)
         {
             var table = Table.LoadTable(DbClient, new TableConfig(TableName));
             var document = await table.GetItemAsync(id, cancellationToken).ConfigureAwait(false);
@@ -67,7 +76,7 @@ namespace SolarDigest.Api.Repository
             return JsonConvert.DeserializeObject<TItem>(document.ToJson());
         }
 
-        public async IAsyncEnumerable<TItem> GetItemsAsync<TItem>(string id, [EnumeratorCancellation] CancellationToken cancellationToken)
+        async IAsyncEnumerable<TItem> ISolarDigestTable.GetItemsAsync<TItem>(string id, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var table = Table.LoadTable(DbClient, new TableConfig(TableName));
 
@@ -81,7 +90,7 @@ namespace SolarDigest.Api.Repository
             }
         }
 
-        public async IAsyncEnumerable<TItem> GetItemsAsync<TItem>(QueryOperationConfig config, [EnumeratorCancellation] CancellationToken cancellationToken)
+        async IAsyncEnumerable<TItem> ISolarDigestTable.GetItemsAsync<TItem>(QueryOperationConfig config, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var table = Table.LoadTable(DbClient, new TableConfig(TableName));
 
@@ -95,7 +104,7 @@ namespace SolarDigest.Api.Repository
             }
         }
 
-        public async Task AddItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
+        async Task ISolarDigestTable.AddItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
         {
             var attributeValues = GetAttributeValues(entity);
 
@@ -119,7 +128,7 @@ namespace SolarDigest.Api.Repository
             }
         }
 
-        public Task PutItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
+        Task ISolarDigestTable.PutItemAsync<TItem>(TItem entity, CancellationToken cancellationToken)
         {
             var attributeValues = GetAttributeValues(entity);
 
@@ -132,7 +141,7 @@ namespace SolarDigest.Api.Repository
             return DbClient.PutItemAsync(putItem, cancellationToken);
         }
 
-        public async Task PutItemsAsync<TItem>(IEnumerable<TItem> items, CancellationToken cancellationToken = default)
+        async Task ISolarDigestTable.PutItemsAsync<TItem>(IEnumerable<TItem> items, CancellationToken cancellationToken)
         {
             var entities = items.AsReadOnlyCollection();
 
@@ -207,6 +216,7 @@ namespace SolarDigest.Api.Repository
         }
 
         private static async IAsyncEnumerable<TItem> GetSearchResultsAsync<TItem>(Search search, [EnumeratorCancellation] CancellationToken cancellationToken)
+            where TItem : EntityBase
         {
             while (!search.IsDone)
             {

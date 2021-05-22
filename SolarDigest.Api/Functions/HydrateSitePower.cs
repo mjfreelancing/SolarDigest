@@ -5,7 +5,6 @@ using Amazon.EventBridge.Model;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using SolarDigest.Api.Data;
 using SolarDigest.Api.Events;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Logging;
@@ -67,7 +66,7 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
 
             var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
-            var site = await siteTable!.GetItemAsync<Site>(siteId).ConfigureAwait(false);
+            var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
             // Determine the refresh period to hydrate (local time)
             // - the start/end date/time are optional - a forced re-fresh can be achieved when providing them
@@ -104,11 +103,9 @@ namespace SolarDigest.Api.Functions
 
             Task UpdatePowerHistoryAsync(PowerUpdateStatus status)
             {
-                var entity = new PowerUpdateHistoryEntity(siteId, hydrateStartDateTime, processingToEndDate, status);
+                logger.LogDebug($"Updating power history for site {siteId} as '{status}' ({hydrateStartDateTime} to {processingToEndDate})");
 
-                logger.LogDebug($"Updating power history for site {siteId} as '{status}' ({entity.StartDateTime} to {entity.EndDateTime})");
-
-                return updateHistoryTable!.PutItemAsync(entity);
+                return updateHistoryTable!.UpsertPowerStatusHistoryAsync(siteId, hydrateStartDateTime, processingToEndDate, status);
             }
 
             await UpdatePowerHistoryAsync(PowerUpdateStatus.Started).ConfigureAwait(false);
@@ -155,7 +152,7 @@ namespace SolarDigest.Api.Functions
             logger.LogDebug($"Updating site {site.Id} last refresh timestamp as {site.LastRefreshDateTime} (local)");
 
             // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return siteTable.PutItemAsync(site);
+            return siteTable.UpsertSiteAsync(site);
         }
 
         private static async Task ProcessPowerForDateRange(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
@@ -185,15 +182,9 @@ namespace SolarDigest.Api.Functions
 
             foreach (var solarViewDay in solarViewDays)
             {
-                var entities = solarViewDay.Meters
-                    .SelectMany(
-                        meter => meter.Points,
-                        (meter, point) => new MeterPowerEntity(solarViewDay.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
-                    .AsReadOnlyList();
-
                 logger.LogDebug($"Persisting data for {solarViewDay.Date}");
 
-                await powerTable.PutItemsAsync(entities).ConfigureAwait(false);
+                await powerTable.AddMeterPowerAsync(solarViewDay).ConfigureAwait(false);
             }
         }
 

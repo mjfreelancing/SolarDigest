@@ -1,7 +1,7 @@
 ﻿using AllOverIt.Helpers;
-using SolarDigest.Api.Data;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Logging;
+using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
@@ -72,7 +72,7 @@ namespace SolarDigest.Api.Processors
                         _logger.LogDebug($"Aggregating monthly {meterType} data for site {site.Id} between {monthStartDate.GetSolarDateString()} " +
                                          $"and {monthEndDate.GetSolarDateString()}");
 
-                        yield return PersistAggregatedMeterValues(site.Id, meterType, monthStartDate, daysToCollect);
+                        yield return PersistAggregatedMeterValuesAsync(site.Id, meterType, monthStartDate, daysToCollect);
                     }
                 }
             }
@@ -85,16 +85,15 @@ namespace SolarDigest.Api.Processors
             _logger.LogDebug($"Completed monthly power aggregation for site {site.Id} between {startDate.GetSolarDateString()} and {endDate.GetSolarDateString()}");
         }
 
-        private async Task PersistAggregatedMeterValues(string siteId, MeterType meterType, DateTime startDate, int daysToCollect)
+        private async Task PersistAggregatedMeterValuesAsync(string siteId, MeterType meterType, DateTime startDate, int daysToCollect)
         {
             var timeWatts = new Dictionary<string, (double Watts, double WattHour)>();
 
             for (var dayOffset = 0; dayOffset < daysToCollect; dayOffset++)
             {
                 var date = startDate.AddDays(dayOffset);
-
-                var primaryKey = $"{siteId}_{date:yyyyMMdd}_{meterType}";
-                var meterEntities = _powerTable.GetItemsAsync<MeterPowerEntity>(primaryKey);
+                
+                var meterEntities = _powerTable.GetMeterPowerAsync(siteId, date, meterType);
 
                 await foreach (var entity in meterEntities)
                 {
@@ -117,15 +116,15 @@ namespace SolarDigest.Api.Processors
             // this will be prior to the actual last day of the week if it is a partial week
             var endDate = startDate.AddDays(daysToCollect - 1);
 
-            var aggregatedEntities = timeWatts.Select(kvp =>
+            var powerData = timeWatts.Select(kvp =>
             {
                 var time = kvp.Key;
                 var (watts, wattHour) = kvp.Value;
 
-                return new MeterPowerMonthEntity(siteId, startDate, endDate, time, meterType, watts, wattHour);
+                return new MeterPowerMonth(siteId, startDate, endDate, time, meterType, watts, wattHour);
             });
 
-            await _powerMonthlyTable.PutItemsAsync(aggregatedEntities).ConfigureAwait(false);
+            await _powerMonthlyTable.AddMeterPowerAsync(powerData).ConfigureAwait(false);
         }
     }
 }

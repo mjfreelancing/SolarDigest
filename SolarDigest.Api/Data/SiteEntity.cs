@@ -1,8 +1,7 @@
-﻿namespace SolarDigest.Models
+﻿namespace SolarDigest.Api.Data
 {
-    public sealed class Site : ISite
+    public sealed class SiteEntity : EntityBase
     {
-        public string Id { get; set; }
         public string StartDate { get; set; }
         public string ApiKey { get; set; }
         public string ContactName { get; set; }

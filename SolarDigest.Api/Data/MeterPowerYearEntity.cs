@@ -4,7 +4,7 @@ using System;
 
 namespace SolarDigest.Api.Data
 {
-    public class MeterPowerYearEntity : EntityCompositeBase
+    public sealed class MeterPowerYearEntity : EntityCompositeBase
     {
         public string Site { get; set; }
         public int Year { get; set; }

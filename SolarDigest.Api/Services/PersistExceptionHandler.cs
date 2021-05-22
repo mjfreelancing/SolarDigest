@@ -1,5 +1,4 @@
 ﻿using AllOverIt.Helpers;
-using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Repository;
 using System;
@@ -24,13 +23,7 @@ namespace SolarDigest.Api.Services
 
             try
             {
-                var entity = new ExceptionEntity
-                {
-                    Message = exception.Message,
-                    StackTrace = exception.StackTrace
-                };
-
-                await _exceptionTable.PutItemAsync(entity);
+                await _exceptionTable.AddExceptionAsync(exception).ConfigureAwait(false);
 
                 _logger.LogDebug($"Exception persisted: {exception.Message}");
             }

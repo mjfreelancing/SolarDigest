@@ -2,28 +2,27 @@
 using SolarDigest.Api.Models.SolarEdge;
 using System;
 
-namespace SolarDigest.Api.Data
+namespace SolarDigest.Api.Models
 {
-    public sealed class MeterPowerMonthEntity : EntityCompositeBase
+    public sealed class MeterPowerMonth
     {
         public string Site { get; set; }
         public int Year { get; set; }
         public string YearMonth { get; set; }
-        public string StartDate { get; set; }       // first date the data covers
-        public string EndDate { get; set; }         // last date the data covers
+        public string StartDate { get; set; } // first date the data covers
+        public string EndDate { get; set; } // last date the data covers
         public string Time { get; set; }
         public int MonthNumber { get; set; }
-        public int DayCount { get; set; }           // the first and last month may be partial months
+        public int DayCount { get; set; } // the first and last month may be partial months
         public string MeterType { get; set; }
         public double Watts { get; set; }
         public double WattHour { get; set; }
 
-        public MeterPowerMonthEntity()
+        public MeterPowerMonth()
         {
         }
 
-        // startDate/endDate indicates when the data has been aggregated until (for partial month)
-        public MeterPowerMonthEntity(string site, DateTime startDate, DateTime endDate, string time, MeterType meterType,
+        public MeterPowerMonth(string site, DateTime startDate, DateTime endDate, string time, MeterType meterType,
             double watts, double wattHour)
         {
             Site = site;
@@ -37,9 +36,6 @@ namespace SolarDigest.Api.Data
             MeterType = $"{meterType}";
             Watts = Math.Round(watts, 6, MidpointRounding.AwayFromZero);
             WattHour = Math.Round(wattHour, 6, MidpointRounding.AwayFromZero);
-
-            Id = $"{Site}_{YearMonth}_{MeterType}";
-            Sort = $"{Time}";
         }
     }
 }

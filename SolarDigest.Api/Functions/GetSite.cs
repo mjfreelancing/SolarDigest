@@ -44,7 +44,7 @@ namespace SolarDigest.Api.Functions
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
             // await here in case there is an exception
-            return await siteTable!.GetItemAsync<Site>(payload.Id).ConfigureAwait(false);
+            return await siteTable!.GetSiteAsync(payload.Id).ConfigureAwait(false);
         }
     }
 }
