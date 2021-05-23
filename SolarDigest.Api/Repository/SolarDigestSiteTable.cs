@@ -43,7 +43,7 @@ namespace SolarDigest.Api.Repository
         {
             var entity = Mapper.Map<SiteEntity>(site);
 
-            await TableImpl.AddItemAsync(entity, cancellationToken).ConfigureAwait(false);
+            await TableImpl.PutItemAsync(entity, cancellationToken).ConfigureAwait(false);
 
             return await GetSiteAsync(site.Id, cancellationToken).ConfigureAwait(false);
         }

@@ -53,18 +53,18 @@ namespace SolarDigest.Api.Functions
             var startDate = request.StartDate.ParseSolarDate();
             var endDate = request.EndDate.ParseSolarDate();
 
-            var maxAllowedDate = site.UtcToLocalTime(DateTime.UtcNow).Date;
+            var lastRefreshDate = site.LastRefreshDateTime.ParseSolarDateTime().Date;
 
-            if (maxAllowedDate < startDate)
+            if (startDate > lastRefreshDate)
             {
-                logger.LogDebug("The requested date range is in the future. Nothing to do.");
+                logger.LogDebug($"The requested date range is after the latest refresh date ({lastRefreshDate.GetSolarDateString()}). Nothing to do.");
                 return NoResult.Default;
             }
 
-            if (maxAllowedDate < endDate)
+            if (endDate > lastRefreshDate)
             {
-                logger.LogDebug($"The requested end date is in the future. Trimming it to {maxAllowedDate.GetSolarDateString()}.");
-                endDate = maxAllowedDate;
+                logger.LogDebug($"The requested end date is after the latest refresh date ({lastRefreshDate.GetSolarDateString()}). Trimming the date range.");
+                endDate = lastRefreshDate;
             }
 
             IEnumerable<Task> GetAggregationTasks()
@@ -73,6 +73,11 @@ namespace SolarDigest.Api.Functions
                 {
                     var aggregateStartDate = year == startDate.Year ? startDate : new DateTime(year, 1, 1);
                     var aggregateEndDate = year == endDate.Year ? endDate : new DateTime(year, 12, 31);
+
+                    if (aggregateEndDate > endDate)
+                    {
+                        aggregateEndDate = endDate;
+                    }
 
                     var monthlyProcessor = serviceProvider.GetService<IPowerMonthlyProcessor>();
                     yield return monthlyProcessor!.ProcessAsync(site, aggregateStartDate, aggregateEndDate);

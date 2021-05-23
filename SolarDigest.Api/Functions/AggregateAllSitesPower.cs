@@ -45,7 +45,7 @@ namespace SolarDigest.Api.Functions
                     var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
 
                     // make sure we don't aggregate beyond the last refresh timestamp
-                    var lastRefreshTimestamp = site.LastRefreshDateTime.ParseSolarDate().Date;
+                    var lastRefreshTimestamp = site.LastRefreshDateTime.ParseSolarDateTime().Date;
 
                     if (nextEndDate > lastRefreshTimestamp)
                     {
