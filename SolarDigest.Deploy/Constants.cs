@@ -20,6 +20,7 @@
             internal const string HydrateSitePower = "HydrateSitePower";
             internal const string AggregateAllSitesPower = "AggregateAllSitesPower";
             internal const string AggregateSitePower = "AggregateSitePower";
+            internal const string GetSitePowerSummary = "GetSitePowerSummary";
         }
     }
 }

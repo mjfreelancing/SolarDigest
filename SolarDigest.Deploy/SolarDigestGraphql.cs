@@ -20,7 +20,7 @@ namespace SolarDigest.Deploy
             // these require the GraphqlApi reference
             var dataSourceFactory = new DataSourceFactory(this/*, serviceRoles*/);
             var resolverFactory = new ResolverFactory(this, apiProps.MappingTemplates, dataSourceFactory);
-            var gqlTypeCache = new GraphqlTypeStore(resolverFactory);
+            var gqlTypeCache = new GraphqlTypeStore(this, apiProps.MappingTemplates, dataSourceFactory, resolverFactory);
             _schemaBuilder = new SchemaBuilder(this, apiProps.MappingTemplates, gqlTypeCache, dataSourceFactory);
         }
 
