@@ -23,6 +23,7 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction EmailExceptionFunction { get; private set; }
         internal IFunction AggregateAllSitesPowerFunction { get; private set; }
         internal IFunction AggregateSitePowerFunction { get; private set; }
+        internal IFunction GetSitePowerSummary { get; private set; }
 
         public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables)
             : base(scope, "Functions")
@@ -41,6 +42,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateHydrateSitePowerFunction();
             CreateAggregateAllSitesPowerFunction();
             CreateAggregateSitePowerFunction();
+            CreateGetSitePowerSummary();
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
@@ -151,6 +153,23 @@ namespace SolarDigest.Deploy.Constructs
 
                     .GrantReadWriteTableData(_tables.SiteTable)
                     .GrantWriteTableData(_tables.ExceptionTable);
+        }
+
+        private void CreateGetSitePowerSummary()
+        {
+            // YET TO BE IMPLEMENTED - ONLY ADDED TO TEST THE SCHEMA BUILDER AT THIS STAGE
+            GetSitePowerSummary =
+                CreateFunction(_apiProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
+
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
+            //.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
+            //.AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
+
+            //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerMonthlyTable.TableName))
+            //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerYearlyTable.TableName))
+
+            //.GrantReadWriteTableData(_tables.SiteTable)
+            //.GrantWriteTableData(_tables.ExceptionTable);
         }
     }
 }

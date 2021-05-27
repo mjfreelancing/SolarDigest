@@ -21,15 +21,15 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
             _dataSourceFactory = dataSourceFactory.WhenNotNull(nameof(dataSourceFactory));
         }
 
-        public void ConstructResolverIfRequired(SystemType type, PropertyInfo propertyInfo)
+        public void ConstructResolverIfRequired(SystemType type, MemberInfo methodInfo)
         {
-            var attribute = propertyInfo.GetCustomAttributes(typeof(DataSourceAttribute), true).SingleOrDefault();
+            var attribute = methodInfo.GetCustomAttributes(typeof(DataSourceAttribute), true).SingleOrDefault();
 
             if (attribute != null)
             {
                 var dataSourceAttribute = attribute as DataSourceAttribute;
                 var dataSource = _dataSourceFactory.CreateDataSource(dataSourceAttribute);
-                var propertyName = propertyInfo.Name;
+                var propertyName = methodInfo.Name;
 
                 _ = new Resolver(_graphQlApi, $"{type.Name}{propertyName}Resolver", new ResolverProps
                 {

@@ -5,6 +5,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
 {
     public interface IResolverFactory
     {
-        void ConstructResolverIfRequired(Type type, PropertyInfo propertyInfo);
+        // Satisfies PropertyInfo and MethodInfo
+        void ConstructResolverIfRequired(Type type, MemberInfo propertyInfo);
     }
 }

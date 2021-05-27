@@ -1,5 +1,6 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync.Extensions;
 using AllOverIt.Aws.Cdk.AppSync.Factories;
+using AllOverIt.Extensions;
 using AllOverIt.Helpers;
 using Amazon.CDK.AWS.AppSync;
 using System;
@@ -13,6 +14,9 @@ namespace AllOverIt.Aws.Cdk.AppSync
     public sealed class GraphqlTypeStore : IGraphqlTypeStore
     {
         private readonly IList<SystemType> _circularReferences = new List<SystemType>();
+        private readonly GraphqlApi _graphqlApi;
+        private readonly IMappingTemplates _mappingTemplates;
+        private readonly IDataSourceFactory _dataSourceFactory;
         private readonly IResolverFactory _resolverFactory;
 
         private readonly IDictionary<string, Func<bool, bool, bool, GraphqlType>> _fieldTypes = new Dictionary<string, Func<bool, bool, bool, GraphqlType>>
@@ -24,8 +28,11 @@ namespace AllOverIt.Aws.Cdk.AppSync
             {nameof(String), (isRequired, isList, isRequiredList) => GraphqlType.String(CreateTypeOptions(isRequired, isList, isRequiredList))}
         };
 
-        public GraphqlTypeStore(IResolverFactory resolverFactory)
+        public GraphqlTypeStore(GraphqlApi graphqlApi, IMappingTemplates mappingTemplates, IDataSourceFactory dataSourceFactory, IResolverFactory resolverFactory)
         {
+            _graphqlApi = graphqlApi.WhenNotNull(nameof(graphqlApi));
+            _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
+            _dataSourceFactory = dataSourceFactory.WhenNotNull(nameof(dataSourceFactory));
             _resolverFactory = resolverFactory.WhenNotNull(nameof(resolverFactory));
         }
 
@@ -92,22 +99,19 @@ namespace AllOverIt.Aws.Cdk.AppSync
                 var isInputType = type.GetTypeInfo().IsGqlInputType();
 
                 ParseInterfaceTypeProperties(classDefinition, isInputType, type, typeCreated);
-
-
-
-                // todo: parse all methods => may need to be associated with resolvers
-
-
+                ParseInterfaceTypeMethods(classDefinition, type);
 
                 var intermediateType = isInputType
-                    ? (IIntermediateType) new InputType(type.Name, new IntermediateTypeOptions
-                    {
-                        Definition = classDefinition
-                    })
-                    : new ObjectType(type.Name, new ObjectTypeOptions
-                    {
-                        Definition = classDefinition
-                    });
+                    ? (IIntermediateType) new InputType(type.Name,
+                        new IntermediateTypeOptions
+                        {
+                            Definition = classDefinition
+                        })
+                    : new ObjectType(type.Name,
+                        new ObjectTypeOptions
+                        {
+                            Definition = classDefinition
+                        });
 
                 // cache for possible future use
                 _fieldTypes.Add(
@@ -157,6 +161,47 @@ namespace AllOverIt.Aws.Cdk.AppSync
 
                 // check if the field requires a resolver
                 _resolverFactory.ConstructResolverIfRequired(type, propertyInfo);
+            }
+        }
+
+        private void ParseInterfaceTypeMethods(IDictionary<string, IField> classDefinition, SystemType type)
+        {
+            var methods = type.GetMethodInfo();
+
+            if (type.IsInterface)
+            {
+                var inheritedMethods = type.GetInterfaces().SelectMany(item => item.GetMethods());
+                methods = methods.Concat(inheritedMethods);
+            }
+
+            foreach (var methodInfo in methods.Where(item => !item.IsSpecialName))
+            {
+                var dataSource = methodInfo.GetMethodDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
+
+                var isRequired = methodInfo.IsGqlTypeRequired();
+                var isList = methodInfo.ReturnType.IsArray;
+                var isRequiredList = isList && methodInfo.IsGqlArrayRequired();
+
+                var returnObjectType =
+                    GetGraphqlType(
+                        methodInfo.ReturnType,
+                        isRequired,
+                        isList,
+                        isRequiredList,
+                        objectType => _graphqlApi.AddType(objectType));
+
+                classDefinition.Add(
+                    methodInfo.Name.GetGraphqlName(),
+                    new ResolvableField(
+                        new ResolvableFieldOptions
+                        {
+                            DataSource = dataSource,
+                            RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.RequestMapping),
+                            ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.ResponseMapping),
+                            Args = methodInfo.GetMethodArgs(_graphqlApi, this),
+                            ReturnType = returnObjectType
+                        })
+                    );
             }
         }
 
