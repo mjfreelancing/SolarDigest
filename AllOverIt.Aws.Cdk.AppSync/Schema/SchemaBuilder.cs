@@ -13,14 +13,14 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 {
     public sealed class SchemaBuilder : ISchemaBuilder
     {
-        private readonly GraphqlApi _graphqlApi;
+        private readonly GraphqlApi _graphQLApi;
         private readonly IMappingTemplates _mappingTemplates;
         private readonly IGraphqlTypeStore _typeStore;
         private readonly IDataSourceFactory _dataSourceFactory;
 
         public SchemaBuilder(GraphqlApi graphQlApi, IMappingTemplates mappingTemplates, IGraphqlTypeStore typeStore, IDataSourceFactory dataSourceFactory)
         {
-            _graphqlApi = graphQlApi.WhenNotNull(nameof(graphQlApi));
+            _graphQLApi = graphQlApi.WhenNotNull(nameof(graphQlApi));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
             _typeStore = typeStore.WhenNotNull(nameof(typeStore));
             _dataSourceFactory = dataSourceFactory.WhenNotNull(nameof(dataSourceFactory));
@@ -29,13 +29,13 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
         public ISchemaBuilder AddQuery<TType>()
             where TType : IQueryDefinition
         {
-            CreateGraphqlSchemaType<TType>((fieldName, field) => _graphqlApi.AddQuery(fieldName, field));
+            CreateGraphqlSchemaType<TType>((fieldName, field) => _graphQLApi.AddQuery(fieldName, field));
             return this;
         }
 
         public ISchemaBuilder AddMutation<TType>() where TType : IMutationDefinition
         {
-            CreateGraphqlSchemaType<TType>((fieldName, field) => _graphqlApi.AddMutation(fieldName, field));
+            CreateGraphqlSchemaType<TType>((fieldName, field) => _graphQLApi.AddMutation(fieldName, field));
             return this;
         }
 
@@ -57,9 +57,9 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                         isRequired,
                         isList,
                         isRequiredList,
-                        objectType => _graphqlApi.AddType(objectType));
+                        objectType => _graphQLApi.AddType(objectType));
 
-                _graphqlApi.AddSubscription(methodInfo.Name.GetGraphqlName(),
+                _graphQLApi.AddSubscription(methodInfo.Name.GetGraphqlName(),
                     new ResolvableField(
                         new ResolvableFieldOptions
                         {
@@ -68,13 +68,14 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                                 Directive.Subscribe(GetSubscriptionMutations(methodInfo).ToArray())
                             },
                             Args = GetMethodArgs(methodInfo),
-                            ReturnType = GraphqlType.Intermediate(new GraphqlTypeOptions
-                            {
-                                IntermediateType = returnObjectType.IntermediateType,
-                                IsRequired = returnObjectType.IsRequired,
-                                IsList = returnObjectType.IsList,
-                                IsRequiredList = returnObjectType.IsRequiredList
-                            })
+                            ReturnType = returnObjectType
+                            //ReturnType = GraphqlType.Intermediate(new GraphqlTypeOptions
+                            //{
+                            //    IntermediateType = returnObjectType.IntermediateType,
+                            //    IsRequired = returnObjectType.IsRequired,
+                            //    IsList = returnObjectType.IsList,
+                            //    IsRequiredList = returnObjectType.IsRequiredList
+                            //})
                         })
                 );
             }
@@ -108,7 +109,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                         isRequired,
                         isList,
                         isRequiredList,
-                        objectType => _graphqlApi.AddType(objectType));
+                        objectType => _graphQLApi.AddType(objectType));
 
                 graphqlAction.Invoke(methodInfo.Name.GetGraphqlName(),
                     new ResolvableField(
@@ -118,13 +119,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                             RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.RequestMapping),
                             ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.ResponseMapping),
                             Args = GetMethodArgs(methodInfo),
-                            ReturnType = GraphqlType.Intermediate(new GraphqlTypeOptions
-                            {
-                                IntermediateType = returnObjectType.IntermediateType,
-                                IsRequired = returnObjectType.IsRequired,
-                                IsList = returnObjectType.IsList,
-                                IsRequiredList = returnObjectType.IsRequiredList
-                            })
+                            ReturnType = returnObjectType
                         })
                 );
             }
@@ -148,7 +143,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                 var isList = paramType.IsArray;
                 var isRequiredList = isList && parameterInfo.IsGqlArrayRequired();
 
-                var graphQlType = _typeStore.GetGraphqlType(paramType, isRequired, isList, isRequiredList, objectType => _graphqlApi.AddType(objectType));
+                var graphQlType = _typeStore.GetGraphqlType(paramType, isRequired, isList, isRequiredList, objectType => _graphQLApi.AddType(objectType));
 
                 args.Add(parameterInfo.Name.GetGraphqlName(), graphQlType);
             }
