@@ -91,8 +91,8 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 
             if (schemaType.IsInterface)
             {
-                var inheritedProperties = schemaType.GetInterfaces().SelectMany(item => item.GetMethods());
-                methods = methods.Concat(inheritedProperties);
+                var inheritedMethods = schemaType.GetInterfaces().SelectMany(item => item.GetMethods());
+                methods = methods.Concat(inheritedMethods);
             }
 
             foreach (var methodInfo in methods)
