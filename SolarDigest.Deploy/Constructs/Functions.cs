@@ -1,15 +1,18 @@
-﻿using AllOverIt.Helpers;
+﻿using AllOverIt.Aws.Cdk.AppSync;
+using AllOverIt.Helpers;
 using Amazon.CDK;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.S3;
 using SolarDigest.Deploy.Extensions;
+using SolarDigest.Deploy.Helpers;
 using AwsBucket = Amazon.CDK.AWS.S3.Bucket;
 
 namespace SolarDigest.Deploy.Constructs
 {
     internal class Functions : Construct
     {
+        private readonly IMappingTemplates _mappingTemplates;
         private readonly SolarDigestApiProps _apiProps;
         private readonly Iam _iam;
         private readonly DynamoDbTables _tables;
@@ -25,12 +28,13 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction AggregateSitePowerFunction { get; private set; }
         internal IFunction GetSitePowerSummary { get; private set; }
 
-        public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables)
+        public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables, IMappingTemplates mappingTemplates)
             : base(scope, "Functions")
         {
             _apiProps = apiProps.WhenNotNull(nameof(apiProps));
             _iam = iam.WhenNotNull(nameof(iam));
             _tables = tables.WhenNotNull(nameof(tables));
+            _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
 
             _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
 
@@ -46,7 +50,7 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
-            //IDictionary<string, string> variables = null)
+        //IDictionary<string, string> variables = null)
         {
             //variables ??= new Dictionary<string, string>();
 
@@ -170,6 +174,23 @@ namespace SolarDigest.Deploy.Constructs
 
             //.GrantReadWriteTableData(_tables.SiteTable)
             //.GrantWriteTableData(_tables.ExceptionTable);
+
+
+
+            _mappingTemplates.RegisterRequestMapping(
+                Constants.Function.GetSitePowerSummary,
+                StringHelpers.AppendAsLines(
+                    "{",
+                    @"  ""version"" : ""2017-02-28""",
+                    @"  ""operation"": ""Invoke""",
+                    @"  ""payload"": $util.toJson({ ",
+                    @"    ""id"": $ctx.source.id",
+                    @"    ""meterType"": $context.arguments.meterType",
+                    @"    ""summaryType"": $context.arguments.summaryType",
+                    "  }",
+                    "})"
+                )
+            );
         }
     }
 }

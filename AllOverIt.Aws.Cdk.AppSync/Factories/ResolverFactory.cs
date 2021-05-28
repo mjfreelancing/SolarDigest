@@ -1,8 +1,6 @@
-﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
-using AllOverIt.Aws.Cdk.AppSync.Extensions;
+﻿using AllOverIt.Aws.Cdk.AppSync.Extensions;
 using AllOverIt.Helpers;
 using Amazon.CDK.AWS.AppSync;
-using System.Linq;
 using System.Reflection;
 using SystemType = System.Type;
 
@@ -23,13 +21,13 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
 
         public void ConstructResolverIfRequired(SystemType type, MemberInfo methodInfo)
         {
-            var attribute = methodInfo.GetCustomAttributes(typeof(DataSourceAttribute), true).SingleOrDefault();
+            var dataSource = methodInfo.GetMethodDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
 
-            if (attribute != null)
+            if (dataSource != null)
             {
-                var dataSourceAttribute = attribute as DataSourceAttribute;
-                var dataSource = _dataSourceFactory.CreateDataSource(dataSourceAttribute);
                 var propertyName = methodInfo.Name;
+
+                var mappingTemplateKey = methodInfo.GetFunctionName();
 
                 _ = new Resolver(_graphQlApi, $"{type.Name}{propertyName}Resolver", new ResolverProps
                 {
@@ -37,8 +35,8 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
                     DataSource = dataSource,
                     TypeName = type.Name,
                     FieldName = propertyName.GetGraphqlName(),
-                    RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.RequestMapping),
-                    ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.ResponseMapping)
+                    RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.GetRequestMapping(mappingTemplateKey)),
+                    ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.GetResponseMapping(mappingTemplateKey))
                 });
             }
         }

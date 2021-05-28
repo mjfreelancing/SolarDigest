@@ -1,4 +1,5 @@
-﻿using Amazon.CDK;
+﻿using AllOverIt.Aws.Cdk.AppSync;
+using Amazon.CDK;
 using Amazon.CDK.AWS.AppSync;
 using SolarDigest.Deploy.Schema;
 
@@ -6,10 +7,10 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class AppSync : Construct
     {
-        public AppSync(Construct scope, SolarDigestApiProps apiProps, AuthorizationMode authMode)
+        public AppSync(Construct scope, SolarDigestApiProps apiProps, AuthorizationMode authMode, IMappingTemplates mappingTemplates)
             : base(scope, "Api")
         {
-            var graphQl = new SolarDigestGraphql(this, apiProps, authMode);
+            var graphQl = new SolarDigestGraphql(this, apiProps, authMode, mappingTemplates);
 
             graphQl
                 // consider naming convention overrides:

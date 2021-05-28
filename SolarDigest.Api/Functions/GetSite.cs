@@ -18,7 +18,14 @@ namespace SolarDigest.Api.Functions
         lastSummaryDate
         startDate
         timeZoneId
-      }
+        power(meterType: PRODUCTION, summaryType: AVERAGE) {
+             watts {
+               time
+               wattHour
+               watts
+             }
+           }
+        }
     }
 
 
@@ -43,7 +50,6 @@ namespace SolarDigest.Api.Functions
 
             var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
 
-            // await here in case there is an exception
             return await siteTable!.GetSiteAsync(payload.Id).ConfigureAwait(false);
         }
     }

@@ -10,7 +10,8 @@ namespace SolarDigest.Deploy
     {
         private readonly ISchemaBuilder _schemaBuilder;
 
-        public SolarDigestGraphql(Construct scope, SolarDigestApiProps apiProps, IAuthorizationMode authMode/*, IDataSourceRoleCache serviceRoles*/)
+        public SolarDigestGraphql(Construct scope, SolarDigestApiProps apiProps, IAuthorizationMode authMode,
+            IMappingTemplates mappingTemplates /*, IDataSourceRoleCache serviceRoles*/)
             : base(scope, "GraphQl", new GraphqlApiProps
             {
                 Name = $"{apiProps.AppName} V{apiProps.Version}",
@@ -19,9 +20,9 @@ namespace SolarDigest.Deploy
         {
             // these require the GraphqlApi reference
             var dataSourceFactory = new DataSourceFactory(this/*, serviceRoles*/);
-            var resolverFactory = new ResolverFactory(this, apiProps.MappingTemplates, dataSourceFactory);
-            var gqlTypeCache = new GraphqlTypeStore(this, apiProps.MappingTemplates, dataSourceFactory, resolverFactory);
-            _schemaBuilder = new SchemaBuilder(this, apiProps.MappingTemplates, gqlTypeCache, dataSourceFactory);
+            var resolverFactory = new ResolverFactory(this, mappingTemplates, dataSourceFactory);
+            var gqlTypeCache = new GraphqlTypeStore(this, mappingTemplates, dataSourceFactory, resolverFactory);
+            _schemaBuilder = new SchemaBuilder(this, mappingTemplates, gqlTypeCache, dataSourceFactory);
         }
 
         public SolarDigestGraphql AddSchemaQuery<TType>() where TType : IQueryDefinition

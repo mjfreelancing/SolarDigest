@@ -1,14 +1,18 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
-using System.Text;
+using AllOverIt.Extensions;
+using SolarDigest.Deploy.Helpers;
+using System.Collections.Generic;
 
 namespace SolarDigest.Deploy
 {
     internal sealed class SolarDigestMappingTemplates : IMappingTemplates
     {
-        private string _requestMapping;
-        private string _responseMapping;
+        private string _defaultRequestMapping;
+        private string _defaultResponseMapping;
+        private readonly IDictionary<string, string> _functionRequestMappings = new Dictionary<string, string>();
+        private readonly IDictionary<string, string> _functionResponseMappings = new Dictionary<string, string>();
 
-        public string RequestMapping
+        public string DefaultRequestMapping
         {
             get
             {
@@ -24,7 +28,7 @@ namespace SolarDigest.Deploy
                 //    @"}"
                 //);
 
-                _requestMapping ??= CreateTemplate(
+                _defaultRequestMapping ??= StringHelpers.AppendAsLines(
                     "{",
                     @"  ""version"" : ""2017-02-28"",",
                     @"  ""operation"": ""Invoke"",",
@@ -32,11 +36,11 @@ namespace SolarDigest.Deploy
                     @"}"
                 );
 
-                return _requestMapping;
+                return _defaultRequestMapping;
             }
         }
 
-        public string ResponseMapping
+        public string DefaultResponseMapping
         {
             get
             {
@@ -54,25 +58,46 @@ namespace SolarDigest.Deploy
                 //    "#end"
                 //);
 
-                _responseMapping ??= CreateTemplate(
+                _defaultResponseMapping ??= StringHelpers.AppendAsLines(
                     "$util.toJson($context.result.payload)"
                 );
 
-                return _responseMapping;
+                return _defaultResponseMapping;
             }
         }
 
-
-        private static string CreateTemplate(params string[] lines)
+        public void RegisterRequestMapping(string functionName, string mapping)
         {
-            var builder = new StringBuilder();
+            _functionRequestMappings.Add(functionName, mapping);
+        }
 
-            foreach (var line in lines)
+        public void RegisterResponseMapping(string functionName, string mapping)
+        {
+            _functionResponseMappings.Add(functionName, mapping);
+        }
+
+        public string GetRequestMapping(string functionName)
+        {
+            if (functionName.IsNullOrEmpty())
             {
-                builder.AppendLine(line);
+                return DefaultRequestMapping;
             }
 
-            return builder.ToString();
+            var mapping = _functionRequestMappings.GetValueOrDefault(functionName);
+
+            return mapping ?? DefaultRequestMapping;
+        }
+
+        public string GetResponseMapping(string functionName)
+        {
+            if (functionName.IsNullOrEmpty())
+            {
+                return DefaultResponseMapping;
+            }
+
+            var mapping = _functionResponseMappings.GetValueOrDefault(functionName);
+
+            return mapping ?? DefaultResponseMapping;
         }
     }
 }

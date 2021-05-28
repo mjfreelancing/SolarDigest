@@ -15,29 +15,30 @@ namespace SolarDigest.Deploy.Constructs
         internal ITable PowerYearlyTable { get; }
         internal ITable PowerUpdateHistoryTable { get; }
 
-        public DynamoDbTables(Construct scope)
-            : base(scope, "DynamoDB")
+        public DynamoDbTables(Stack stack)
+            : base(stack, "DynamoDB")
         {
-            ExceptionTable = CreateTable("Exception", false, StreamViewType.NEW_IMAGE, "TimeToLive");
-            SiteTable = CreateTable("Site");
-            EnergyCostsTable = CreateTable("EnergyCosts", true);
+            ExceptionTable = CreateTable(stack, "Exception", false, StreamViewType.NEW_IMAGE, "TimeToLive");
+            SiteTable = CreateTable(stack, "Site");
+            EnergyCostsTable = CreateTable(stack, "EnergyCosts", true);
 
-            PowerTable = CreateTable("Power", true, default, default, table =>
+            PowerTable = CreateTable(stack, "Power", true, default, default, table =>
             {
                 ConfigureReadAutoScaling(table);
                 ConfigureWriteAutoScaling(table);
             });
 
-            PowerMonthlyTable = CreateTable("PowerMonthly", true);
-            PowerYearlyTable = CreateTable("PowerYearly", true);
-            PowerUpdateHistoryTable = CreateTable("PowerUpdateHistory", true);
+            PowerMonthlyTable = CreateTable(stack, "PowerMonthly", true);
+            PowerYearlyTable = CreateTable(stack, "PowerYearly", true);
+            PowerUpdateHistoryTable = CreateTable(stack, "PowerUpdateHistory", true);
         }
 
-        private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
+        private ITable CreateTable(Stack stack, string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
             string ttlAttribute = default, Action<Table> configAction = default)
         {
             var table = new Table(this, tableName, new TableProps
             {
+                
                 TableName = tableName,
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
@@ -46,6 +47,11 @@ namespace SolarDigest.Deploy.Constructs
             });
 
             configAction?.Invoke(table);
+
+            stack.ExportValue(table.TableArn, new ExportValueOptions
+            {
+                Name = $"{stack.Region}_{stack.Account}_{tableName}Table"
+            });
 
             return table;
         }

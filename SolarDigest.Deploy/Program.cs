@@ -17,7 +17,7 @@ namespace SolarDigest.Deploy
             var apiProps = new SolarDigestApiProps
             {
                 Version = Constants.ApiVersion,
-                MappingTemplates = new SolarDigestMappingTemplates()
+                //MappingTemplates = new SolarDigestMappingTemplates()
             };
 
             var stack = new Stack(app, $"{apiProps.AppName}V{apiProps.Version}", new StackProps
@@ -32,7 +32,8 @@ namespace SolarDigest.Deploy
 
             var iam = new Iam(stack, apiProps.AppName);
             var tables = new DynamoDbTables(stack);
-            var functions = new Functions(stack, apiProps, iam, tables);
+            var mappingTemplates = new SolarDigestMappingTemplates();
+            var functions = new Functions(stack, apiProps, iam, tables, mappingTemplates);
             var cloudWatch = new LogGroups(stack, apiProps);
             _ = new EventBridge(stack, apiProps, functions, cloudWatch);
 
@@ -47,7 +48,7 @@ namespace SolarDigest.Deploy
                 //UserPoolConfig = 
             };
 
-            _ = new AppSync(stack, apiProps, authMode);
+            _ = new AppSync(stack, apiProps, authMode, mappingTemplates);
 
             app.Synth();
         }

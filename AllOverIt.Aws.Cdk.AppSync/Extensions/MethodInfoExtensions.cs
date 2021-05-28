@@ -1,5 +1,4 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
-using AllOverIt.Aws.Cdk.AppSync.Factories;
 using Amazon.CDK.AWS.AppSync;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,15 +16,6 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
         public static bool IsGqlArrayRequired(this MethodInfo propertyInfo)
         {
             return propertyInfo.GetCustomAttribute(typeof(GraphqlArrayRequiredAttribute), true) != null;
-        }
-
-        public static BaseDataSource GetMethodDataSource(this MethodInfo methodInfo, IDataSourceFactory dataSourceFactory)
-        {
-            var attribute = methodInfo.GetCustomAttributes(typeof(DataSourceAttribute), true).SingleOrDefault();
-
-            return attribute == null
-                ? null
-                : dataSourceFactory.CreateDataSource(attribute as DataSourceAttribute);
         }
 
         public static IDictionary<string, GraphqlType> GetMethodArgs(this MethodInfo methodInfo, GraphqlApi graphqlApi, IGraphqlTypeStore typeStore)

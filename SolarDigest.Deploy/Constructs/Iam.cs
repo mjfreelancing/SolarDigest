@@ -31,7 +31,8 @@ namespace SolarDigest.Deploy.Constructs
                 },
                 Resources = new[]
                 {
-                    $"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
+                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
+                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
                 }
             });
         }
@@ -49,7 +50,8 @@ namespace SolarDigest.Deploy.Constructs
                 },
                 Resources = new[]
                 {
-                    $"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
+                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
+                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
                 }
             });
         }
@@ -67,7 +69,8 @@ namespace SolarDigest.Deploy.Constructs
                 },
                 Resources = new[]
                 {
-                    $"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
+                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
+                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
                 }
             });
         }

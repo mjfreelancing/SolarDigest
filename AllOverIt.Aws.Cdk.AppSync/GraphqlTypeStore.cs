@@ -190,14 +190,16 @@ namespace AllOverIt.Aws.Cdk.AppSync
                         isRequiredList,
                         objectType => _graphqlApi.AddType(objectType));
 
+                var mappingTemplateKey = methodInfo.GetFunctionName();
+
                 classDefinition.Add(
                     methodInfo.Name.GetGraphqlName(),
                     new ResolvableField(
                         new ResolvableFieldOptions
                         {
                             DataSource = dataSource,
-                            RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.RequestMapping),
-                            ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.ResponseMapping),
+                            RequestMappingTemplate = MappingTemplate.FromString(_mappingTemplates.GetRequestMapping(mappingTemplateKey)),
+                            ResponseMappingTemplate = MappingTemplate.FromString(_mappingTemplates.GetResponseMapping(mappingTemplateKey)),
                             Args = methodInfo.GetMethodArgs(_graphqlApi, this),
                             ReturnType = returnObjectType
                         })
