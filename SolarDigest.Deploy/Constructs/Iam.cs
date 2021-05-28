@@ -1,77 +1,114 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
+using SolarDigest.Deploy.Helpers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class Iam : Construct
     {
+        private readonly SolarDigestAppProps _appProps;
+
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
         //internal PolicyStatement GetParameterPolicyStatement { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
-        public Iam(Construct stack, string appName)
-            : base(stack, $"{appName}IAM")
+        public Iam(Construct scope, SolarDigestAppProps appProps)
+            : base(scope, "IAM")
         {
+            _appProps = appProps;
             CreateDefaultEventBridgePolicyStatement();
             //CreateGetParameterPolicyStatement();
             SendEmailPolicyStatements();
         }
 
-        public PolicyStatement GetDynamoDescribeTablePolicy(string tableName)
+        public PolicyStatement GetDynamoDescribeTablePolicy(params string[] tableNames)
         {
-            var stack = Stack.Of(this);
-
-            return new PolicyStatement(new PolicyStatementProps
+            return new (new PolicyStatementProps
             {
                 Effect = Effect.ALLOW,
                 Actions = new[]
                 {
                     "dynamodb:DescribeTable"
                 },
-                Resources = new[]
-                {
-                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
-                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
-                }
+                Resources = GetTableArns(tableNames)
             });
         }
 
-        public PolicyStatement GetDynamoQueryTablePolicy(string tableName)
+        public PolicyStatement GetDynamoQueryTablePolicy(params string[] tableNames)
         {
-            var stack = Stack.Of(this);
-
-            return new PolicyStatement(new PolicyStatementProps
+            return new (new PolicyStatementProps
             {
                 Effect = Effect.ALLOW,
                 Actions = new[]
                 {
                     "dynamodb:Query"
                 },
-                Resources = new[]
-                {
-                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
-                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
-                }
+                Resources = GetTableArns(tableNames)
             });
         }
 
-        public PolicyStatement GetDynamoBatchWriteTablePolicy(string tableName)
+        public PolicyStatement GetDynamoBatchWriteTablePolicy(params string[] tableNames)
         {
-            var stack = Stack.Of(this);
-
-            return new PolicyStatement(new PolicyStatementProps
+            return new (new PolicyStatementProps
             {
                 Effect = Effect.ALLOW,
                 Actions = new[]
                 {
                     "dynamodb:BatchWriteItem"
                 },
-                Resources = new[]
+                Resources = GetTableArns(tableNames)
+            });
+        }
+
+        public PolicyStatement GetDynamoReadDataPolicy(params string[] tableNames)
+        {
+            return new (new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
                 {
-                    Fn.ImportValue($"{stack.Region}_{stack.Account}_{tableName}Table")
-                    //$"arn:aws:dynamodb:{stack.Region}:{stack.Account}:table/{tableName}"
-                }
+                    "dynamodb:BatchGetItem",
+                    "dynamodb:GetRecords", 
+                    "dynamodb:GetShardIterator",
+                    "dynamodb:Query",
+                    "dynamodb:GetItem",
+                    "dynamodb:Scan"
+                },
+                Resources = GetTableArns(tableNames)
+            });
+        }
+
+        public PolicyStatement GetDynamoWriteDataPolicy(params string[] tableNames)
+        {
+            return new (new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "dynamodb:BatchWriteItem",
+                    "dynamodb:PutItem",
+                    "dynamodb:UpdateItem",
+                    "dynamodb:DeleteItem"
+                },
+                Resources = GetTableArns(tableNames)
+            });
+        }
+
+        public PolicyStatement GetDynamoStreamReadPolicy(params string[] tableNames)
+        {
+            return new (new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "dynamodb:DescribeStream",
+                    "dynamodb:GetRecords",
+                    "dynamodb:GetShardIterator",
+                    "dynamodb:ListStreams"
+                },
+                Resources = GetTableArns(tableNames)
             });
         }
 
@@ -136,6 +173,16 @@ namespace SolarDigest.Deploy.Constructs
                     }
                 }
             });
+        }
+
+        private static string[] GetTableArns(params string[] tableNames)
+        {
+            static string GetTableArn(string tableName)
+            {
+                return Fn.ImportValue(TableHelpers.GetExportTableName(tableName));
+            }
+
+            return tableNames.Select(GetTableArn).ToArray();
         }
     }
 }

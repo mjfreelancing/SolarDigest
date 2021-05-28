@@ -7,10 +7,10 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class AppSync : Construct
     {
-        public AppSync(Construct scope, SolarDigestApiProps apiProps, AuthorizationMode authMode, IMappingTemplates mappingTemplates)
-            : base(scope, "Api")
+        public AppSync(Construct scope, SolarDigestAppProps appProps, AuthorizationMode authMode, IMappingTemplates mappingTemplates)
+            : base(scope, "AppSync")
         {
-            var graphQl = new SolarDigestGraphql(this, apiProps, authMode, mappingTemplates);
+            var graphQl = new SolarDigestGraphql(this, appProps, authMode, mappingTemplates);
 
             graphQl
                 // consider naming convention overrides:

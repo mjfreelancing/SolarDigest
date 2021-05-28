@@ -2,8 +2,9 @@
 {
     internal static class Constants
     {
-        internal const int ApiVersion = 1;
-        internal const string ServiceName = "SolarDigest";
+        internal const string AppName = "SolarDigest";
+        internal const int DataVersion = 1;
+        internal const int ServiceVersion = 1;
 
         internal const string S3LambdaCodeBucketName = "solardigest-code";
 

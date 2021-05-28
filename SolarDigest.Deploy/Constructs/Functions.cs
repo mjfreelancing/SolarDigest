@@ -1,6 +1,7 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Helpers;
 using Amazon.CDK;
+using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.S3;
@@ -13,9 +14,8 @@ namespace SolarDigest.Deploy.Constructs
     internal class Functions : Construct
     {
         private readonly IMappingTemplates _mappingTemplates;
-        private readonly SolarDigestApiProps _apiProps;
+        private readonly SolarDigestAppProps _appProps;
         private readonly Iam _iam;
-        private readonly DynamoDbTables _tables;
         private readonly IBucket _codeBucket;
 
         internal IFunction AddSiteFunction { get; private set; }
@@ -28,12 +28,11 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction AggregateSitePowerFunction { get; private set; }
         internal IFunction GetSitePowerSummary { get; private set; }
 
-        public Functions(Construct scope, SolarDigestApiProps apiProps, Iam iam, DynamoDbTables tables, IMappingTemplates mappingTemplates)
-            : base(scope, "Functions")
+        public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
+            : base(scope, "Function")
         {
-            _apiProps = apiProps.WhenNotNull(nameof(apiProps));
+            _appProps = appProps.WhenNotNull(nameof(appProps));
             _iam = iam.WhenNotNull(nameof(iam));
-            _tables = tables.WhenNotNull(nameof(tables));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
 
             _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
@@ -75,28 +74,28 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetSiteFunction()
         {
             GetSiteFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.GetSite, "Get site details")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .GrantReadTableData(_tables.SiteTable)
-                    .GrantWriteTableData(_tables.ExceptionTable);
+                CreateFunction(_appProps.AppName, Constants.Function.GetSite, "Get site details")
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
 
         private void CreateAddSiteFunction()
         {
             AddSiteFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.AddSite, "Add site details")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .GrantWriteTableData(_tables.ExceptionTable)
-                    .GrantReadWriteTableData(_tables.SiteTable);
+                CreateFunction(_appProps.AppName, Constants.Function.AddSite, "Add site details")
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception))
+                    .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
         }
 
         private void CreateUpdateSiteFunction()
         {
             UpdateSiteFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.UpdateSite, "Update site details")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .GrantWriteTableData(_tables.ExceptionTable)
-                    .GrantReadWriteTableData(_tables.SiteTable);
+                CreateFunction(_appProps.AppName, Constants.Function.UpdateSite, "Update site details")
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception))
+                    .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
         }
 
         private void CreateEmailExceptionFunction()
@@ -105,67 +104,71 @@ namespace SolarDigest.Deploy.Constructs
 
             // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
 
+            
+            //var arn = Fn.ImportValue(TableHelpers.GetExportStreamName(nameof(DynamoDbTables.Exception)));
+            //var exceptionTable = Table.FromTableArn(this, "FromTableArnException", arn);
+
+            var exceptionTable = Table.FromTableName(this, "FromTableNameException", nameof(DynamoDbTables.Exception));
+
             EmailExceptionFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
+                CreateFunction(_appProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
                     .AddPolicyStatements(_iam.SendEmailPolicyStatement)
-                    .AddEventSource(_tables.ExceptionTable)
-                    .GrantStreamReadData(_tables.ExceptionTable);
+                    .AddEventSource(exceptionTable)
+                    .GrantStreamReadData(_iam, nameof(DynamoDbTables.Exception));
         }
 
         private void CreateHydrateAllSitesPowerFunction()
         {
             HydrateAllSitesPowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                CreateFunction(_appProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
-                    .GrantReadTableData(_tables.SiteTable)
-                    .GrantWriteTableData(_tables.ExceptionTable);
+                    .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
 
         private void CreateHydrateSitePowerFunction()
         {
             HydrateSitePowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192, 15)
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerTable.TableName))
-                    .GrantWriteTableData(_tables.ExceptionTable, _tables.PowerUpdateHistoryTable)
-                    .GrantReadWriteTableData(_tables.SiteTable);
+                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(nameof(DynamoDbTables.Site)))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.Power)))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception), nameof(DynamoDbTables.PowerUpdateHistory))
+                    .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
         }
 
         private void CreateAggregateAllSitesPowerFunction()
         {
             AggregateAllSitesPowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.AggregateAllSitesPower, "Aggregate power data for all sites")
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
+                CreateFunction(_appProps.AppName, Constants.Function.AggregateAllSitesPower, "Aggregate power data for all sites")
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
-                    .GrantReadTableData(_tables.SiteTable)
-                    .GrantWriteTableData(_tables.ExceptionTable);
+                    .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
 
         private void CreateAggregateSitePowerFunction()
         {
             AggregateSitePowerFunction =
-                CreateFunction(_apiProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192, 15)
 
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName))
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
-                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power), nameof(DynamoDbTables.Power))
 
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerMonthlyTable.TableName))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerYearlyTable.TableName))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerMonthly)))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerYearly)))
 
-                    .GrantReadWriteTableData(_tables.SiteTable)
-                    .GrantWriteTableData(_tables.ExceptionTable);
+                    .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
 
         private void CreateGetSitePowerSummary()
         {
             // YET TO BE IMPLEMENTED - ONLY ADDED TO TEST THE SCHEMA BUILDER AT THIS STAGE
             GetSitePowerSummary =
-                CreateFunction(_apiProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site));
 
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.SiteTable.TableName));
             //.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
             //.AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
 

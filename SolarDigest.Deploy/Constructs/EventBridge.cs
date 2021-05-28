@@ -10,17 +10,22 @@ namespace SolarDigest.Deploy.Constructs
     {
         private enum SolarEdgeEventType
         {
+            // All events
             CatchAll,
+
+            // A scheduled events
             HydrateAllSitesPower,
-            HydrateSitePowerEvent,
             AggregateAllSitesPower,
+
+            // Events posted from functions
+            HydrateSitePowerEvent,
             AggregateSitePowerEvent
         }
 
-        public EventBridge(Construct scope, SolarDigestApiProps apiProps, Functions functions, LogGroups logGroups)
+        public EventBridge(Construct scope, SolarDigestAppProps appProps, Functions functions, LogGroups logGroups)
             : base(scope, "EventBridge")
         {
-            var appName = apiProps.AppName;
+            var appName = appProps.AppName;
 
             CreateCatchAll(appName, logGroups.CatchAllLogGroup);
             CreateHydrateSitePower(appName, functions.HydrateSitePowerFunction);
@@ -105,7 +110,6 @@ namespace SolarDigest.Deploy.Constructs
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
             });
-
         }
     }
 }

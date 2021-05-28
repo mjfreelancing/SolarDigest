@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
+using SolarDigest.Deploy.Helpers;
 using System;
 using Attribute = Amazon.CDK.AWS.DynamoDB.Attribute;
 
@@ -7,38 +8,42 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal class DynamoDbTables : Construct
     {
-        internal ITable ExceptionTable { get; }
-        internal ITable SiteTable { get; }
-        internal ITable EnergyCostsTable { get; }
-        internal ITable PowerTable { get; }
-        internal ITable PowerMonthlyTable { get; }
-        internal ITable PowerYearlyTable { get; }
-        internal ITable PowerUpdateHistoryTable { get; }
+        private readonly SolarDigestAppProps _appProps;
 
-        public DynamoDbTables(Stack stack)
-            : base(stack, "DynamoDB")
+        // To simplify stack creation, name these properties the same as the table name
+        internal ITable Exception { get; }
+        internal ITable Site { get; }
+        internal ITable EnergyCosts { get; }
+        internal ITable Power { get; }
+        internal ITable PowerMonthly { get; }
+        internal ITable PowerYearly { get; }
+        internal ITable PowerUpdateHistory { get; }
+
+        public DynamoDbTables(Construct scope, SolarDigestAppProps appProps)
+            : base(scope, "DynamoDB")
         {
-            ExceptionTable = CreateTable(stack, "Exception", false, StreamViewType.NEW_IMAGE, "TimeToLive");
-            SiteTable = CreateTable(stack, "Site");
-            EnergyCostsTable = CreateTable(stack, "EnergyCosts", true);
+            _appProps = appProps;
 
-            PowerTable = CreateTable(stack, "Power", true, default, default, table =>
+            Exception = CreateTable(nameof(Exception), false, StreamViewType.NEW_IMAGE, "TimeToLive");
+            Site = CreateTable(nameof(Site));
+            EnergyCosts = CreateTable(nameof(EnergyCosts), true);
+
+            Power = CreateTable(nameof(Power), true, default, default, table =>
             {
                 ConfigureReadAutoScaling(table);
                 ConfigureWriteAutoScaling(table);
             });
 
-            PowerMonthlyTable = CreateTable(stack, "PowerMonthly", true);
-            PowerYearlyTable = CreateTable(stack, "PowerYearly", true);
-            PowerUpdateHistoryTable = CreateTable(stack, "PowerUpdateHistory", true);
+            PowerMonthly = CreateTable(nameof(PowerMonthly), true);
+            PowerYearly = CreateTable(nameof(PowerYearly), true);
+            PowerUpdateHistory = CreateTable(nameof(PowerUpdateHistory), true);
         }
 
-        private ITable CreateTable(Stack stack, string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
+        private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
             string ttlAttribute = default, Action<Table> configAction = default)
         {
             var table = new Table(this, tableName, new TableProps
             {
-                
                 TableName = tableName,
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
@@ -48,10 +53,8 @@ namespace SolarDigest.Deploy.Constructs
 
             configAction?.Invoke(table);
 
-            stack.ExportValue(table.TableArn, new ExportValueOptions
-            {
-                Name = $"{stack.Region}_{stack.Account}_{tableName}Table"
-            });
+            // must pass tableName since table.TableName will be a token during CDK deployment
+            ExportTableArn(table, tableName);
 
             return table;
         }
@@ -90,6 +93,24 @@ namespace SolarDigest.Deploy.Constructs
                     // ScaleInCooldown = Duration.Seconds(60),
                     // ScaleOutCooldown = Duration.Seconds(60)
                 });
+        }
+
+        private void ExportTableArn(ITable table, string tableName)
+        {
+            var stack = Stack.Of(this);
+
+            stack.ExportValue(table.TableArn, new ExportValueOptions
+            {
+                Name = TableHelpers.GetExportTableName(tableName)
+            });
+
+            //if (table.TableStreamArn != null)
+            //{
+            //    stack.ExportValue(table.TableStreamArn, new ExportValueOptions
+            //    {
+            //        Name = TableHelpers.GetExportStreamName(tableName)
+            //    });
+            //}
         }
     }
 }

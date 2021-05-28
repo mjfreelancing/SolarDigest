@@ -7,12 +7,12 @@ namespace SolarDigest.Deploy.Constructs
     {
         internal LogGroup CatchAllLogGroup { get; }
 
-        public LogGroups(Construct scope, SolarDigestApiProps apiProps)
+        public LogGroups(Construct scope, SolarDigestAppProps appProps)
             : base(scope, "LogGroup")
         {
             CatchAllLogGroup = new LogGroup(this, "CatchAllLogGroup", new LogGroupProps
             {
-                LogGroupName = $"{apiProps.AppName}_CatchAll",
+                LogGroupName = $"{appProps.AppName}_CatchAll",
                 Retention = RetentionDays.ONE_WEEK
             });
         }

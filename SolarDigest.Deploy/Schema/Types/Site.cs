@@ -30,7 +30,7 @@ namespace SolarDigest.Deploy.Schema.Types
         public string LastRefreshDateTime { get; }
 
         [GraphqlTypeRequired]
-        [LambdaDataSource(Constants.ServiceName, Constants.Function.GetSitePowerSummary)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
         Power Power([GraphqlTypeRequired] MeterType meterType, [GraphqlTypeRequired] SummaryType summaryType);
     }
 }

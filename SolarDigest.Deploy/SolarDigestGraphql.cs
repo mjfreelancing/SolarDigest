@@ -10,11 +10,11 @@ namespace SolarDigest.Deploy
     {
         private readonly ISchemaBuilder _schemaBuilder;
 
-        public SolarDigestGraphql(Construct scope, SolarDigestApiProps apiProps, IAuthorizationMode authMode,
+        public SolarDigestGraphql(Construct scope, SolarDigestAppProps appProps, IAuthorizationMode authMode,
             IMappingTemplates mappingTemplates /*, IDataSourceRoleCache serviceRoles*/)
             : base(scope, "GraphQl", new GraphqlApiProps
             {
-                Name = $"{apiProps.AppName} V{apiProps.Version}",
+                Name = $"{appProps.AppName} V{appProps.Version}",
                 AuthorizationConfig = new AuthorizationConfig { DefaultAuthorization = authMode }
             })
         {

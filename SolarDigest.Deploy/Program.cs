@@ -1,54 +1,32 @@
-﻿using Amazon.CDK;
-using Amazon.CDK.AWS.AppSync;
-using SolarDigest.Deploy.Constructs;
+﻿using SolarDigest.Deploy.Stacks;
 using System;
-using Environment = Amazon.CDK.Environment;
-using Stack = Amazon.CDK.Stack;
-using SystemEnvironment = System.Environment;
 
 namespace SolarDigest.Deploy
 {
     class Program
     {
+        private const string CommandLineMessage = "Must pass '--data' or '--service' as a command line argument";
+
         static void Main(string[] args)
         {
-            var app = new App();
-
-            var apiProps = new SolarDigestApiProps
+            if (args.Length != 1)
             {
-                Version = Constants.ApiVersion,
-                //MappingTemplates = new SolarDigestMappingTemplates()
+                Console.WriteLine(CommandLineMessage);
+                return;
+            }
+
+            var app = args[0].ToLower() switch
+            {
+                "--data" => DataStack.CreateApp(),
+                "--service" => ServiceStack.CreateApp(),
+                _ => null
             };
 
-            var stack = new Stack(app, $"{apiProps.AppName}V{apiProps.Version}", new StackProps
+            if (app == null)
             {
-                Description = $"Creates all resources for the {apiProps.AppName} API",
-                Env = new Environment
-                {
-                    Account = SystemEnvironment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
-                    Region = SystemEnvironment.GetEnvironmentVariable("CDK_DEFAULT_REGION")
-                }
-            });
-
-            var iam = new Iam(stack, apiProps.AppName);
-            var tables = new DynamoDbTables(stack);
-            var mappingTemplates = new SolarDigestMappingTemplates();
-            var functions = new Functions(stack, apiProps, iam, tables, mappingTemplates);
-            var cloudWatch = new LogGroups(stack, apiProps);
-            _ = new EventBridge(stack, apiProps, functions, cloudWatch);
-
-            var authMode = new AuthorizationMode
-            {
-                AuthorizationType = AuthorizationType.API_KEY,
-                ApiKeyConfig = new ApiKeyConfig
-                {
-                    Expires = Expiration.AtDate(DateTime.Now.AddDays(365))
-                }
-                //OpenIdConnectConfig = 
-                //UserPoolConfig = 
-            };
-
-            _ = new AppSync(stack, apiProps, authMode, mappingTemplates);
+                Console.WriteLine(CommandLineMessage);
+                return;
+            }
 
             app.Synth();
         }

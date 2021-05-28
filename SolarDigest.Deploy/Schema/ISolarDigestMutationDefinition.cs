@@ -8,11 +8,11 @@ namespace SolarDigest.Deploy.Schema
     internal interface ISolarDigestMutationDefinition : IMutationDefinition
     {
         [GraphqlTypeRequired]
-        [LambdaDataSource(Constants.ServiceName, Constants.Function.AddSite)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.AddSite)]
         Site AddSite([GraphqlTypeRequired] SiteInput site);
 
         [GraphqlTypeRequired]
-        [LambdaDataSource(Constants.ServiceName, Constants.Function.UpdateSite)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.UpdateSite)]
         Site UpdateSite([GraphqlTypeRequired] string id, [GraphqlTypeRequired] SiteInput site, SiteTimestampsInput timestamps);
 
         //[GraphqlTypeRequired]
