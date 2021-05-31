@@ -151,6 +151,7 @@ namespace SolarDigest.Deploy.Constructs
 
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power), nameof(DynamoDbTables.Power))
 
+                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.Power)))
                     .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerMonthly)))
                     .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerYearly)))
 
