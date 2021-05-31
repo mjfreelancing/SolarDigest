@@ -104,13 +104,13 @@ namespace SolarDigest.Deploy.Constructs
                 Name = TableHelpers.GetExportTableName(tableName)
             });
 
-            //if (table.TableStreamArn != null)
-            //{
-            //    stack.ExportValue(table.TableStreamArn, new ExportValueOptions
-            //    {
-            //        Name = TableHelpers.GetExportStreamName(tableName)
-            //    });
-            //}
+            if (table.TableStreamArn != null)
+            {
+                stack.ExportValue(table.TableStreamArn, new ExportValueOptions
+                {
+                    Name = TableHelpers.GetExportStreamName(tableName)
+                });
+            }
         }
     }
 }

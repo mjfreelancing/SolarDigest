@@ -49,10 +49,7 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
-        //IDictionary<string, string> variables = null)
         {
-            //variables ??= new Dictionary<string, string>();
-
             var props = new FunctionProps
             {
                 FunctionName = $"{appName}_{name}",
@@ -62,8 +59,7 @@ namespace SolarDigest.Deploy.Constructs
                 MemorySize = memorySize,
                 Timeout = Duration.Minutes(timeoutMinutes),
                 Code = new S3Code(_codeBucket, Constants.S3CodeBucketKeyName),
-                LogRetention = RetentionDays.ONE_WEEK
-                //Environment = variables
+                LogRetention = RetentionDays.ONE_WEEK,
             };
 
             var function = new Function(this, $"{name}Function", props);
@@ -104,11 +100,11 @@ namespace SolarDigest.Deploy.Constructs
 
             // exceptions are forwarded via a DynamoDb stream from the Exception table to the EmailException function
 
-            
-            //var arn = Fn.ImportValue(TableHelpers.GetExportStreamName(nameof(DynamoDbTables.Exception)));
-            //var exceptionTable = Table.FromTableArn(this, "FromTableArnException", arn);
-
-            var exceptionTable = Table.FromTableName(this, "FromTableNameException", nameof(DynamoDbTables.Exception));
+            var exceptionTable = Table.FromTableAttributes(this, "FromTableAttributesException", new TableAttributes
+            {
+                TableArn = Fn.ImportValue(TableHelpers.GetExportTableName(nameof(DynamoDbTables.Exception))),
+                TableStreamArn = Fn.ImportValue(TableHelpers.GetExportStreamName(nameof(DynamoDbTables.Exception)))
+            });
 
             EmailExceptionFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")

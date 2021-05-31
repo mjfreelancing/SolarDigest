@@ -7,9 +7,9 @@
             return $"{Constants.AppName}Data-Table-{tableName}";
         }
 
-        //public static string GetExportStreamName(string tableName)
-        //{
-        //    return $"{Constants.AppName}Data-Stream-{tableName}";
-        //}
+        public static string GetExportStreamName(string tableName)
+        {
+            return $"{Constants.AppName}Data-Stream-{tableName}";
+        }
     }
 }
