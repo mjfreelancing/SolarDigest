@@ -10,12 +10,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
     {
         public static bool IsGqlTypeRequired(this MethodInfo methodInfo)
         {
-            return methodInfo.GetCustomAttribute(typeof(GraphqlTypeRequiredAttribute), true) != null;
+            return methodInfo.GetCustomAttribute(typeof(SchemaTypeRequiredAttribute), true) != null;
         }
 
         public static bool IsGqlArrayRequired(this MethodInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttribute(typeof(GraphqlArrayRequiredAttribute), true) != null;
+            return propertyInfo.GetCustomAttribute(typeof(SchemaArrayRequiredAttribute), true) != null;
         }
 
         public static IDictionary<string, GraphqlType> GetMethodArgs(this MethodInfo methodInfo, GraphqlApi graphqlApi, IGraphqlTypeStore typeStore)

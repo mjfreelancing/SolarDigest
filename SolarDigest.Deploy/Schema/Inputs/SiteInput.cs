@@ -3,22 +3,22 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [GraphqlSchemaType(GraphqlSchemaType.Input, "SiteInput")]
+    [SchemaType(GraphqlSchemaType.Input, "SiteInput")]
     internal interface ISiteInput
     {
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string StartDate { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string ApiKey { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string ContactName { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string ContactEmail { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string TimeZoneId { get; }
     }
 }

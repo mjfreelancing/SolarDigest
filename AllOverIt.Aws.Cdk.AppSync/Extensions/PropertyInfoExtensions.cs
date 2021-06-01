@@ -7,12 +7,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
     {
         public static bool IsGqlTypeRequired(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttribute(typeof(GraphqlTypeRequiredAttribute), true) != null;
+            return propertyInfo.GetCustomAttribute(typeof(SchemaTypeRequiredAttribute), true) != null;
         }
 
         public static bool IsGqlArrayRequired(this PropertyInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttribute(typeof(GraphqlArrayRequiredAttribute), true) != null;
+            return propertyInfo.GetCustomAttribute(typeof(SchemaArrayRequiredAttribute), true) != null;
         }
     }
 }

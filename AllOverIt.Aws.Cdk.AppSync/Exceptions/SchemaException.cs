@@ -2,9 +2,9 @@
 
 namespace AllOverIt.Aws.Cdk.AppSync.Exceptions
 {
-    public sealed class GraphqlSchemaException : Exception
+    public sealed class SchemaException : Exception
     {
-        public GraphqlSchemaException(string message)
+        public SchemaException(string message)
             : base(message)
         {
         }

@@ -3,10 +3,10 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
-    [GraphqlSchemaType(GraphqlSchemaType.Type, "Power")]
+    [SchemaType(GraphqlSchemaType.Type, "Power")]
     internal interface IPower
     {
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public ITimeWatts[] Watts { get; }
     }
 }

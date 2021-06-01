@@ -7,7 +7,7 @@ namespace SolarDigest.Deploy.Schema
     internal interface ISolarDigestSubscriptionDefinition : ISubscriptionDefinition
     {
         [SubscriptionMutation(nameof(ISolarDigestMutationDefinition.AddSite))]
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         ISite AddedSite(string id);
     }
 }

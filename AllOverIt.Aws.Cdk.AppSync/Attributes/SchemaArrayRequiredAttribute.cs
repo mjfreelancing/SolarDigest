@@ -2,9 +2,9 @@
 
 namespace AllOverIt.Aws.Cdk.AppSync.Attributes
 {
-    // Used to indicate a schema scalar, custom 'type', or 'input' is required
+    // Used to indicate an array 'type' or 'input' is required
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
-    public sealed class GraphqlTypeRequiredAttribute : Attribute
+    public sealed class SchemaArrayRequiredAttribute : Attribute
     {
     }
 }

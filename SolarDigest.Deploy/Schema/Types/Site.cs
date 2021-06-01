@@ -3,25 +3,25 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
-    [GraphqlSchemaType(GraphqlSchemaType.Type, "Site")]
+    [SchemaType(GraphqlSchemaType.Type, "Site")]
     internal interface ISite
     {
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string Id { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string StartDate { get; }
 
         //[GraphqlTypeRequired]
         //public string ApiKey { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string ContactName { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string ContactEmail { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         public string TimeZoneId { get; }
 
         public string LastAggregationDate { get; }
@@ -30,8 +30,8 @@ namespace SolarDigest.Deploy.Schema.Types
 
         public string LastRefreshDateTime { get; }
 
-        [GraphqlTypeRequired]
+        [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
-        IPower Power([GraphqlTypeRequired] MeterType meterType, [GraphqlTypeRequired] SummaryType summaryType);
+        IPower Power([SchemaTypeRequired] MeterType meterType, [SchemaTypeRequired] SummaryType summaryType);
     }
 }

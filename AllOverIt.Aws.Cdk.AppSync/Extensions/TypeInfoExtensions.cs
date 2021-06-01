@@ -10,18 +10,18 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
         public static GraphQlSchemaTypeDescriptor GetGraphqlTypeDescriptor(this SystemType type)
         {
             var typeInfo = type.GetTypeInfo();
-            var inputType = typeInfo.GetCustomAttribute(typeof(GraphqlSchemaTypeAttribute), true);
+            var inputType = typeInfo.GetCustomAttribute(typeof(SchemaTypeAttribute), true);
 
             if (inputType != null)
             {
-                var typeAttribute = inputType as GraphqlSchemaTypeAttribute;
+                var typeAttribute = inputType as SchemaTypeAttribute;
 
                 return new GraphQlSchemaTypeDescriptor(type, typeAttribute!.GraphqlSchemaType, typeAttribute.Name ?? typeInfo.Name);
             }
 
             if (type != typeof(string) && (type.IsClass || type.IsInterface))
             {
-                throw new GraphqlSchemaException($"A class or interface based schema type must have a {nameof(GraphqlSchemaTypeAttribute)} applied ({typeInfo.Name})");
+                throw new SchemaException($"A class or interface based schema type must have a {nameof(SchemaTypeAttribute)} applied ({typeInfo.Name})");
             }
 
             return new GraphQlSchemaTypeDescriptor(type, GraphqlSchemaType.Primitive, typeInfo.Name);
