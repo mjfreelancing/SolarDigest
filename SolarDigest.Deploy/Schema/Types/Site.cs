@@ -1,9 +1,10 @@
-﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
+﻿using AllOverIt.Aws.Cdk.AppSync;
+using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
-    // interpreted as an output type
-    internal interface Site
+    [GraphqlSchemaType(GraphqlSchemaType.Type, "Site")]
+    internal interface ISite
     {
         [GraphqlTypeRequired]
         public string Id { get; }
@@ -31,6 +32,6 @@ namespace SolarDigest.Deploy.Schema.Types
 
         [GraphqlTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
-        Power Power([GraphqlTypeRequired] MeterType meterType, [GraphqlTypeRequired] SummaryType summaryType);
+        IPower Power([GraphqlTypeRequired] MeterType meterType, [GraphqlTypeRequired] SummaryType summaryType);
     }
 }

@@ -1,6 +1,5 @@
 ﻿namespace SolarDigest.Api.Models.SolarEdge
 {
-    //[JsonConverter(typeof(StringEnumConverter))]
     public enum MeterType
     {
         Production,             // produced by the panel/inverter

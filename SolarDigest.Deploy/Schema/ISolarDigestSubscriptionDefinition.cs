@@ -8,6 +8,6 @@ namespace SolarDigest.Deploy.Schema
     {
         [SubscriptionMutation(nameof(ISolarDigestMutationDefinition.AddSite))]
         [GraphqlTypeRequired]
-        Site AddedSite(string id);
+        ISite AddedSite(string id);
     }
 }

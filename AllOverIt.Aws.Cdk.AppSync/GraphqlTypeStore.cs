@@ -52,7 +52,8 @@ namespace AllOverIt.Aws.Cdk.AppSync
                 ? type.GetElementType()
                 : type;
 
-            var propTypeName = fieldType!.Name;
+            var propType = fieldType.GetGraphqlTypeDescriptor();    // supports primitive types
+            var propTypeName = propType.Name;
 
             if (!_fieldTypes.TryGetValue(propTypeName, out var fieldTypeCreator))
             {
@@ -96,18 +97,24 @@ namespace AllOverIt.Aws.Cdk.AppSync
                 _circularReferences.Add(type);
 
                 var classDefinition = new Dictionary<string, IField>();
-                var isInputType = type.GetTypeInfo().IsGqlInputType();
 
-                ParseInterfaceTypeProperties(classDefinition, isInputType, type, typeCreated);
+
+                //var isInputType = type.GetTypeInfo().IsGqlInputType();
+                
+                var typeDescriptor = type.GetTypeInfo().GetGraphqlTypeDescriptor();
+
+
+                ParseInterfaceTypeProperties(classDefinition, typeDescriptor, typeCreated);
                 ParseInterfaceTypeMethods(classDefinition, type);
 
-                var intermediateType = isInputType
-                    ? (IIntermediateType) new InputType(type.Name,
+                // todo: currently handles Input and Type - haven't yet looked at 'interface'
+                var intermediateType = typeDescriptor.GraphqlSchemaType == GraphqlSchemaType.Input
+                    ? (IIntermediateType) new InputType(typeDescriptor.Name,
                         new IntermediateTypeOptions
                         {
                             Definition = classDefinition
                         })
-                    : new ObjectType(type.Name,
+                    : new ObjectType(typeDescriptor.Name,
                         new ObjectTypeOptions
                         {
                             Definition = classDefinition
@@ -128,9 +135,10 @@ namespace AllOverIt.Aws.Cdk.AppSync
             }
         }
 
-        private void ParseInterfaceTypeProperties(IDictionary<string, IField> classDefinition, bool isInputType, SystemType type,
+        private void ParseInterfaceTypeProperties(IDictionary<string, IField> classDefinition, GraphQlSchemaTypeDescriptor schemaTypeDescriptor,
             Action<IIntermediateType> typeCreated)
         {
+            var type = schemaTypeDescriptor.Type;
             var properties = type.GetProperties();
 
             if (type.IsInterface)
@@ -143,9 +151,11 @@ namespace AllOverIt.Aws.Cdk.AppSync
             {
                 var propertyType = propertyInfo.PropertyType;
 
-                if (isInputType && propertyType != typeof(string) && (propertyType.IsInterface || propertyType.IsClass))
+                if (schemaTypeDescriptor.GraphqlSchemaType == GraphqlSchemaType.Input && propertyType != typeof(string) && (propertyType.IsInterface || propertyType.IsClass))
                 {
-                    if (!propertyType.GetTypeInfo().IsGqlInputType())
+                    var propertyTypeDescriptor = propertyType.GetGraphqlTypeDescriptor();
+
+                    if (propertyTypeDescriptor.GraphqlSchemaType != GraphqlSchemaType.Input)
                     {
                         throw new InvalidOperationException($"The property '{propertyInfo.Name}' is not an INPUT type ({propertyType.Name})");
                     }
