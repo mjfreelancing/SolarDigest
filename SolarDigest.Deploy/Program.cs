@@ -28,7 +28,7 @@ namespace SolarDigest.Deploy
                 return;
             }
 
-            app.Synth();
+            _ = app.Synth();
         }
     }
 }
