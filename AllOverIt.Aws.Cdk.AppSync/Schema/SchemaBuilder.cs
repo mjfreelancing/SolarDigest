@@ -45,6 +45,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 
             var methods = schemaType.GetMethodInfo();
 
+            if (schemaType.IsInterface)
+            {
+                var inheritedMethods = schemaType.GetInterfaces().SelectMany(item => item.GetMethods());
+                methods = methods.Concat(inheritedMethods);
+            }
+
             foreach (var methodInfo in methods)
             {
                 var isRequired = methodInfo.IsGqlTypeRequired();
@@ -54,6 +60,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                 var returnObjectType = _typeStore
                     .GetGraphqlType(
                         methodInfo.ReturnType,
+                        methodInfo,
                         isRequired,
                         isList,
                         isRequiredList,
@@ -90,7 +97,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 
             foreach (var methodInfo in methods)
             {
-                var dataSource = methodInfo.GetMethodDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
+                var dataSource = methodInfo.GetDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
 
                 var isRequired = methodInfo.IsGqlTypeRequired();
                 var isList = methodInfo.ReturnType.IsArray;
@@ -99,6 +106,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
                 var returnObjectType = _typeStore
                     .GetGraphqlType(
                         methodInfo.ReturnType,
+                        methodInfo,
                         isRequired,
                         isList,
                         isRequiredList,
@@ -122,11 +130,11 @@ namespace AllOverIt.Aws.Cdk.AppSync.Schema
 
         private static IEnumerable<string> GetSubscriptionMutations(MethodInfo methodInfo)
         {
-            var attribute = methodInfo.GetCustomAttributes(typeof(SubscriptionMutationAttribute), true).SingleOrDefault();
+            var attribute = methodInfo.GetCustomAttribute<SubscriptionMutationAttribute>(true);
 
             return attribute == null
                 ? Enumerable.Empty<string>()
-                : (attribute as SubscriptionMutationAttribute)!.Mutations;
+                : attribute!.Mutations;
         }
     }
 }

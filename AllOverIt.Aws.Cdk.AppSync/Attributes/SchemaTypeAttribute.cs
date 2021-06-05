@@ -14,5 +14,4 @@ namespace AllOverIt.Aws.Cdk.AppSync.Attributes
             Name = name;
         }
     }
-
 }

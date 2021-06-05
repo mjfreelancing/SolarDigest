@@ -10,12 +10,12 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
     {
         public static bool IsGqlTypeRequired(this MethodInfo methodInfo)
         {
-            return methodInfo.GetCustomAttribute(typeof(SchemaTypeRequiredAttribute), true) != null;
+            return methodInfo.GetCustomAttribute<SchemaTypeRequiredAttribute>(true) != null;
         }
 
         public static bool IsGqlArrayRequired(this MethodInfo propertyInfo)
         {
-            return propertyInfo.GetCustomAttribute(typeof(SchemaArrayRequiredAttribute), true) != null;
+            return propertyInfo.GetCustomAttribute<SchemaArrayRequiredAttribute>(true) != null;
         }
 
         public static IDictionary<string, GraphqlType> GetMethodArgs(this MethodInfo methodInfo, GraphqlApi graphqlApi, IGraphqlTypeStore typeStore)
@@ -36,9 +36,10 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
                 var isList = paramType.IsArray;
                 var isRequiredList = isList && parameterInfo.IsGqlArrayRequired();
 
-                var graphQlType = typeStore.GetGraphqlType(paramType, isRequired, isList, isRequiredList, objectType => graphqlApi.AddType(objectType));
+                var graphqlType = typeStore.GetGraphqlType(paramType, parameterInfo, isRequired, isList, isRequiredList,
+                    objectType => graphqlApi.AddType(objectType));
 
-                args.Add(parameterInfo.Name.GetGraphqlName(), graphQlType);
+                args.Add(parameterInfo.Name.GetGraphqlName(), graphqlType);
             }
 
             return args;

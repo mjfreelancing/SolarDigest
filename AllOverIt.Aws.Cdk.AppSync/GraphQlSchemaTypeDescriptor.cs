@@ -1,18 +1,18 @@
 ﻿using AllOverIt.Helpers;
-using System;
+using SystemType = System.Type;
 
 namespace AllOverIt.Aws.Cdk.AppSync
 {
-    public sealed class GraphQlSchemaTypeDescriptor
+    public sealed class GraphqlSchemaTypeDescriptor
     {
-        public Type Type { get; }
-        public GraphqlSchemaType GraphqlSchemaType { get; }
+        public SystemType Type { get; }
+        public GraphqlSchemaType SchemaType { get; }
         public string Name { get; }
 
-        public GraphQlSchemaTypeDescriptor(Type type, GraphqlSchemaType graphqlSchemaType, string name)
+        public GraphqlSchemaTypeDescriptor(SystemType type, GraphqlSchemaType schemaType, string name)
         {
             Type = type.WhenNotNull(nameof(type));
-            GraphqlSchemaType = graphqlSchemaType;
+            SchemaType = schemaType;
             Name = name.WhenNotNullOrEmpty(nameof(name));
         }
     }

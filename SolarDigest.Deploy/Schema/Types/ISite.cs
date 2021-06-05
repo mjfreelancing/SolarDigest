@@ -1,5 +1,6 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using SolarDigest.Deploy.Schema.Inputs;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
@@ -11,9 +12,6 @@ namespace SolarDigest.Deploy.Schema.Types
 
         [SchemaTypeRequired]
         public string StartDate { get; }
-
-        //[GraphqlTypeRequired]
-        //public string ApiKey { get; }
 
         [SchemaTypeRequired]
         public string ContactName { get; }
@@ -32,6 +30,6 @@ namespace SolarDigest.Deploy.Schema.Types
 
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
-        IPower Power([SchemaTypeRequired] MeterType meterType, [SchemaTypeRequired] SummaryType summaryType);
+        IPowerConnection Power([SchemaTypeRequired] IPowerFilterInput filter);
     }
 }

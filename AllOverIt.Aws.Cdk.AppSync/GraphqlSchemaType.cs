@@ -4,7 +4,8 @@
     {
         Input,
         Type,
-        //Interface,
-        Primitive
+        //Interface,                pending support
+        Scalar,
+        AWSScalar
     }
 }

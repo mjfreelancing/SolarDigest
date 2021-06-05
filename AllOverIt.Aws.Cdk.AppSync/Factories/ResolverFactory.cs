@@ -21,7 +21,7 @@ namespace AllOverIt.Aws.Cdk.AppSync.Factories
 
         public void ConstructResolverIfRequired(SystemType type, MemberInfo methodInfo)
         {
-            var dataSource = methodInfo.GetMethodDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
+            var dataSource = methodInfo.GetDataSource(_dataSourceFactory);           // optionally specified via a custom attribute
 
             if (dataSource != null)
             {

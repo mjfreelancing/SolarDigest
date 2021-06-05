@@ -1,6 +1,5 @@
 ﻿namespace SolarDigest.Deploy.Schema.Types
 {
-    //[GraphqlType()]
     internal enum MeterType
     {
         Production,             // produced by the panel/inverter

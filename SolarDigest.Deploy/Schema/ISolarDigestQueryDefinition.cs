@@ -10,6 +10,9 @@ namespace SolarDigest.Deploy.Schema
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSite)]
         ISite Site([SchemaTypeRequired] string id);
 
+
+        // for testing
+
         //[LambdaDataSource(Constants.ServiceName, Constants.DataSource.HydrateAllSitesPower)]
         //Site HydrateAllSitesPower();
 
