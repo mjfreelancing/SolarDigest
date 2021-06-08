@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AllOverIt" Version="1.3.0" />
+        <PackageReference Include="AllOverIt" Version="1.5.0" />
         <PackageReference Include="AutoMapper" Version="10.1.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
         <PackageReference Include="Amazon.Lambda.Core" Version="2.0.0" />
@@ -19,6 +19,7 @@
         <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.12" />
         <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.1.5" />
         <PackageReference Include="Flurl.Http" Version="3.2.0" />
+        <PackageReference Include="HtmlBuilders" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
