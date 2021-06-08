@@ -26,7 +26,7 @@ namespace SolarDigest.Api
         private IServiceProvider Services => _services.Value;
 
         // This can be shared across scopes since it is registered as a Singleton
-        protected IConfiguration Configuration => Services.GetService<IConfiguration>();
+        protected IConfiguration Configuration => Services.GetRequiredService<IConfiguration>();
 
         protected FunctionBase()
         {
@@ -61,7 +61,7 @@ namespace SolarDigest.Api
 
             // for troubleshooting mapping
             //var provider = services.AddAutoMapper(typeof(SolarViewProfile)).BuildServiceProvider();
-            //provider.GetService<IMapper>()!.ConfigurationProvider.AssertConfigurationIsValid();
+            //provider.GetRequiredService<IMapper>()!.ConfigurationProvider.AssertConfigurationIsValid();
         }
 
         protected abstract Task<TResultType> InvokeHandlerAsync(FunctionContext<TPayload> context);
@@ -73,7 +73,7 @@ namespace SolarDigest.Api
             {
                 var scopedServiceProvider = scope.ServiceProvider;
 
-                var logger = scopedServiceProvider.GetService<IFunctionLogger>();
+                var logger = scopedServiceProvider.GetRequiredService<IFunctionLogger>();
 
                 if (logger is FunctionLogger functionLogger)
                 {
@@ -115,7 +115,7 @@ namespace SolarDigest.Api
         {
             logger.LogException(exception);
 
-            var exceptionHandler = serviceProvider.GetService<IExceptionHandler>();
+            var exceptionHandler = serviceProvider.GetRequiredService<IExceptionHandler>();
             return exceptionHandler!.HandleAsync(exception);
         }
     }

@@ -26,7 +26,8 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction EmailExceptionFunction { get; private set; }
         internal IFunction AggregateAllSitesPowerFunction { get; private set; }
         internal IFunction AggregateSitePowerFunction { get; private set; }
-        internal IFunction GetSitePowerSummary { get; private set; }
+        internal IFunction GetSitePowerSummaryFunction { get; private set; }
+        internal IFunction EmailSiteUpdateHistoryFunction { get; private set; }
 
         public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
             : base(scope, "Function")
@@ -46,6 +47,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateAggregateAllSitesPowerFunction();
             CreateAggregateSitePowerFunction();
             CreateGetSitePowerSummary();
+            CreateEmailSiteUpdateHistoryFunction();
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
@@ -149,11 +151,10 @@ namespace SolarDigest.Deploy.Constructs
             AggregateSitePowerFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192, 15)
 
-                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power), nameof(DynamoDbTables.Power))
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power))
 
                     .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.Power)))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerMonthly)))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerYearly)))
+                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly)))
 
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
@@ -162,7 +163,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetSitePowerSummary()
         {
             // YET TO BE IMPLEMENTED - ONLY ADDED TO TEST THE SCHEMA BUILDER AT THIS STAGE
-            GetSitePowerSummary =
+            GetSitePowerSummaryFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site));
 
@@ -191,6 +192,17 @@ namespace SolarDigest.Deploy.Constructs
                     "})"
                 )
             );
+        }
+
+        private void CreateEmailSiteUpdateHistoryFunction()
+        {
+            EmailSiteUpdateHistoryFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.EmailAllSitesUpdateHistory, "Sends all sites a summary of power processing")
+                    .AddPolicyStatements(_iam.SendEmailPolicyStatement)
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.PowerUpdateHistory))
+                    .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
+                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.PowerUpdateHistory)))
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
     }
 }

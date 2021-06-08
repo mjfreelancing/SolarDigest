@@ -18,12 +18,12 @@ namespace SolarDigest.Api.Functions
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<AggregateAllSitesPowerPayload> context)
         {
             var logger = context.Logger;
-            logger.LogDebug("Aggregating power for all sites");
+            logger.LogDebug("Processing power aggregation for all sites");
 
             AmazonEventBridgeClient client = null;
 
             var currentTimeUtc = DateTime.UtcNow;
-            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = context.ScopedServiceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             // only retrieve the properties we need
             var sites = siteTable!.GetAllSitesAsync(new[]
@@ -39,13 +39,13 @@ namespace SolarDigest.Api.Functions
                                 $"{siteLocalTime.GetSolarDateTimeString()} ({site.TimeZoneId})");
 
                 // check subsequent hours in case a trigger was missed
-                if (siteLocalTime.Hour >= Constants.RefreshHour.Aggregation)
+                if (siteLocalTime.Hour >= Constants.RefreshHour.SitePowerAggregation)
                 {
                     var lastAggregationDate = site.GetLastAggregationDate();
                     var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
 
                     // make sure we don't aggregate beyond the last refresh timestamp
-                    var lastRefreshTimestamp = site.LastRefreshDateTime.ParseSolarDateTime().Date;
+                    var lastRefreshTimestamp = site.GetLastRefreshDateTime(); // LastRefreshDateTime.ParseSolarDateTime().Date;
 
                     if (nextEndDate > lastRefreshTimestamp)
                     {

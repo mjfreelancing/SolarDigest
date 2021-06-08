@@ -32,6 +32,8 @@ namespace SolarDigest.Api.Mapping
             CreateMap<MeterPowerEntity, MeterPower>();
             CreateMap<MeterPowerMonthEntity, MeterPowerMonth>().ReverseMap();
             CreateMap<MeterPowerYearEntity, MeterPowerYear>().ReverseMap();
+
+            CreateMap<PowerUpdateHistoryEntity, PowerUpdateHistory>();
         }
     }
 }

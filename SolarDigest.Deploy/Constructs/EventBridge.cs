@@ -16,6 +16,7 @@ namespace SolarDigest.Deploy.Constructs
             // A scheduled events
             HydrateAllSitesPower,
             AggregateAllSitesPower,
+            EmailAllSitesUpdateHistory,
 
             // Events posted from functions
             HydrateSitePowerEvent,
@@ -31,7 +32,8 @@ namespace SolarDigest.Deploy.Constructs
             CreateHydrateSitePower(appName, functions.HydrateSitePowerFunction);
             CreateHydrateAllSitesPowerFunction(appName, functions.HydrateAllSitesPowerFunction);
             CreateAggregateSitePower(appName, functions.AggregateSitePowerFunction);
-            CreateAggregateAllSitesPowerFunction(appName, functions.AggregateAllSitesPowerFunction);
+            CreateAggregateAllSitesPower(appName, functions.AggregateAllSitesPowerFunction);
+            CreateEmailAllSitesUpdateHistory(appName, functions.EmailSiteUpdateHistoryFunction);
         }
 
         // Logs all events received for this account
@@ -100,13 +102,26 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function once per hour, at the top of the hour
-        private void CreateAggregateAllSitesPowerFunction(string appName, IFunction targetFunction)
+        private void CreateAggregateAllSitesPower(string appName, IFunction targetFunction)
         {
             _ = new Rule(this, $"{appName}_{SolarEdgeEventType.AggregateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
                 RuleName = $"{appName}_{SolarEdgeEventType.AggregateAllSitesPower}",
                 Description = "Aggregates power data for all sites every hour",
+                Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
+                Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
+            });
+        }
+
+        // calls the target function once per hour, at the top of the hour
+        private void CreateEmailAllSitesUpdateHistory(string appName, IFunction targetFunction)
+        {
+            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}", new RuleProps
+            {
+                // using the default EventBus
+                RuleName = $"{appName}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}",
+                Description = "Sends all sites a status update via email",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
             });

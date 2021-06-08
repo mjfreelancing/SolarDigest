@@ -22,19 +22,19 @@ namespace SolarDigest.Api.Repository
 
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private readonly IFunctionLogger _logger;
         private readonly Lazy<AmazonDynamoDBClient> _dbClient = new(() => new AmazonDynamoDBClient());
         private AmazonDynamoDBClient DbClient => _dbClient.Value;
 
         protected ISolarDigestTable TableImpl => this;
         protected IMapper Mapper { get; }
+        protected IFunctionLogger Logger { get; }
 
         public abstract string TableName { get; }
 
         protected SolarDigestTableBase(IMapper mapper, IFunctionLogger logger)
         {
             Mapper = mapper.WhenNotNull(nameof(mapper));
-            _logger = logger.WhenNotNull(nameof(logger));
+            Logger = logger.WhenNotNull(nameof(logger));
         }
 
         async IAsyncEnumerable<TItem> ISolarDigestTable.ScanAsync<TItem>(IEnumerable<string> properties, Action<ScanFilter> filterAction,
@@ -62,7 +62,7 @@ namespace SolarDigest.Api.Repository
 
             var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
 
-            await foreach (var result in results.WithCancellation(cancellationToken))
+            await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return result;
             }
@@ -84,7 +84,7 @@ namespace SolarDigest.Api.Repository
 
             var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
 
-            await foreach (var result in results.WithCancellation(cancellationToken))
+            await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return result;
             }
@@ -98,7 +98,7 @@ namespace SolarDigest.Api.Repository
 
             var results = GetSearchResultsAsync<TItem>(search, cancellationToken);
 
-            await foreach (var result in results.WithCancellation(cancellationToken))
+            await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return result;
             }
@@ -151,7 +151,7 @@ namespace SolarDigest.Api.Repository
 
                 if (unprocessed.Count > 0)
                 {
-                    _logger.LogDebug($"Unprocessed count = {unprocessed.Count}");
+                    Logger.LogDebug($"Unprocessed count = {unprocessed.Count}");
                 }
             }
         }
@@ -167,7 +167,7 @@ namespace SolarDigest.Api.Repository
             {
                 var batches = entities.Batch(25).AsReadOnlyCollection();
 
-                _logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
+                Logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
                 var retryPolicy = Policy
                     .Handle<ProvisionedThroughputExceededException>()

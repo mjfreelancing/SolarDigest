@@ -39,7 +39,7 @@ namespace SolarDigest.Api.Repository
             var primaryKey = $"{siteId}_{date:yyyyMMdd}_{meterType}";
             var meterEntities = TableImpl.GetItemsAsync<MeterPowerEntity>(primaryKey, cancellationToken);
 
-            await foreach (var entity in meterEntities.WithCancellation(cancellationToken))
+            await foreach (var entity in meterEntities.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return Mapper.Map<MeterPower>(entity);
             }

@@ -42,7 +42,7 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Creating site info for Id {payload.Id}");
 
-            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = context.ScopedServiceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             var site = await siteTable!.UpsertSiteAsync(payload.Id, payload.Site, payload.Timestamps).ConfigureAwait(false);
 

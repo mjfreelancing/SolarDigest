@@ -66,7 +66,7 @@ namespace SolarDigest.Api.Repository
         {
             var sites = TableImpl!.ScanAsync<SiteEntity>(properties, null, cancellationToken);
 
-            await foreach (var siteDetails in sites.WithCancellation(cancellationToken))
+            await foreach (var siteDetails in sites.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return MapToSite(siteDetails);
             }

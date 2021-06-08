@@ -48,7 +48,7 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug($"Reading site info for Id '{payload.Id}'");
 
-            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = context.ScopedServiceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             return await siteTable!.GetSiteAsync(payload.Id).ConfigureAwait(false);
         }

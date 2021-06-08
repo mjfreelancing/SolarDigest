@@ -22,6 +22,7 @@
             internal const string AggregateAllSitesPower = "AggregateAllSitesPower";
             internal const string AggregateSitePower = "AggregateSitePower";
             internal const string GetSitePowerSummary = "GetSitePowerSummary";
+            internal const string EmailAllSitesUpdateHistory = "EmailAllSitesUpdateHistory";
         }
     }
 }

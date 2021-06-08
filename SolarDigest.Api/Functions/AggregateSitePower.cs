@@ -45,7 +45,7 @@ namespace SolarDigest.Api.Functions
 
             var serviceProvider = context.ScopedServiceProvider;
 
-            var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             var siteId = request.SiteId;
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
@@ -79,10 +79,10 @@ namespace SolarDigest.Api.Functions
                         aggregateEndDate = endDate;
                     }
 
-                    var monthlyProcessor = serviceProvider.GetService<IPowerMonthlyProcessor>();
+                    var monthlyProcessor = serviceProvider.GetRequiredService<IPowerMonthlyProcessor>();
                     yield return monthlyProcessor!.ProcessAsync(site, aggregateStartDate, aggregateEndDate);
 
-                    var yearlyProcessor = serviceProvider.GetService<IPowerYearlyProcessor>();
+                    var yearlyProcessor = serviceProvider.GetRequiredService<IPowerYearlyProcessor>();
                     yield return yearlyProcessor!.ProcessAsync(site, aggregateStartDate, aggregateEndDate);
                 }
             }

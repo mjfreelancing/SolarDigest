@@ -20,7 +20,7 @@ namespace SolarDigest.Api.Functions
 
             AmazonEventBridgeClient client = null;
 
-            var siteTable = context.ScopedServiceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = context.ScopedServiceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             // only retrieve the properties we need
             var sites = siteTable!.GetAllSitesAsync(new[] {nameof(Site.Id)});

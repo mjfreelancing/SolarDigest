@@ -65,7 +65,7 @@ namespace SolarDigest.Api.Functions
 
             var serviceProvider = context.ScopedServiceProvider;
 
-            var siteTable = serviceProvider.GetService<ISolarDigestSiteTable>();
+            var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
             // Determine the refresh period to hydrate (local time)
@@ -99,7 +99,7 @@ namespace SolarDigest.Api.Functions
             logger.LogDebug($"Site {siteId} being hydrated for the period {hydrateStartDateTime.GetSolarDateTimeString()} to " +
                             $"{processingToEndDate.GetSolarDateTimeString()} (site local time)");
 
-            var updateHistoryTable = serviceProvider.GetService<ISolarDigestPowerUpdateHistoryTable>();
+            var updateHistoryTable = serviceProvider.GetRequiredService<ISolarDigestPowerUpdateHistoryTable>();
 
             Task UpdatePowerHistoryAsync(PowerUpdateStatus status)
             {
@@ -110,12 +110,12 @@ namespace SolarDigest.Api.Functions
 
             await UpdatePowerHistoryAsync(PowerUpdateStatus.Started).ConfigureAwait(false);
 
-            var solarEdgeApi = serviceProvider.GetService<ISolarEdgeApi>();
-            var mapper = serviceProvider.GetService<IMapper>();
-            var powerTable = serviceProvider.GetService<ISolarDigestPowerTable>();
-
             try
             {
+                var solarEdgeApi = serviceProvider.GetRequiredService<ISolarEdgeApi>();
+                var mapper = serviceProvider.GetRequiredService<IMapper>();
+                var powerTable = serviceProvider.GetRequiredService<ISolarDigestPowerTable>();
+
                 await ProcessPowerForDateRange(site, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
                 await UpdatePowerHistoryAsync(PowerUpdateStatus.Completed).ConfigureAwait(false);
                 await UpdateSiteLastRefreshTimestamp(site, processingToEndDate, siteTable, logger).ConfigureAwait(false);
