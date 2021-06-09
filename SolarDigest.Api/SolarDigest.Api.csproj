@@ -16,7 +16,6 @@
         <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.0.30" />
         <PackageReference Include="AWSSDK.EventBridge" Version="3.7.2.8" />
         <PackageReference Include="AWSSDK.Lambda" Version="3.7.0.29" />
-        <PackageReference Include="AWSSDK.S3" Version="3.7.1" />
         <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.29" />
         <PackageReference Include="Flurl.Http" Version="3.2.0" />
         <PackageReference Include="HtmlBuilders" Version="6.0.1" />
