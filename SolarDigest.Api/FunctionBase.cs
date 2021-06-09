@@ -98,6 +98,11 @@ namespace SolarDigest.Api
                     await ReportException(scopedServiceProvider, exception, logger);
                     return new LambdaResult<TResultType>(exception);
                 }
+                catch (SolarEdgeTimeoutException exception)
+                {
+                    await ReportException(scopedServiceProvider, exception, logger);
+                    return new LambdaResult<TResultType>(exception);
+                }
                 catch (DynamoDbConflictException exception)
                 {
                     await ReportException(scopedServiceProvider, exception, logger);

@@ -35,14 +35,21 @@ namespace SolarDigest.Api.Services.SolarEdge
 
             try
             {
-                _logger.LogDebug($"Requesting power details for site {powerQuery.SiteId} between {powerQuery.StartDateTime} and {powerQuery.EndDateTime}");
+                _logger.LogDebug(
+                    $"Requesting power details for site {powerQuery.SiteId} between {powerQuery.StartDateTime} and {powerQuery.EndDateTime}");
 
                 var solarData = await uri.GetJsonAsync<PowerDataDto>();
 
                 _logger.LogDebug("Power details received successfully");
-                
+
                 return solarData;
 
+            }
+            catch (FlurlHttpTimeoutException exception)
+            {
+                _logger.LogDebug($"Timed out while getting power data for site {powerQuery.SiteId}: {exception.Message}");
+
+                throw new SolarEdgeTimeoutException(powerQuery.SiteId, powerQuery.StartDateTime, powerQuery.EndDateTime);
             }
             catch (FlurlHttpException exception)
             {
