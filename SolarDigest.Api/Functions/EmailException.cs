@@ -1,15 +1,13 @@
 ﻿using AllOverIt.Extensions;
-using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Lambda.DynamoDBEvents;
-using Amazon.SimpleEmail;
-using Amazon.SimpleEmail.Model;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SolarDigest.Api.Events;
-using SolarDigest.Api.Logging;
+using SolarDigest.Api.Models;
+using SolarDigest.Api.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,7 +41,18 @@ namespace SolarDigest.Api.Functions
 
                         logger.LogDebug($"Exception event: {fullMessage}");
 
-                        await SendEmail(fullMessage, logger).ConfigureAwait(false);
+                        var emailSender = context.ScopedServiceProvider.GetRequiredService<IEmailSender>();
+
+                        var emailContext = new EmailContext
+                        {
+                            SourceEmail = "malcolm@mjfreelancing.com",
+                            ToEmail = "malcolm@mjfreelancing.com",
+                            Subject = "SolarDigest Exception (AWS)",
+                            PlainMessage = fullMessage,
+                            HtmlMessage = fullMessage
+                        };
+
+                        await emailSender.SendEmailAsync(emailContext).ConfigureAwait(false);
                     }
                     else
                     {
@@ -54,51 +63,5 @@ namespace SolarDigest.Api.Functions
 
             return true;
         }
-
-        private static async Task SendEmail(string message, IFunctionLogger logger)
-        {
-            using (var client = new AmazonSimpleEmailServiceClient(RegionEndpoint.APSoutheast2))
-            {
-                var sendRequest = new SendEmailRequest
-                {
-                    Source = "malcolm@mjfreelancing.com",
-                    Destination = new Destination
-                    {
-                        ToAddresses = new List<string> {"malcolm@mjfreelancing.com"}
-                    },
-                    Message = new Message
-                    {
-                        Subject = new Content("Exception in AWS"),
-                        Body = new Body
-                        {
-                            Html = new Content
-                            {
-                                Charset = "UTF-8",
-                                Data = message
-                            },
-                            Text = new Content
-                            {
-                                Charset = "UTF-8",
-                                Data = message
-                            }
-                        }
-                    }
-                };
-
-                try
-                {
-                    logger.LogDebug("Sending email...");
-
-                    var response = await client.SendEmailAsync(sendRequest).ConfigureAwait(false);
-
-                    logger.LogDebug($"Email status response: {response.HttpStatusCode}");
-                }
-                catch (Exception exception)
-                {
-                    logger.LogDebug($"Failed to send the email: {exception.Message}");
-                }
-            }
-        }
     }
-
 }

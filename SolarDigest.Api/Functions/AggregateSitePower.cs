@@ -1,12 +1,10 @@
-﻿using AllOverIt.Extensions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
-using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
-using SolarDigest.Models;
+using SolarDigest.Api.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -48,6 +46,8 @@ namespace SolarDigest.Api.Functions
             var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             var siteId = request.SiteId;
+
+            // must read the entire entity because we may be updating it
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
             var startDate = request.StartDate.ParseSolarDate();
@@ -92,27 +92,10 @@ namespace SolarDigest.Api.Functions
                 .InvokeTasksSequentially()
                 .ConfigureAwait(false);
 
-            await UpdateSiteLastAggregationDate(site, endDate, siteTable, logger).ConfigureAwait(false);
+            var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
+            await siteUpdater.UpdateLastAggregationDateAsync(site, endDate).ConfigureAwait(false);
 
             return NoResult.Default;
-        }
-
-        private static Task UpdateSiteLastAggregationDate(Site site, DateTime date, ISolarDigestSiteTable siteTable, IFunctionLogger logger)
-        {
-            if (!site.LastAggregationDate.IsNullOrEmpty() && site.LastAggregationDate.ParseSolarDate() > date)
-            {
-                logger.LogDebug($"Site {site.Id} already has a newer 'LastAggregationDate' so not updating ({site.LastAggregationDate} " +
-                                $"compared to {date.GetSolarDateString()})");
-
-                return Task.CompletedTask;
-            }
-
-            site.LastAggregationDate = date.GetSolarDateString();
-
-            logger.LogDebug($"Updating site {site.Id} last aggregation date as {site.LastAggregationDate} (local)");
-
-            // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return siteTable.UpsertSiteAsync(site);
         }
     }
 }

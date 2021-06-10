@@ -48,6 +48,8 @@ namespace SolarDigest.Api
         {
             services.AddScoped<IFunctionLogger, FunctionLogger>();
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
+            services.AddScoped<IEmailSender, EmailSender>();
+            services.AddScoped<ISiteUpdater, SiteUpdater>();
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();

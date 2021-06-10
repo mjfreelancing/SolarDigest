@@ -13,6 +13,7 @@ using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Models.SolarEdgeData;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
+using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
 using SolarDigest.Models;
 using System;
@@ -66,6 +67,8 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
 
             var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
+
+            // must read the entire entity because we may be updating it
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
             // Determine the refresh period to hydrate (local time)
@@ -113,12 +116,14 @@ namespace SolarDigest.Api.Functions
             try
             {
                 var solarEdgeApi = serviceProvider.GetRequiredService<ISolarEdgeApi>();
-                var mapper = serviceProvider.GetRequiredService<IMapper>();
                 var powerTable = serviceProvider.GetRequiredService<ISolarDigestPowerTable>();
+                var mapper = serviceProvider.GetRequiredService<IMapper>();
 
-                await ProcessPowerForDateRange(site, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
+                await ProcessPowerForDateRangeAsync(site, solarEdgeApi, powerTable, hydrateStartDateTime, processingToEndDate, mapper, logger).ConfigureAwait(false);
                 await UpdatePowerHistoryAsync(PowerUpdateStatus.Completed).ConfigureAwait(false);
-                await UpdateSiteLastRefreshTimestamp(site, processingToEndDate, siteTable, logger).ConfigureAwait(false);
+
+                var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
+                await siteUpdater.UpdateLastRefreshDateTimeAsync(site, processingToEndDate).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -137,25 +142,7 @@ namespace SolarDigest.Api.Functions
             return NoResult.Default;
         }
 
-        private static Task UpdateSiteLastRefreshTimestamp(Site site, DateTime timestamp, ISolarDigestSiteTable siteTable, IFunctionLogger logger)
-        {
-            if (!site.LastRefreshDateTime.IsNullOrEmpty() && site.LastRefreshDateTime.ParseSolarDateTime() > timestamp)
-            {
-                logger.LogDebug($"Site {site.Id} already has a newer 'LastRefreshDateTime' so not updating ({site.LastRefreshDateTime} " +
-                                $"compared to {timestamp.GetSolarDateTimeString()})");
-
-                return Task.CompletedTask;
-            }
-
-            site.LastRefreshDateTime = timestamp.GetSolarDateTimeString();
-
-            logger.LogDebug($"Updating site {site.Id} last refresh timestamp as {site.LastRefreshDateTime} (local)");
-
-            // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return siteTable.UpsertSiteAsync(site);
-        }
-
-        private static async Task ProcessPowerForDateRange(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
+        private static async Task ProcessPowerForDateRangeAsync(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
             DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
         {
             var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time.

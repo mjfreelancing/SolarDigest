@@ -5,11 +5,11 @@ using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
+using SolarDigest.Api.Services;
 using SolarDigest.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
@@ -26,11 +26,8 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
             var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
-            // only retrieve the properties we need
-            var sites = siteTable!.GetAllSitesAsync(new[]
-            {
-                nameof(Site.Id), nameof(Site.TimeZoneId), nameof(Site.StartDate), nameof(Site.LastSummaryDate)
-            });
+            // must read the entire site entity because we may be updating it
+            var sites = siteTable!.GetAllSitesAsync().ConfigureAwait(false);
 
             await foreach (var site in sites)
             {
@@ -57,10 +54,21 @@ namespace SolarDigest.Api.Functions
 
                         var emailContent = BuildHtml(site, historyItems);
 
-                        // todo: send the email and update the last summary date
-                        logger.LogDebug($"Content: {emailContent}");
+                        var emailSender = context.ScopedServiceProvider.GetRequiredService<IEmailSender>();
 
+                        var emailContext = new EmailContext
+                        {
+                            SourceEmail = "malcolm@mjfreelancing.com",
+                            ToEmail = "malcolm@mjfreelancing.com",
+                            Subject = $"Solar Update History ({site.Id})",
+                            PlainMessage = "View as HTML to see the content",
+                            HtmlMessage = emailContent
+                        };
 
+                        await emailSender.SendEmailAsync(emailContext).ConfigureAwait(false);
+
+                        var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
+                        await siteUpdater.UpdateLastSummaryDateAsync(site, nextEndDate);
                     }
                 }
             }
@@ -152,20 +160,4 @@ namespace SolarDigest.Api.Functions
                 );
         }
     }
-
-        public static class AsyncEnumerableExtensions
-        {
-            public static async Task<List<TType>> ToListAsync<TType>(this IAsyncEnumerable<TType> items,
-                CancellationToken cancellationToken = default)
-            {
-                var listItems = new List<TType>();
-                
-                await foreach (var item in items.WithCancellation(cancellationToken).ConfigureAwait(false))
-                {
-                    listItems.Add(item);
-                }
-
-                return listItems;
-            }
-        }
 }
