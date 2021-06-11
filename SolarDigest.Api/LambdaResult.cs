@@ -1,4 +1,8 @@
-﻿using System;
+﻿using AllOverIt.Extensions;
+using SolarDigest.Api.Exceptions;
+using SolarDigest.Api.Validation;
+using System;
+using System.Collections.Generic;
 
 namespace SolarDigest.Api
 {
@@ -6,7 +10,8 @@ namespace SolarDigest.Api
     {
         public bool Success { get; }
         public TResultType Payload { get; }
-        public string Error { get; }        // todo: consider changing this to provide validation / exception errors
+        public IEnumerable<ValidationError> ValidationErrors { get; }
+        public string Error { get; }
 
         public LambdaResult(TResultType payload)
         {
@@ -17,6 +22,12 @@ namespace SolarDigest.Api
         public LambdaResult(Exception exception)
         {
             Success = false;
+
+            if (exception is SolarDigestValidationException validationException)
+            {
+                ValidationErrors = validationException.Errors.AsReadOnlyCollection();
+            }
+
             Error = exception.Message;
         }
     }

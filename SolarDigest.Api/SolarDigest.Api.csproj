@@ -17,6 +17,7 @@
         <PackageReference Include="AWSSDK.EventBridge" Version="3.7.2.8" />
         <PackageReference Include="AWSSDK.Lambda" Version="3.7.0.29" />
         <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.29" />
+        <PackageReference Include="FluentValidation" Version="10.2.3" />
         <PackageReference Include="Flurl.Http" Version="3.2.0" />
         <PackageReference Include="HtmlBuilders" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
@@ -31,10 +32,6 @@
     <ItemGroup>
         <ProjectReference Include="..\SolarDigest.Models\SolarDigest.Models.csproj" />
         <ProjectReference Include="..\SolarDigest.Shared\SolarDigest.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Properties\" />
     </ItemGroup>
 
 </Project>

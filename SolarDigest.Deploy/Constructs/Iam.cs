@@ -20,7 +20,7 @@ namespace SolarDigest.Deploy.Constructs
             _appProps = appProps;
             CreateDefaultEventBridgePolicyStatement();
             //CreateGetParameterPolicyStatement();
-            SendEmailPolicyStatements();
+            CreateSendEmailPolicyStatements();
         }
 
         public PolicyStatement GetDynamoDescribeTablePolicy(params string[] tableNames)
@@ -148,7 +148,7 @@ namespace SolarDigest.Deploy.Constructs
         //    });
         //}
 
-        private void SendEmailPolicyStatements()
+        private void CreateSendEmailPolicyStatements()
         {
             SendEmailPolicyStatement = new PolicyStatement(new PolicyStatementProps
             {

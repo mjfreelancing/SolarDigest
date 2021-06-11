@@ -1,13 +1,13 @@
-﻿using SolarDigest.Models;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Services
 {
+    // Note: Does not implement conflict detection; last caller wins. Each method will, however, only update the date/time if it is newer.
     public interface ISiteUpdater
     {
-        Task UpdateLastAggregationDateAsync(Site site, DateTime date);
-        Task UpdateLastSummaryDateAsync(Site site, DateTime date);
-        Task UpdateLastRefreshDateTimeAsync(Site site, DateTime dateTime);
+        Task UpdateLastAggregationDateAsync(string siteId, DateTime date);
+        Task UpdateLastSummaryDateAsync(string siteId, DateTime date);
+        Task UpdateLastRefreshDateTimeAsync(string siteId, DateTime dateTime);
     }
 }

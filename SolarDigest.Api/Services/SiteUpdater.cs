@@ -20,58 +20,61 @@ namespace SolarDigest.Api.Services
             _logger = logger.WhenNotNull(nameof(logger));
         }
 
-        public Task UpdateLastAggregationDateAsync(Site site, DateTime date)
+        public async Task UpdateLastAggregationDateAsync(string siteId, DateTime date)
         {
-            if (!site.LastAggregationDate.IsNullOrEmpty() && site.LastAggregationDate.ParseSolarDate() > date)
-            {
-                _logger.LogDebug($"Site {site.Id} already has a newer 'LastAggregationDate' so not updating ({site.LastAggregationDate} " +
-                                 $"compared to {date.GetSolarDateString()})");
+            var site = await _siteTable.GetSiteAsync(siteId);
 
-                return Task.CompletedTask;
+            if (!site.LastAggregationDate.IsNullOrEmpty() && site.LastAggregationDate.ParseSolarDate() >= date)
+            {
+                _logger.LogDebug($"Site {site.Id} already has a {nameof(ISite.LastAggregationDate)} of {site.LastAggregationDate}. " +
+                                 $"Not updating to {date.GetSolarDateString()})");
+
+                return;
             }
 
             site.LastAggregationDate = date.GetSolarDateString();
 
             _logger.LogDebug($"Updating site {site.Id} last aggregation date as {site.LastAggregationDate} (local)");
 
-            // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return _siteTable.UpsertSiteAsync(site);
+            await _siteTable.UpsertSiteAsync(site).ConfigureAwait(false);
         }
 
-        public Task UpdateLastSummaryDateAsync(Site site, DateTime date)
+        public async Task UpdateLastSummaryDateAsync(string siteId, DateTime date)
         {
-            if (!site.LastSummaryDate.IsNullOrEmpty() && site.LastSummaryDate.ParseSolarDate() > date)
-            {
-                _logger.LogDebug($"Site {site.Id} already has a newer 'LastLastSummaryDateDate' so not updating ({site.LastSummaryDate} " +
-                                 $"compared to {date.GetSolarDateString()})");
+            var site = await _siteTable.GetSiteAsync(siteId);
 
-                return Task.CompletedTask;
+            if (!site.LastSummaryDate.IsNullOrEmpty() && site.LastSummaryDate.ParseSolarDate() >= date)
+            {
+                _logger.LogDebug($"Site {site.Id} already has a {nameof(ISite.LastSummaryDate)} of {site.LastSummaryDate}. " +
+                                 $"Not updating to {date.GetSolarDateString()})");
+
+                return;
             }
 
             site.LastSummaryDate = date.GetSolarDateString();
 
             _logger.LogDebug($"Updating site {site.Id} last summary date as {site.LastSummaryDate} (local)");
 
-            // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return _siteTable.UpsertSiteAsync(site);
+            await _siteTable.UpsertSiteAsync(site).ConfigureAwait(false);
         }
 
-        public Task UpdateLastRefreshDateTimeAsync(Site site, DateTime dateTime)
+        public async Task UpdateLastRefreshDateTimeAsync(string siteId, DateTime dateTime)
         {
-            if (!site.LastRefreshDateTime.IsNullOrEmpty() && site.LastRefreshDateTime.ParseSolarDateTime() > dateTime)
-            {
-                _logger.LogDebug($"Site {site.Id} already has a newer 'LastRefreshDateTime' so not updating ({site.LastRefreshDateTime} " +
-                                 $"compared to {dateTime.GetSolarDateTimeString()})");
+            var site = await _siteTable.GetSiteAsync(siteId);
 
-                return Task.CompletedTask;
+            if (!site.LastRefreshDateTime.IsNullOrEmpty() && site.LastRefreshDateTime.ParseSolarDateTime() >= dateTime)
+            {
+                _logger.LogDebug($"Site {site.Id} already has a {nameof(ISite.LastRefreshDateTime)} of {site.LastRefreshDateTime}. " +
+                                 $"Not updating to {dateTime.GetSolarDateTimeString()})");
+
+                return;
             }
 
             site.LastRefreshDateTime = dateTime.GetSolarDateTimeString();
 
             _logger.LogDebug($"Updating site {site.Id} last refresh timestamp as {site.LastRefreshDateTime} (local)");
 
-            // todo: handle concurrency issues - reload the site table only if there is a conflict
-            return _siteTable.UpsertSiteAsync(site);
+            await _siteTable.UpsertSiteAsync(site).ConfigureAwait(false);
         }
     }
 }

@@ -4,7 +4,7 @@ using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.GetSite
 {
     /*
 

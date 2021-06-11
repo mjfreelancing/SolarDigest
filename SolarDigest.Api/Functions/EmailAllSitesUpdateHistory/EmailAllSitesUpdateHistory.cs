@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.EmailAllSitesUpdateHistory
 {
     public sealed class EmailAllSitesUpdateHistory : FunctionBase<EmailAllSitesUpdateHistoryPayload, bool>
     {
@@ -46,7 +46,7 @@ namespace SolarDigest.Api.Functions
                     {
                         var updateHistoryTable = serviceProvider.GetRequiredService<ISolarDigestPowerUpdateHistoryTable>();
 
-                        var historyItems = await updateHistoryTable.GetPowerUpdatesAsyncEnumerable(site.Id, lastSummaryDate, nextEndDate)
+                        var historyItems = await updateHistoryTable.GetPowerUpdatesAsync(site.Id, lastSummaryDate, nextEndDate)
                             .ToListAsync()
                             .ConfigureAwait(false);
 
@@ -68,7 +68,7 @@ namespace SolarDigest.Api.Functions
                         await emailSender.SendEmailAsync(emailContext).ConfigureAwait(false);
 
                         var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
-                        await siteUpdater.UpdateLastSummaryDateAsync(site, nextEndDate);
+                        await siteUpdater.UpdateLastSummaryDateAsync(site.Id, nextEndDate);
                     }
                 }
             }

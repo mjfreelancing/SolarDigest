@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Repository
 {
-    // todo: wrap all methods in Polly
+    // todo: wrap ALL methods in Polly
 
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
@@ -64,6 +64,11 @@ namespace SolarDigest.Api.Repository
 
             await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 yield return result;
             }
         }
@@ -86,6 +91,11 @@ namespace SolarDigest.Api.Repository
 
             await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 yield return result;
             }
         }
@@ -100,6 +110,11 @@ namespace SolarDigest.Api.Repository
 
             await foreach (var result in results.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 yield return result;
             }
         }
@@ -141,12 +156,17 @@ namespace SolarDigest.Api.Repository
             return DbClient.PutItemAsync(putItem, cancellationToken);
         }
 
-        async Task ISolarDigestTable.PutItemsAsync<TItem>(IEnumerable<TItem> items, CancellationToken cancellationToken)
+        async Task ISolarDigestTable.PutBatchItemsAsync<TItem>(IEnumerable<TItem> items, CancellationToken cancellationToken)
         {
             var entities = items.AsReadOnlyCollection();
 
             await foreach (var response in GetPutBatchResponses(entities, cancellationToken))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 var unprocessed = response.UnprocessedItems;
 
                 if (unprocessed.Count > 0)
@@ -175,6 +195,11 @@ namespace SolarDigest.Api.Repository
 
                 foreach (var batch in batches)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
+
                     var requests = batch
                         .Select(entity => new PutRequest { Item = GetAttributeValues(entity) })
                         .Select(putRequest => new WriteRequest(putRequest))
@@ -224,6 +249,11 @@ namespace SolarDigest.Api.Repository
 
                 foreach (var document in documents)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
+
                     yield return JsonConvert.DeserializeObject<TItem>(document.ToJson());
                 }
             }

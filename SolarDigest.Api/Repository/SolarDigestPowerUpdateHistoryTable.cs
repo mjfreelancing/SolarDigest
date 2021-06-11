@@ -27,7 +27,7 @@ namespace SolarDigest.Api.Repository
             return TableImpl.PutItemAsync(entity, cancellationToken);
         }
 
-        public async IAsyncEnumerable<PowerUpdateHistory> GetPowerUpdatesAsyncEnumerable(string siteId, DateTime startDate, DateTime endDate,
+        public async IAsyncEnumerable<PowerUpdateHistory> GetPowerUpdatesAsync(string siteId, DateTime startDate, DateTime endDate,
             [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             for (var date = startDate; date <= endDate; date = date.AddDays(1))
@@ -40,6 +40,11 @@ namespace SolarDigest.Api.Repository
 
                 await foreach (var entity in historyEntities.WithCancellation(cancellationToken).ConfigureAwait(false))
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException();
+                    }
+
                     yield return Mapper.Map<PowerUpdateHistory>(entity);
                 }
             }

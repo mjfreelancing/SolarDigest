@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.AggregateSitePower
 {
     /*
 
@@ -93,7 +93,7 @@ namespace SolarDigest.Api.Functions
                 .ConfigureAwait(false);
 
             var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
-            await siteUpdater.UpdateLastAggregationDateAsync(site, endDate).ConfigureAwait(false);
+            await siteUpdater.UpdateLastAggregationDateAsync(site.Id, endDate).ConfigureAwait(false);
 
             return NoResult.Default;
         }

@@ -1,6 +1,6 @@
 ﻿using SolarDigest.Models;
 
-namespace SolarDigest.Api.Payloads.GraphQL
+namespace SolarDigest.Api.Functions.AddSite
 {
     public sealed class AddSitePayload
     {

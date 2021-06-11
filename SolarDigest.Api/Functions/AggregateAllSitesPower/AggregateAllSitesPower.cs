@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.AggregateAllSitesPower
 {
     public sealed class AggregateAllSitesPower : FunctionBase<AggregateAllSitesPowerPayload, bool>
     {

@@ -9,7 +9,7 @@ using SolarDigest.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.HydrateAllSitesPower
 {
     public sealed class HydrateAllSitesPower : FunctionBase<HydrateAllSitesPowerPayload, bool>
     {

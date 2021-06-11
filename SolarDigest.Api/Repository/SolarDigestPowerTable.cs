@@ -30,7 +30,7 @@ namespace SolarDigest.Api.Repository
                     (meter, point) => new MeterPowerEntity(powerData.SiteId, point.Timestamp, meter.MeterType, point.Watts, point.WattHour))
                 .AsReadOnlyList();
 
-            return TableImpl.PutItemsAsync(entities, cancellationToken);
+            return TableImpl.PutBatchItemsAsync(entities, cancellationToken);
         }
 
         public async IAsyncEnumerable<MeterPower> GetMeterPowerAsync(string siteId, DateTime date, MeterType meterType,
@@ -41,6 +41,11 @@ namespace SolarDigest.Api.Repository
 
             await foreach (var entity in meterEntities.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 yield return Mapper.Map<MeterPower>(entity);
             }
         }

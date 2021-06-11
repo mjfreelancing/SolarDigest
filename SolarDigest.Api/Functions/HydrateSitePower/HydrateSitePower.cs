@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.HydrateSitePower
 {
     /*
      
@@ -50,7 +50,8 @@ namespace SolarDigest.Api.Functions
     public sealed class HydrateSitePower : FunctionBase<HydrateSitePowerPayload, NoResult>
     {
         // The solarEdge API can process, at most, 1 month of data at a time but we are limiting requests
-        // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb.
+        // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb
+        // (using the free tier).
         private const int MaxDaysToProcess = 7;
 
         protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
@@ -71,8 +72,11 @@ namespace SolarDigest.Api.Functions
             // must read the entire entity because we may be updating it
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
+            // todo: to be removed
+            logger.LogDebug($"Current site details: {JsonConvert.SerializeObject(site)}");
+
             // Determine the refresh period to hydrate (local time)
-            // - the start/end date/time are optional - a forced re-fresh can be achieved when providing them
+            // - the start/end timestamps are optional - a forced re-fresh can be achieved when providing them
             var (hydrateStartDateTime, hydrateEndDateTime) = GetHydrationPeriodInSiteLocalTime(site, request);
 
             // If the last refresh timestamp is set to a future date (in the database) then ignore the request.
@@ -88,11 +92,9 @@ namespace SolarDigest.Api.Functions
             // for multiple functions consuming CPU time while doing nothing.
             // So, in this version of the code, the function will process 1 week of data, at most, and then post an
             // event if there is more data to be processed. This function will exit and another will pick up the next
-            // message. This approach then means the throughput won't be as bad and I can more easily track the most
+            // message. This approach then means the throughput won't be as bad and we can more easily track the most
             // recent refresh timestamp.
 
-            // Note: Although the end date would suggest 'MaxDaysToProcess + 1' days, the period between the dates is
-            // actually 'MaxDaysToProcess' days.
             var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysToProcess);
 
             var processingToEndDate = hydrateEndDateTime > maxAllowedEndDate
@@ -106,7 +108,7 @@ namespace SolarDigest.Api.Functions
 
             Task UpdatePowerHistoryAsync(PowerUpdateStatus status)
             {
-                logger.LogDebug($"Updating power history for site {siteId} as '{status}' ({hydrateStartDateTime} to {processingToEndDate})");
+                logger.LogDebug($"Updating power history for site {siteId} as '{status}' ({hydrateStartDateTime.GetSolarDateTimeString()} to {processingToEndDate.GetSolarDateTimeString()})");
 
                 return updateHistoryTable!.UpsertPowerStatusHistoryAsync(siteId, hydrateStartDateTime, processingToEndDate, status);
             }
@@ -123,7 +125,7 @@ namespace SolarDigest.Api.Functions
                 await UpdatePowerHistoryAsync(PowerUpdateStatus.Completed).ConfigureAwait(false);
 
                 var siteUpdater = serviceProvider.GetRequiredService<ISiteUpdater>();
-                await siteUpdater.UpdateLastRefreshDateTimeAsync(site, processingToEndDate).ConfigureAwait(false);
+                await siteUpdater.UpdateLastRefreshDateTimeAsync(site.Id, processingToEndDate).ConfigureAwait(false);
             }
             catch (Exception)
             {
@@ -145,7 +147,7 @@ namespace SolarDigest.Api.Functions
         private static async Task ProcessPowerForDateRangeAsync(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
             DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
         {
-            var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time.
+            var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time
             var endDateTime = hydrateEndDateTime.GetSolarDateTimeString();
 
             logger.LogDebug($"Processing period: {startDateTime} to {endDateTime}");
@@ -242,7 +244,7 @@ namespace SolarDigest.Api.Functions
               };
         }
 
-        private static (DateTime, DateTime) GetHydrationPeriodInSiteLocalTime(Site site, HydrateSitePowerEvent request)
+        private static (DateTime, DateTime) GetHydrationPeriodInSiteLocalTime(ISite site, HydrateSitePowerEvent request)
         {
             DateTime hydrateStartDateTime;
 

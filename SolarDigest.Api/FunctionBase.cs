@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Exceptions;
+using SolarDigest.Api.Functions.AddSite;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
 using SolarDigest.Api.Processors;
@@ -11,6 +12,7 @@ using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 // .Net Core 3.1 has improved performance using [DefaultLambdaJsonSerializer] or [CamelCaseLambdaJsonSerializer]
@@ -22,6 +24,12 @@ namespace SolarDigest.Api
 {
     public abstract class FunctionBase<TPayload, TResultType>
     {
+        // Refers to exception types not reported via email
+        private readonly IList<Type> _exceptionTypesNotReported = new List<Type>(new[]
+        {
+            typeof(SolarDigestValidationException)
+        });
+
         private readonly Lazy<IServiceProvider> _services;
         private IServiceProvider Services => _services.Value;
 
@@ -50,6 +58,9 @@ namespace SolarDigest.Api
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISiteUpdater, SiteUpdater>();
+
+            services.AddScoped<AddSitePayloadValidator>();
+
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();
@@ -92,27 +103,14 @@ namespace SolarDigest.Api
 
                     return new LambdaResult<TResultType>(result);
                 }
-
-                // todo: consider creating a registration of exception handlers and consolidate this code
-
-                catch (SolarEdgeResponseException exception)
-                {
-                    await ReportException(scopedServiceProvider, exception, logger);
-                    return new LambdaResult<TResultType>(exception);
-                }
-                catch (SolarEdgeTimeoutException exception)
-                {
-                    await ReportException(scopedServiceProvider, exception, logger);
-                    return new LambdaResult<TResultType>(exception);
-                }
-                catch (DynamoDbConflictException exception)
-                {
-                    await ReportException(scopedServiceProvider, exception, logger);
-                    return new LambdaResult<TResultType>(exception);
-                }
                 catch (Exception exception)
                 {
-                    await ReportException(scopedServiceProvider, exception, logger);
+                    if (!_exceptionTypesNotReported.Contains(exception.GetType()))
+                    {
+                        // known types include: SolarEdgeResponseException, SolarEdgeTimeoutException, DynamoDbConflictException
+                        await ReportException(scopedServiceProvider, exception, logger);
+                    }
+
                     return new LambdaResult<TResultType>(exception);
                 }
             }

@@ -68,6 +68,11 @@ namespace SolarDigest.Api.Repository
 
             await foreach (var siteDetails in sites.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new TaskCanceledException();
+                }
+
                 yield return MapToSite(siteDetails);
             }
         }

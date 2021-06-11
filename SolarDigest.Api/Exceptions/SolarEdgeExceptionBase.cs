@@ -33,9 +33,9 @@ namespace SolarDigest.Api.Exceptions
         {
         }
 
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         // Constructor should be protected for unsealed classes, private for sealed classes.
         // (The Serializer invokes this constructor through reflection, so it can be private)
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         protected SolarEdgeExceptionBase(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

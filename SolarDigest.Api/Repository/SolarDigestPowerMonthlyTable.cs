@@ -25,7 +25,7 @@ namespace SolarDigest.Api.Repository
                 .Select(Mapper.Map<MeterPowerMonthEntity>)
                 .AsReadOnlyCollection();
 
-            return TableImpl.PutItemsAsync(entities, cancellationToken);
+            return TableImpl.PutBatchItemsAsync(entities, cancellationToken);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace SolarDigest.Api.Repository
         Task UpsertPowerStatusHistoryAsync(string siteId, DateTime startDateTime, DateTime endDateTime, PowerUpdateStatus status,
             CancellationToken cancellationToken = default);
 
-        IAsyncEnumerable<PowerUpdateHistory> GetPowerUpdatesAsyncEnumerable(string siteId, DateTime startDate, DateTime endDate,
+        IAsyncEnumerable<PowerUpdateHistory> GetPowerUpdatesAsync(string siteId, DateTime startDate, DateTime endDate,
             CancellationToken cancellationToken = default);
     }
 }

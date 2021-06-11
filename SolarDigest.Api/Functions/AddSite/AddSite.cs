@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SolarDigest.Api.Payloads.GraphQL;
 using SolarDigest.Api.Repository;
+using SolarDigest.Api.Validation;
+using SolarDigest.Api.Validation.Extensions;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.AddSite
 {
     /*
      
@@ -30,12 +31,14 @@ namespace SolarDigest.Api.Functions
         protected override async Task<ISite> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
             var logger = context.Logger;
-
+            var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
+
+            serviceProvider.InvokeValidator<AddSitePayloadValidator, AddSitePayload>(payload);
 
             logger.LogDebug($"Creating site info for Id '{payload.Id}'");
 
-            var siteTable = context.ScopedServiceProvider.GetRequiredService<ISolarDigestSiteTable>();
+            var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             var site = await siteTable!.AddSiteAsync(payload.Id, payload.Site);
 
