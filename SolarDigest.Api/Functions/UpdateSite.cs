@@ -32,6 +32,8 @@ namespace SolarDigest.Api.Functions
 
     */
 
+    // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
+
     public sealed class UpdateSite : FunctionBase<UpdateSitePayload, Site>
     {
         // although Site includes LastAggregationDate, LastSummaryDate, and LastRefreshDateTime, these

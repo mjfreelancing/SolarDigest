@@ -19,6 +19,8 @@ namespace SolarDigest.Api.Functions
 
     */
 
+    // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
+
     public sealed class GetSitePowerSummary : FunctionBase<GetSitePowerSummaryPayload, SitePower>
     {
         protected override Task<SitePower> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)

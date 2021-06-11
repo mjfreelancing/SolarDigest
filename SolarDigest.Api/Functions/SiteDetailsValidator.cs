@@ -3,6 +3,8 @@ using SolarDigest.Models;
 
 namespace SolarDigest.Api.Functions
 {
+    // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
+
     public sealed class SiteDetailsValidator : SolarDigestValidator<SiteDetails>
     {
         public SiteDetailsValidator()

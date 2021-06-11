@@ -47,6 +47,8 @@ namespace SolarDigest.Api.Functions
 
     */
 
+    // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
+
     public sealed class HydrateSitePower : FunctionBase<HydrateSitePowerPayload, NoResult>
     {
         // The solarEdge API can process, at most, 1 month of data at a time but we are limiting requests

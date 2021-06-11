@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
+    // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
+
     public sealed class HydrateAllSitesPower : FunctionBase<HydrateAllSitesPowerPayload, bool>
     {
         protected override async Task<bool> InvokeHandlerAsync(FunctionContext<HydrateAllSitesPowerPayload> context)
