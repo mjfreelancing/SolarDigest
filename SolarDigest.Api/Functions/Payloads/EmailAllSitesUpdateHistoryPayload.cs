@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Functions.EmailAllSitesUpdateHistory
+﻿namespace SolarDigest.Api.Functions.Payloads
 {
     public sealed class EmailAllSitesUpdateHistoryPayload : EventBridgePayloadBase
     {

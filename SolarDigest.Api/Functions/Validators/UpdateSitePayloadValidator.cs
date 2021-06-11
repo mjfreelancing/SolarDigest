@@ -1,6 +1,7 @@
-﻿using SolarDigest.Api.Validation;
+﻿using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Validation;
 
-namespace SolarDigest.Api.Functions.UpdateSite
+namespace SolarDigest.Api.Functions.Validators
 {
     // IValidator<UpdateSitePayload>
     public sealed class UpdateSitePayloadValidator : SolarDigestValidator<UpdateSitePayload>

@@ -1,7 +1,8 @@
-﻿using SolarDigest.Models;
+﻿using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Models;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.GetSitePowerSummary
+namespace SolarDigest.Api.Functions
 {
 
     /*

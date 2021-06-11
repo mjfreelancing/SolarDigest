@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SolarDigest.Api.Events;
 using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
@@ -20,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.HydrateSitePower
+namespace SolarDigest.Api.Functions
 {
     /*
      

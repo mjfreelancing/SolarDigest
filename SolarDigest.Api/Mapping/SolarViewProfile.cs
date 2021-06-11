@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using SolarDigest.Api.Data;
-using SolarDigest.Api.Functions.GetSite;
+using SolarDigest.Api.Functions.Responses;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdgeData;
 using SolarDigest.Api.Services.SolarEdge.Response;

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.UpdateSite
+namespace SolarDigest.Api.Functions
 {
     /*
      

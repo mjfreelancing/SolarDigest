@@ -1,6 +1,7 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
 using SolarDigest.Deploy.Schema.Inputs;
+using System;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
@@ -11,7 +12,8 @@ namespace SolarDigest.Deploy.Schema.Types
         public string Id { get; }
 
         [SchemaTypeRequired]
-        public string StartDate { get; }
+        [SchemaDateType]
+        public DateTime StartDate { get; }
 
         [SchemaTypeRequired]
         public string ContactName { get; }

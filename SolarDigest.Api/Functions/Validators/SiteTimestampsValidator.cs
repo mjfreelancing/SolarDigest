@@ -1,7 +1,7 @@
 ﻿using SolarDigest.Api.Validation;
 using SolarDigest.Models;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.Validators
 {
     public sealed class SiteTimestampsValidator : SolarDigestValidator<SiteTimestamps>
     {

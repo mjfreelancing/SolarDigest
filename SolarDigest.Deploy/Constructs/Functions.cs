@@ -56,7 +56,7 @@ namespace SolarDigest.Deploy.Constructs
             {
                 FunctionName = $"{appName}_{name}",
                 Description = description,
-                Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}.{name}::InvokeAsync",
+                Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}::InvokeAsync",
                 Runtime = Runtime.DOTNET_CORE_3_1,
                 MemorySize = memorySize,
                 Timeout = Duration.Minutes(timeoutMinutes),

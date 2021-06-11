@@ -4,13 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SolarDigest.Api.Events;
 using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.AggregateAllSitesPower
+namespace SolarDigest.Api.Functions
 {
     public sealed class AggregateAllSitesPower : FunctionBase<AggregateAllSitesPowerPayload, bool>
     {

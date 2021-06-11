@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Functions.AggregateAllSitesPower
+﻿namespace SolarDigest.Api.Functions.Payloads
 {
     public sealed class AggregateAllSitesPowerPayload : EventBridgePayloadBase
     {

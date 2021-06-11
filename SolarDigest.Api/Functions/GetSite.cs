@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Functions.Responses;
+using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Repository;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.GetSite
+namespace SolarDigest.Api.Functions
 {
     /*
 
@@ -35,8 +39,13 @@ namespace SolarDigest.Api.Functions.GetSite
     {
         protected override async Task<GetSiteResponse> InvokeHandlerAsync(FunctionContext<GetSitePayload> context)
         {
-            var logger = context.Logger;
+            var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
+
+            serviceProvider.InvokeValidator<GetSitePayloadValidator, GetSitePayload>(payload);
+
+            var logger = context.Logger;
+
 
             logger.LogDebug($"Reading site info for Id '{payload.Id}'");
 

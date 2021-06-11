@@ -1,5 +1,6 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using System;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
@@ -7,7 +8,8 @@ namespace SolarDigest.Deploy.Schema.Inputs
     internal interface ISiteInput
     {
         [SchemaTypeRequired]
-        public string StartDate { get; }
+        [SchemaDateType]
+        public DateTime StartDate { get; }
 
         [SchemaTypeRequired]
         public string ApiKey { get; }

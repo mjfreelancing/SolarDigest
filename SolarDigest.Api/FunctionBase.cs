@@ -4,8 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Exceptions;
-using SolarDigest.Api.Functions.AddSite;
-using SolarDigest.Api.Functions.UpdateSite;
+using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
 using SolarDigest.Api.Processors;
@@ -59,6 +58,7 @@ namespace SolarDigest.Api
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISiteUpdater, SiteUpdater>();
+            services.AddScoped<GetSitePayloadValidator>();
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();

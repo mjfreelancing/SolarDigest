@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
@@ -8,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.AggregateSitePower
+namespace SolarDigest.Api.Functions
 {
     /*
 

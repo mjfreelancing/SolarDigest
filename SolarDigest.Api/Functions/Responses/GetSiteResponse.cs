@@ -1,6 +1,6 @@
 ﻿using SolarDigest.Models;
 
-namespace SolarDigest.Api.Functions.GetSite
+namespace SolarDigest.Api.Functions.Responses
 {
     public sealed class GetSiteResponse : ISiteDetails, ISiteTimestamps
     {

@@ -11,7 +11,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions.EmailException
+namespace SolarDigest.Api.Functions
 {
     public sealed class EmailException : FunctionBase<DynamoDBEvent, bool>
     {

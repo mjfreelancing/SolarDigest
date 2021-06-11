@@ -1,6 +1,7 @@
-﻿using SolarDigest.Api.Validation;
+﻿using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Validation;
 
-namespace SolarDigest.Api.Functions.AddSite
+namespace SolarDigest.Api.Functions.Validators
 {
     // IValidator<AddSitePayload>
     public sealed class AddSitePayloadValidator : SolarDigestValidator<AddSitePayload>

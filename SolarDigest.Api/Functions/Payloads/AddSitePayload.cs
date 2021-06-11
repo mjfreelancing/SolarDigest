@@ -1,6 +1,6 @@
 ﻿using SolarDigest.Models;
 
-namespace SolarDigest.Api.Functions.AddSite
+namespace SolarDigest.Api.Functions.Payloads
 {
     // associated with a lambda resolver request
     public sealed class AddSitePayload

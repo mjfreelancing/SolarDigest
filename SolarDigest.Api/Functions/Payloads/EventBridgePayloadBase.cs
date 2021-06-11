@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Functions.Payloads
 {
     public class EventBridgePayloadBase
     {

@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Functions.HydrateAllSitesPower
+﻿namespace SolarDigest.Api.Functions.Payloads
 {
     public sealed class HydrateAllSitesPowerPayload : EventBridgePayloadBase
     {
