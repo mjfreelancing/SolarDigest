@@ -2,6 +2,7 @@
 
 namespace SolarDigest.Api.Functions.AddSite
 {
+    // associated with a lambda resolver request
     public sealed class AddSitePayload
     {
         public string Id { get; set; }
