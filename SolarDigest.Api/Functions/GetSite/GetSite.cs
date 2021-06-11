@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SolarDigest.Api.Payloads.GraphQL;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System.Threading.Tasks;

@@ -3,7 +3,6 @@ using Amazon.EventBridge.Model;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using SolarDigest.Api.Events;
-using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System;

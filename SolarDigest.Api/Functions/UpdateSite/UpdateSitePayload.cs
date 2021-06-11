@@ -1,7 +1,8 @@
 ﻿using SolarDigest.Models;
 
-namespace SolarDigest.Api.Payloads.GraphQL
+namespace SolarDigest.Api.Functions.UpdateSite
 {
+    // associated with a lambda resolver request
     public sealed class UpdateSitePayload
     {
         public string Id { get; set; }

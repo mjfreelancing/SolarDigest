@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Repository;
-using SolarDigest.Api.Validation;
-using SolarDigest.Api.Validation.Extensions;
 using SolarDigest.Models;
 using System.Threading.Tasks;
 
@@ -30,11 +29,12 @@ namespace SolarDigest.Api.Functions.AddSite
         // will not be returned in the response because they will not yet exist in the table.
         protected override async Task<ISite> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
-            var logger = context.Logger;
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
 
             serviceProvider.InvokeValidator<AddSitePayloadValidator, AddSitePayload>(payload);
+
+            var logger = context.Logger;
 
             logger.LogDebug($"Creating site info for Id '{payload.Id}'");
 

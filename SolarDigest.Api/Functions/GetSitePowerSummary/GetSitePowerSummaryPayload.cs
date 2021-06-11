@@ -1,5 +1,6 @@
-﻿namespace SolarDigest.Api.Payloads.GraphQL
+﻿namespace SolarDigest.Api.Functions.GetSitePowerSummary
 {
+    // associated with a lambda resolver request
     public sealed class GetSitePowerSummaryPayload
     {
         public string Id { get; set; }

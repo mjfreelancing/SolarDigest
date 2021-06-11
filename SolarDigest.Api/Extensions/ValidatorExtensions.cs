@@ -2,7 +2,7 @@
 using FluentValidation;
 using SolarDigest.Api.Exceptions;
 
-namespace SolarDigest.Api.Validation.Extensions
+namespace SolarDigest.Api.Extensions
 {
     public static class ValidatorExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Payloads.GraphQL
+﻿namespace SolarDigest.Api.Functions.GetSite
 {
     // associated with a lambda resolver request
     public sealed class GetSitePayload

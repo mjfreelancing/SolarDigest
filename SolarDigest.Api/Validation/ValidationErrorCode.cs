@@ -3,6 +3,8 @@
     public enum ValidationErrorCode
     {
         OutOfRange,
-        Required
+        Required,
+        InvalidDate,
+        InvalidDateTime
     }
 }

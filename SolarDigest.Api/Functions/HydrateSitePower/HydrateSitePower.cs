@@ -11,7 +11,6 @@ using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Models.SolarEdgeData;
-using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;

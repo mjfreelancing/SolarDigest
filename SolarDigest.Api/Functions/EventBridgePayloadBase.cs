@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace SolarDigest.Api.Payloads.EventBridge
+namespace SolarDigest.Api.Functions
 {
-    public class EventPayloadBase
+    public class EventBridgePayloadBase
     {
         public string Id { get; set; }
         public string Source { get; set; }
         public DateTime Time { get; set; }
     }
 
-    public class EventPayloadBase<TEvent> : EventPayloadBase
+    public class EventBridgePayloadBase<TEvent> : EventBridgePayloadBase
     {
         public TEvent Detail { get; set; }
     }

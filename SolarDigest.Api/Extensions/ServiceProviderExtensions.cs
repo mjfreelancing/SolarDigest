@@ -1,8 +1,8 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
-namespace SolarDigest.Api.Validation.Extensions
+namespace SolarDigest.Api.Extensions
 {
     public static class ServiceProviderExtensions
     {

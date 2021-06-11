@@ -3,7 +3,6 @@ using HtmlBuilders;
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Models;
-using SolarDigest.Api.Payloads.EventBridge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Models;

@@ -1,5 +1,4 @@
-﻿using SolarDigest.Api.Payloads.GraphQL;
-using SolarDigest.Models;
+﻿using SolarDigest.Models;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions.GetSitePowerSummary

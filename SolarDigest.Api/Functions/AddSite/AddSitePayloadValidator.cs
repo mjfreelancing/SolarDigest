@@ -9,8 +9,7 @@ namespace SolarDigest.Api.Functions.AddSite
         {
             IsRequired(model => model.Id);
             IsRequired(model => model.Site);
-
-            // todo: define a validator for the Site and set the configurator for that property
+            RuleFor(model => model.Site).SetValidator(new SiteDetailsValidator());
         }
     }
 }

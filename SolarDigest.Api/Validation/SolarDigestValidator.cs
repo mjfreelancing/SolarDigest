@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using System;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace SolarDigest.Api.Validation
@@ -19,20 +20,37 @@ namespace SolarDigest.Api.Validation
                 .WithErrorCode($"{ValidationErrorCode.Required}");
         }
 
-        protected IRuleBuilderOptions<TType, TProperty> IsGreaterThan<TProperty>(Expression<Func<TType, TProperty>> expression, TProperty value)
-            where TProperty : IComparable<TProperty>, IComparable
+        protected IRuleBuilderOptions<TType, string> IsValidDate(Expression<Func<TType, string>> expression, string format)
         {
+            // yyyy-MM-dd HH:mm:ss
             return RuleFor(expression)
-                .GreaterThan(value)
-                .WithErrorCode($"{ValidationErrorCode.OutOfRange}");
+                .Must(value => DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                .WithMessage("The field '{PropertyName}' is not in a supported format. The value '{PropertyValue}' is invalid.")
+                .WithErrorCode($"{ValidationErrorCode.InvalidDate}");
         }
 
-        protected IRuleBuilderOptions<TType, TProperty?> IsGreaterThan<TProperty>(Expression<Func<TType, TProperty?>> expression, TProperty value)
-            where TProperty : struct, IComparable<TProperty>, IComparable
+        protected IRuleBuilderOptions<TType, string> IsValidDateTime(Expression<Func<TType, string>> expression, string format)
         {
             return RuleFor(expression)
-                .GreaterThan(value)
-                .WithErrorCode($"{ValidationErrorCode.OutOfRange}");
+                .Must(value => DateTime.TryParseExact(value, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+                .WithMessage("The field '{PropertyName}' is not in a supported format. The value '{PropertyValue}' is invalid.")
+                .WithErrorCode($"{ValidationErrorCode.InvalidDateTime}");
         }
+
+        //protected IRuleBuilderOptions<TType, TProperty> IsGreaterThan<TProperty>(Expression<Func<TType, TProperty>> expression, TProperty value)
+        //    where TProperty : IComparable<TProperty>, IComparable
+        //{
+        //    return RuleFor(expression)
+        //        .GreaterThan(value)
+        //        .WithErrorCode($"{ValidationErrorCode.OutOfRange}");
+        //}
+
+        //protected IRuleBuilderOptions<TType, TProperty?> IsGreaterThan<TProperty>(Expression<Func<TType, TProperty?>> expression, TProperty value)
+        //    where TProperty : struct, IComparable<TProperty>, IComparable
+        //{
+        //    return RuleFor(expression)
+        //        .GreaterThan(value)
+        //        .WithErrorCode($"{ValidationErrorCode.OutOfRange}");
+        //}
     }
 }
