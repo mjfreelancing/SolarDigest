@@ -23,11 +23,11 @@ namespace SolarDigest.Api.Functions.AddSite
 
     */
 
-    public sealed class AddSite : FunctionBase<AddSitePayload, ISite>
+    public sealed class AddSite : FunctionBase<AddSitePayload, Site>
     {
         // although Site includes LastAggregationDate, LastSummaryDate, and LastRefreshDateTime, these
         // will not be returned in the response because they will not yet exist in the table.
-        protected override async Task<ISite> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
+        protected override async Task<Site> InvokeHandlerAsync(FunctionContext<AddSitePayload> context)
         {
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;

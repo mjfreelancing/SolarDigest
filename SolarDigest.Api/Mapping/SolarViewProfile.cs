@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SolarDigest.Api.Data;
+using SolarDigest.Api.Functions.GetSite;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdgeData;
 using SolarDigest.Api.Services.SolarEdge.Response;
@@ -28,6 +29,7 @@ namespace SolarDigest.Api.Mapping
             CreateMap<SiteDetails, Site>();
             CreateMap<SiteDetails, SiteEntity>();
             CreateMap<SiteEntity, Site>().ReverseMap();
+            CreateMap<Site, GetSiteResponse>();
 
             CreateMap<MeterPowerEntity, MeterPower>();
             CreateMap<MeterPowerMonthEntity, MeterPowerMonth>().ReverseMap();
