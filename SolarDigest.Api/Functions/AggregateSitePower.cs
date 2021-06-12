@@ -41,7 +41,7 @@ namespace SolarDigest.Api.Functions
 
             var logger = context.Logger;
 
-            logger.LogDebug($"Aggregating power for site Id '{request.SiteId}' between {request.StartDate} and {request.EndDate}");
+            logger.LogDebug($"Aggregating power for site Id {request.SiteId} between {request.StartDate} and {request.EndDate}");
 
             var serviceProvider = context.ScopedServiceProvider;
 

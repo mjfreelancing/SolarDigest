@@ -177,19 +177,20 @@ namespace SolarDigest.Deploy.Constructs
             //.GrantWriteTableData(_tables.ExceptionTable);
 
 
-
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetSitePowerSummary,
                 StringHelpers.AppendAsLines(
                     "{",
-                    @"  ""version"" : ""2017-02-28""",
-                    @"  ""operation"": ""Invoke""",
-                    @"  ""payload"": $util.toJson({ ",
-                    @"    ""id"": $ctx.source.id",
-                    @"    ""meterType"": $context.arguments.meterType",
-                    @"    ""summaryType"": $context.arguments.summaryType",
+                    @"  ""version"" : ""2017-02-28"",",
+                    @"  ""operation"": ""Invoke"",",
+                    @"  ""payload"": {",
+                    @"    ""id"": $util.toJson($context.source.id),",
+                    @"    ""startDate"": $util.toJson($context.arguments.filter.startDate),",
+                    @"    ""endDate"": $util.toJson($context.arguments.filter.endDate),",
+                    @"    ""meterType"": $util.toJson($context.arguments.filter.meterType),",
+                    @"    ""summaryType"": $util.toJson($context.arguments.filter.summaryType)",
                     "  }",
-                    "})"
+                    "}"
                 )
             );
         }

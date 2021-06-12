@@ -10,11 +10,11 @@ namespace SolarDigest.Api.Functions
     {
       "version" : "2017-02-28",
       "operation": "Invoke",
-      "payload": $util.toJson({
-          "id": $ctx.source.id,
-          "meterType": $context.arguments.meterType,
-          "summaryType": $context.arguments.summaryType
-      })
+      "payload": { 
+        "id": $context.source.id,
+        "meterType": $context.arguments.filter.meterType,
+        "summaryType": $context.arguments.filter.summaryType
+      }
     }
 
     */
@@ -25,6 +25,19 @@ namespace SolarDigest.Api.Functions
     {
         protected override Task<SitePower> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)
         {
+            var serviceProvider = context.ScopedServiceProvider;
+            var payload = context.Payload;
+
+            //serviceProvider.InvokeValidator<GetSitePowerSummaryPayloadValidator, GetSitePowerSummaryPayload>(payload);
+
+            var logger = context.Logger;
+
+            logger.LogDebug($"Getting power summary ({payload.MeterType}, {payload.SummaryType}) for site Id " +
+                            $"{payload.Id} between {payload.StartDate} and {payload.EndDate}");
+
+
+
+
             return Task.FromResult(new SitePower());
         }
     }

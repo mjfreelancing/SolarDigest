@@ -40,13 +40,13 @@ namespace SolarDigest.Api.Functions
 
             var logger = context.Logger;
 
-            logger.LogDebug($"Creating site info for Id '{payload.Id}'");
+            logger.LogDebug($"Creating site info for Id {payload.Id}");
 
             var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
             var site = await siteTable!.AddSiteAsync(payload.Id, payload.Site);
 
-            logger.LogDebug($"Site '{payload.Id}' added");
+            logger.LogDebug($"Site {payload.Id} added");
 
             return site;
         }
