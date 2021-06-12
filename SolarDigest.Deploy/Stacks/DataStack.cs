@@ -12,7 +12,8 @@ namespace SolarDigest.Deploy.Stacks
 
             var apiProps = new SolarDigestAppProps
             {
-                AppName = $"{Constants.AppName}Data",
+                StackName = $"{Constants.AppName}Data",
+                AppName = Constants.AppName,
                 Version = Constants.DataVersion,
             };
 
