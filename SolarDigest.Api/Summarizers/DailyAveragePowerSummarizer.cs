@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using SolarDigest.Api.Repository;
+﻿using SolarDigest.Api.Repository;
 using SolarDigest.Models;
+using System;
+using System.Collections.Generic;
 
 namespace SolarDigest.Api.Summarizers
 {
@@ -13,10 +13,8 @@ namespace SolarDigest.Api.Summarizers
         {
         }
 
-        protected override IEnumerable<TimeWatts> GetMeterReadings(
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> daily,
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> monthly,
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> yearly)
+        protected override IEnumerable<TimeWatts> GetMeterReadings(IDictionary<string, IList<PeriodWattData>> daily,
+            IDictionary<string, IList<PeriodWattData>> monthly, IDictionary<string, IList<PeriodWattData>> yearly)
         {
             var meterReadings = new List<TimeWatts>();
 
@@ -25,7 +23,7 @@ namespace SolarDigest.Api.Summarizers
                 var timespan = TimeSpan.FromMinutes(minutes);
                 var time = $"{timespan.Hours:D2}{timespan.Minutes:D2}";
 
-                var wattValues = new List<(int DayCount, double Watts, double WattHour)>();
+                var wattValues = new List<PeriodWattData>();
 
                 if (daily.ContainsKey(time))
                 {
@@ -46,11 +44,11 @@ namespace SolarDigest.Api.Summarizers
                 var totalWatts = 0.0d;
                 var totalWattHour = 0.0d;
 
-                foreach (var (dayCount, watts, wattHour) in wattValues)
+                foreach (var wattItem in wattValues)
                 {
-                    totalDays += dayCount;
-                    totalWatts += watts;
-                    totalWattHour += wattHour;
+                    totalDays += wattItem.DayCount;
+                    totalWatts += wattItem.Watts;
+                    totalWattHour += wattItem.WattHour;
                 }
 
                 var formattedTime = $"{timespan.Hours:D2}:{timespan.Minutes:D2}";

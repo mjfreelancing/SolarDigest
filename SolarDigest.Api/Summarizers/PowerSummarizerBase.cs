@@ -18,8 +18,7 @@ namespace SolarDigest.Api.Summarizers
         private static readonly DateRange ExcludedNoDates = new(DateTime.MaxValue, DateTime.MinValue);
 
         // creates a new instance - avoid any possibility of something being added later that affects logic
-        private static IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> EmptyMeterReadings =>
-            new Dictionary<string, IList<(int DayCount, double Watts, double WattHour)>>();
+        private static IDictionary<string, IList<PeriodWattData>> EmptyMeterReadings => new Dictionary<string, IList<PeriodWattData>>();
 
         private static readonly CultureInfo CultureInfo = new(Constants.AggregationOptions.CultureName);
         private static Calendar Calendar => CultureInfo.Calendar;
@@ -53,10 +52,8 @@ namespace SolarDigest.Api.Summarizers
             return GetMeterReadings(daily, monthly, yearly);
         }
 
-        protected abstract IEnumerable<TimeWatts> GetMeterReadings(
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> daily,
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> monthly,
-            IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>> yearly);
+        protected abstract IEnumerable<TimeWatts> GetMeterReadings(IDictionary<string, IList<PeriodWattData>> daily,
+            IDictionary<string, IList<PeriodWattData>> monthly, IDictionary<string, IList<PeriodWattData>> yearly);
 
         private static IEnumerable<AggregationYear> GetYearPeriods(DateTime startDate, DateTime endDate)
         {
@@ -140,15 +137,15 @@ namespace SolarDigest.Api.Summarizers
         }
 
 
-        private async Task<IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>>>
-            GetDailyReadings(string siteId, MeterType meterType, IReadOnlyCollection<DateRange> dayPeriods)
+        private async Task<IDictionary<string, IList<PeriodWattData>>> GetDailyReadings(string siteId, MeterType meterType,
+            IReadOnlyCollection<DateRange> dayPeriods)
         {
             if (dayPeriods.Count == 0)
             {
                 return EmptyMeterReadings;
             }
 
-            var meterReadings = new Dictionary<string, IList<(int DayCount, double Watts, double WattHour)>>();
+            var meterReadings = new Dictionary<string, IList<PeriodWattData>>();
 
             foreach (var dayPeriod in dayPeriods)
             {
@@ -160,10 +157,10 @@ namespace SolarDigest.Api.Summarizers
                     {
                         if (!meterReadings.ContainsKey(powerItem.Time))
                         {
-                            meterReadings.Add(powerItem.Time, new List<(int, double, double)>());
+                            meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                         }
 
-                        meterReadings[powerItem.Time].Add((1, powerItem.Watts, powerItem.WattHour));
+                        meterReadings[powerItem.Time].Add(new(1, powerItem.Watts, powerItem.WattHour));
                     }
                 }
             }
@@ -171,15 +168,15 @@ namespace SolarDigest.Api.Summarizers
             return meterReadings;
         }
 
-        private async Task<IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>>>
-            GetMonthlyReadings(string siteId, MeterType meterType, IReadOnlyCollection<AggregationMonth> monthPeriods)
+        private async Task<IDictionary<string, IList<PeriodWattData>>> GetMonthlyReadings(string siteId, MeterType meterType,
+            IReadOnlyCollection<AggregationMonth> monthPeriods)
         {
             if (monthPeriods.Count == 0)
             {
                 return EmptyMeterReadings;
             }
 
-            var meterReadings = new Dictionary<string, IList<(int DayCount, double Watts, double WattHour)>>();
+            var meterReadings = new Dictionary<string, IList<PeriodWattData>>();
 
             foreach (var monthPeriod in monthPeriods)
             {
@@ -189,25 +186,25 @@ namespace SolarDigest.Api.Summarizers
                 {
                     if (!meterReadings.ContainsKey(powerItem.Time))
                     {
-                        meterReadings.Add(powerItem.Time, new List<(int, double, double)>());
+                        meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                     }
 
-                    meterReadings[powerItem.Time].Add((powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
+                    meterReadings[powerItem.Time].Add(new(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
                 }
             }
 
             return meterReadings;
         }
 
-        private async Task<IDictionary<string, IList<(int DayCount, double Watts, double WattHour)>>>
-            GetYearlyReadings(string siteId, MeterType meterType, IReadOnlyCollection<AggregationYear> yearPeriods)
+        private async Task<IDictionary<string, IList<PeriodWattData>>> GetYearlyReadings(string siteId, MeterType meterType,
+            IReadOnlyCollection<AggregationYear> yearPeriods)
         {
             if (yearPeriods.Count == 0)
             {
                 return EmptyMeterReadings;
             }
 
-            var meterReadings = new Dictionary<string, IList<(int DayCount, double Watts, double WattHour)>>();
+            var meterReadings = new Dictionary<string, IList<PeriodWattData>>();
 
             foreach (var yearPeriod in yearPeriods)
             {
@@ -217,10 +214,10 @@ namespace SolarDigest.Api.Summarizers
                 {
                     if (!meterReadings.ContainsKey(powerItem.Time))
                     {
-                        meterReadings.Add(powerItem.Time, new List<(int, double, double)>());
+                        meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                     }
 
-                    meterReadings[powerItem.Time].Add((powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
+                    meterReadings[powerItem.Time].Add(new(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
                 }
             }
 
