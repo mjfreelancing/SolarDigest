@@ -149,7 +149,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAggregateSitePowerFunction()
         {
             AggregateSitePowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site")
 
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power))
 
@@ -162,9 +162,8 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateGetSitePowerSummary()
         {
-            // YET TO BE IMPLEMENTED - ONLY ADDED TO TEST THE SCHEMA BUILDER AT THIS STAGE
             GetSitePowerSummaryFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site")
                     .GrantDescribeTableData(_iam,
                         nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power),
                         nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))

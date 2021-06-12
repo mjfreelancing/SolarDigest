@@ -16,14 +16,35 @@ namespace SolarDigest.Api.Functions
 
     /*
 
-    {
-      "version" : "2017-02-28",
-      "operation": "Invoke",
-      "payload": { 
-        "id": $context.source.id,
-        "meterType": $context.arguments.filter.meterType,
-        "summaryType": $context.arguments.filter.summaryType
+    query GetSite($siteId: String!, $meterType: MeterType!, $summaryType: SummaryType!, $startDate: AWSDate!, $endDate: AWSDate!) {
+      site(id: $siteId) {
+        id
+        contactEmail
+        contactName
+        lastAggregationDate
+        lastRefreshDateTime
+        lastSummaryDate
+        startDate
+        timeZoneId
+        power(filter: {meterType: $meterType, summaryType: $summaryType, startDate: $startDate, endDate: $endDate}) {
+          nextToken
+          timeWatts {
+            time
+            wattHour
+            watts
+          }
+        }
       }
+    }
+
+    with variables:
+
+    {
+        "siteId": "1514817",
+        "meterType": "PRODUCTION",
+        "summaryType": "AVERAGE",
+        "startDate": "2021-06-01",
+        "endDate": "2021-06-07"
     }
 
     */
