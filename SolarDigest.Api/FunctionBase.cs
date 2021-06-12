@@ -61,6 +61,7 @@ namespace SolarDigest.Api
             services.AddScoped<GetSitePayloadValidator>();
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();
+            services.AddScoped<GetSitePowerSummaryPayloadValidator>();
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();

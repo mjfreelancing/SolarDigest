@@ -6,12 +6,12 @@ namespace SolarDigest.Api.Extensions
     {
         public static DateTime ParseSolarDate(this string timestamp)
         {
-            return DateTime.ParseExact(timestamp, "yyyy-MM-dd", null);
+            return DateTime.ParseExact(timestamp, Constants.DateFormat, null);
         }
 
         public static DateTime ParseSolarDateTime(this string timestamp)
         {
-            return DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm:ss", null);
+            return DateTime.ParseExact(timestamp, Constants.DateTimeFormat, null);
         }
     }
 }

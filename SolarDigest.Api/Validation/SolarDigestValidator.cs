@@ -20,6 +20,13 @@ namespace SolarDigest.Api.Validation
                 .WithErrorCode($"{ValidationErrorCode.Required}");
         }
 
+        protected IRuleBuilderOptions<TType, string> IsValidEnum<TProperty>(Expression<Func<TType, string>> expression)
+        {
+            return RuleFor(expression)
+                .IsEnumName(typeof(TProperty), false)
+                .WithErrorCode($"{ValidationErrorCode.UnknownValue}");
+        }
+
         protected IRuleBuilderOptions<TType, string> IsValidDate(Expression<Func<TType, string>> expression, string format)
         {
             // yyyy-MM-dd HH:mm:ss

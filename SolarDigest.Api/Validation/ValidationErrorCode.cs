@@ -5,6 +5,7 @@
         OutOfRange,
         Required,
         InvalidDate,
-        InvalidDateTime
+        InvalidDateTime,
+        UnknownValue
     }
 }

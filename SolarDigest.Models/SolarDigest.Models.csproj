@@ -5,4 +5,8 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="AllOverIt" Version="1.6.0" />
+    </ItemGroup>
+
 </Project>

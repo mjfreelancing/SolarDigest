@@ -165,17 +165,14 @@ namespace SolarDigest.Deploy.Constructs
             // YET TO BE IMPLEMENTED - ONLY ADDED TO TEST THE SCHEMA BUILDER AT THIS STAGE
             GetSitePowerSummaryFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 192, 15)
-                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site));
+                    .GrantDescribeTableData(_iam,
+                        nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power),
+                        nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
 
-            //.AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(_tables.PowerTable.TableName))
-            //.AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(_tables.PowerTable.TableName))
+                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.Power),
+                        nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly)))
 
-            //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerMonthlyTable.TableName))
-            //.AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(_tables.PowerYearlyTable.TableName))
-
-            //.GrantReadWriteTableData(_tables.SiteTable)
-            //.GrantWriteTableData(_tables.ExceptionTable);
-
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetSitePowerSummary,
@@ -184,7 +181,7 @@ namespace SolarDigest.Deploy.Constructs
                     @"  ""version"" : ""2017-02-28"",",
                     @"  ""operation"": ""Invoke"",",
                     @"  ""payload"": {",
-                    @"    ""id"": $util.toJson($context.source.id),",
+                    @"    ""siteId"": $util.toJson($context.source.id),",
                     @"    ""startDate"": $util.toJson($context.arguments.filter.startDate),",
                     @"    ""endDate"": $util.toJson($context.arguments.filter.endDate),",
                     @"    ""meterType"": $util.toJson($context.arguments.filter.meterType),",
@@ -200,9 +197,13 @@ namespace SolarDigest.Deploy.Constructs
             EmailSiteUpdateHistoryFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.EmailAllSitesUpdateHistory, "Sends all sites a summary of power processing")
                     .AddPolicyStatements(_iam.SendEmailPolicyStatement)
+
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.PowerUpdateHistory))
+
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
+
                     .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.PowerUpdateHistory)))
+
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
     }

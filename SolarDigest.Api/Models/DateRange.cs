@@ -2,7 +2,7 @@
 
 namespace SolarDigest.Api.Models
 {
-    public class DateRange
+    public sealed class DateRange
     {
         public DateTime StartDateTime { get; }
         public DateTime EndDateTime { get; }
