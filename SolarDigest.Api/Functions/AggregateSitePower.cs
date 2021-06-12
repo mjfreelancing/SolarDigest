@@ -81,10 +81,10 @@ namespace SolarDigest.Api.Functions
                         aggregateEndDate = endDate;
                     }
 
-                    var monthlyProcessor = serviceProvider.GetRequiredService<IPowerMonthlyProcessor>();
+                    var monthlyProcessor = serviceProvider.GetRequiredService<IPowerMonthlyAggregator>();
                     yield return monthlyProcessor!.ProcessAsync(site, aggregateStartDate, aggregateEndDate);
 
-                    var yearlyProcessor = serviceProvider.GetRequiredService<IPowerYearlyProcessor>();
+                    var yearlyProcessor = serviceProvider.GetRequiredService<IPowerYearlyAggregator>();
                     yield return yearlyProcessor!.ProcessAsync(site, aggregateStartDate, aggregateEndDate);
                 }
             }

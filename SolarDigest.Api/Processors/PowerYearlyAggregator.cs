@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Processors
 {
-    internal sealed class PowerYearlyProcessor : IPowerYearlyProcessor
+    internal sealed class PowerYearlyAggregator : IPowerYearlyAggregator
     {
         private readonly ISolarDigestPowerTable _powerTable;
         private readonly ISolarDigestPowerYearlyTable _powerYearlyTable;
         private readonly IFunctionLogger _logger;
 
-        public PowerYearlyProcessor(ISolarDigestPowerTable powerTable, ISolarDigestPowerYearlyTable powerYearlyTable, IFunctionLogger logger)
+        public PowerYearlyAggregator(ISolarDigestPowerTable powerTable, ISolarDigestPowerYearlyTable powerYearlyTable, IFunctionLogger logger)
         {
             _powerTable = powerTable.WhenNotNull(nameof(powerTable));
             _powerYearlyTable = powerYearlyTable.WhenNotNull(nameof(powerYearlyTable));

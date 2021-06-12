@@ -11,6 +11,7 @@ using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
+using SolarDigest.Api.Summarizers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -62,14 +63,15 @@ namespace SolarDigest.Api
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();
             services.AddScoped<GetSitePowerSummaryPayloadValidator>();
+            services.AddScoped<IDailyAveragePowerSummarizer, DailyAveragePowerSummarizer>();
             services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
             services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
             services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();
             services.AddScoped<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
             services.AddScoped<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
             services.AddScoped<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
-            services.AddTransient<IPowerMonthlyProcessor, PowerMonthlyProcessor>();
-            services.AddTransient<IPowerYearlyProcessor, PowerYearlyProcessor>();
+            services.AddTransient<IPowerMonthlyAggregator, PowerMonthlyAggregator>();
+            services.AddTransient<IPowerYearlyAggregator, PowerYearlyAggregator>();
             services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
             services.AddAutoMapper(typeof(SolarViewProfile));
 

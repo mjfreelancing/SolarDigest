@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Processors
 {
-    public interface IPowerProcessor
+    public interface IPowerAggregator
     {
         Task ProcessAsync(Site site, DateTime startDate, DateTime endDate);
     }
