@@ -75,7 +75,8 @@ namespace SolarDigest.Api.Summarizers
             }
         }
 
-        private static IEnumerable<AggregationMonth> GetMonthPeriods(DateTime startDate, DateTime endDate, IReadOnlyCollection<AggregationYear> yearPeriods)
+        private static IEnumerable<AggregationMonth> GetMonthPeriods(DateTime startDate, DateTime endDate,
+            IReadOnlyCollection<AggregationYear> yearPeriods)
         {
             var excludeDateRange = yearPeriods.Count == 0
                 ? ExcludedNoDates
@@ -153,7 +154,9 @@ namespace SolarDigest.Api.Summarizers
             {
                 for (var date = dayPeriod.StartDateTime; date <= dayPeriod.EndDateTime; date = date.AddDays(1))
                 {
-                    await foreach (var powerItem in _dailyTable.GetMeterPowerAsync(siteId, date, meterType).ConfigureAwait(false))
+                    var dailyPowerItems = _dailyTable.GetMeterPowerAsync(siteId, date, meterType);
+
+                    await foreach (var powerItem in dailyPowerItems.ConfigureAwait(false))
                     {
                         if (!meterReadings.ContainsKey(powerItem.Time))
                         {
@@ -180,7 +183,9 @@ namespace SolarDigest.Api.Summarizers
 
             foreach (var monthPeriod in monthPeriods)
             {
-                await foreach (var powerItem in _monthlyTable.GetMeterDataAsync(siteId, monthPeriod.Year, monthPeriod.Month, meterType).ConfigureAwait(false))
+                var monthlyPowerItems = _monthlyTable.GetMeterDataAsync(siteId, monthPeriod.Year, monthPeriod.Month, meterType);
+
+                await foreach (var powerItem in monthlyPowerItems.ConfigureAwait(false))
                 {
                     if (!meterReadings.ContainsKey(powerItem.Time))
                     {
@@ -206,7 +211,9 @@ namespace SolarDigest.Api.Summarizers
 
             foreach (var yearPeriod in yearPeriods)
             {
-                await foreach (var powerItem in _yearlyTable.GetMeterDataAsync(siteId, yearPeriod.Year, meterType).ConfigureAwait(false))
+                var yearlyPowerItems = _yearlyTable.GetMeterDataAsync(siteId, yearPeriod.Year, meterType);
+
+                await foreach (var powerItem in yearlyPowerItems.ConfigureAwait(false))
                 {
                     if (!meterReadings.ContainsKey(powerItem.Time))
                     {
