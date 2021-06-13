@@ -13,9 +13,9 @@ namespace SolarDigest.Api.Services.SolarEdge
 {
     internal sealed class SolarEdgeApi : ISolarEdgeApi
     {
-        private readonly IFunctionLogger _logger;
+        private readonly ISolarDigestLogger _logger;
 
-        public SolarEdgeApi(IFunctionLogger logger)
+        public SolarEdgeApi(ISolarDigestLogger logger)
         {
             _logger = logger.WhenNotNull(nameof(logger));
         }

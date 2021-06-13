@@ -78,6 +78,8 @@ namespace SolarDigest.Api.Functions
                 _ => throw new InvalidOperationException($"Unexpected summary type '{summaryType}'")
             };
 
+            logger.LogDebug("Returning with the requested power summary");
+
             return new SitePower(timeWatts);
         }
 

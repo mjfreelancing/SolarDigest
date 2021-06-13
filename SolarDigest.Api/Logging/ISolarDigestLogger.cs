@@ -2,7 +2,7 @@
 
 namespace SolarDigest.Api.Logging
 {
-    public interface IFunctionLogger
+    public interface ISolarDigestLogger
     {
         void LogDebug(string message);
         void LogException(Exception exception);

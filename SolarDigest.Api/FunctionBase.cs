@@ -55,7 +55,7 @@ namespace SolarDigest.Api
 
         protected virtual void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IFunctionLogger, FunctionLogger>();
+            services.AddScoped<ISolarDigestLogger, SolarDigestLogger>();
             services.AddScoped<IExceptionHandler, PersistExceptionHandler>();
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISiteUpdater, SiteUpdater>();
@@ -89,9 +89,9 @@ namespace SolarDigest.Api
             {
                 var scopedServiceProvider = scope.ServiceProvider;
 
-                var logger = scopedServiceProvider.GetRequiredService<IFunctionLogger>();
+                var logger = scopedServiceProvider.GetRequiredService<ISolarDigestLogger>();
 
-                if (logger is FunctionLogger functionLogger)
+                if (logger is SolarDigestLogger functionLogger)
                 {
                     // the logger is context specific so needs to be injected manually
                     functionLogger.SetLambdaLogger(context.Logger);
@@ -119,7 +119,7 @@ namespace SolarDigest.Api
             }
         }
 
-        private static Task ReportException(IServiceProvider serviceProvider, Exception exception, IFunctionLogger logger)
+        private static Task ReportException(IServiceProvider serviceProvider, Exception exception, ISolarDigestLogger logger)
         {
             logger.LogException(exception);
 

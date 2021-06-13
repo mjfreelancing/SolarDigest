@@ -12,9 +12,9 @@ namespace SolarDigest.Api.Services
 {
     internal sealed class EmailSender : IEmailSender
     {
-        private readonly IFunctionLogger _logger;
+        private readonly ISolarDigestLogger _logger;
 
-        public EmailSender(IFunctionLogger logger)
+        public EmailSender(ISolarDigestLogger logger)
         {
             _logger = logger.WhenNotNull(nameof(logger));
         }

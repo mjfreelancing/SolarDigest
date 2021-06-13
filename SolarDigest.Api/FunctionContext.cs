@@ -7,10 +7,10 @@ namespace SolarDigest.Api
     public sealed class FunctionContext<TPayload>
     {
         public IServiceProvider ScopedServiceProvider { get; }
-        public IFunctionLogger Logger { get; }
+        public ISolarDigestLogger Logger { get; }
         public TPayload Payload { get; }
 
-        public FunctionContext(IServiceProvider scopedServiceProvider, IFunctionLogger logger, TPayload payload)
+        public FunctionContext(IServiceProvider scopedServiceProvider, ISolarDigestLogger logger, TPayload payload)
         {
             ScopedServiceProvider = scopedServiceProvider.WhenNotNull(nameof(scopedServiceProvider));
             Logger = logger.WhenNotNull(nameof(logger));

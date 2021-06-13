@@ -9,9 +9,9 @@ namespace SolarDigest.Api.Services
     internal sealed class PersistExceptionHandler : IExceptionHandler
     {
         private readonly ISolarDigestExceptionTable _exceptionTable;
-        private readonly IFunctionLogger _logger;
+        private readonly ISolarDigestLogger _logger;
 
-        public PersistExceptionHandler(ISolarDigestExceptionTable exceptionTable, IFunctionLogger logger)
+        public PersistExceptionHandler(ISolarDigestExceptionTable exceptionTable, ISolarDigestLogger logger)
         {
             _exceptionTable = exceptionTable.WhenNotNull(nameof(exceptionTable));
             _logger = logger.WhenNotNull(nameof(logger));

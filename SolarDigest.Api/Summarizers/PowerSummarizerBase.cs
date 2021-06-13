@@ -1,5 +1,8 @@
 ﻿using AllOverIt.Extensions;
 using AllOverIt.Helpers;
+using AllOverIt.Tasks;
+using SolarDigest.Api.Extensions;
+using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Repository;
@@ -25,39 +28,44 @@ namespace SolarDigest.Api.Summarizers
         private readonly ISolarDigestPowerTable _dailyTable;
         private readonly ISolarDigestPowerMonthlyTable _monthlyTable;
         private readonly ISolarDigestPowerYearlyTable _yearlyTable;
+        private readonly ISolarDigestLogger _logger;
 
         protected PowerSummarizerBase(ISolarDigestPowerTable dailyTable, ISolarDigestPowerMonthlyTable monthlyTable,
-            ISolarDigestPowerYearlyTable yearlyTable)
+            ISolarDigestPowerYearlyTable yearlyTable, ISolarDigestLogger logger)
         {
             _dailyTable = dailyTable.WhenNotNull(nameof(dailyTable));
             _monthlyTable = monthlyTable.WhenNotNull(nameof(monthlyTable));
             _yearlyTable = yearlyTable.WhenNotNull(nameof(yearlyTable));
+            _logger = logger.WhenNotNull(nameof(logger));
         }
 
         public async Task<IEnumerable<TimeWatts>> GetTimeWattsAsync(string siteId, MeterType meterType, DateTime startDate, DateTime endDate)
         {
             // determine what full years and months we have, then the remaining individual days
+
+            _logger.LogDebug("Getting day, month, and year periods");
+
             var yearPeriods = GetYearPeriods(startDate, endDate).AsReadOnlyList();
             var monthPeriods = GetMonthPeriods(startDate, endDate, yearPeriods).AsReadOnlyList();
             var dayPeriods = GetDayPeriods(startDate, endDate, yearPeriods, monthPeriods);
 
-            //var (daily, monthly, yearly) = await TaskHelper
-            //    .WhenAll(
-            //        GetDailyReadings(siteId, meterType, dayPeriods),
-            //        GetMonthlyReadings(siteId, meterType, monthPeriods),
-            //        GetYearlyReadings(siteId, meterType, yearPeriods))
-            //    .ConfigureAwait(false);
+            _logger.LogDebug("Reading daily, monthly, and yearly meter data");
 
-            // execute in reverse only to help with possible DynamoDb warming up
-            var yearly = await GetYearlyReadings(siteId, meterType, yearPeriods).ConfigureAwait(false);
-            var monthly = await GetMonthlyReadings(siteId, meterType, monthPeriods).ConfigureAwait(false);
-            var daily = await GetDailyReadings(siteId, meterType, dayPeriods).ConfigureAwait(false);
+            var (daily, monthly, yearly) = await TaskHelper
+                .WhenAll(
+                    GetDailyReadings(siteId, meterType, dayPeriods),
+                    GetMonthlyReadings(siteId, meterType, monthPeriods),
+                    GetYearlyReadings(siteId, meterType, yearPeriods))
+                .ConfigureAwait(false);
 
-            return GetMeterReadings(daily, monthly, yearly);
+            _logger.LogDebug("Get summarized meter readings");
+            return GetMeterSummary(daily, monthly, yearly);
         }
 
-        protected abstract IEnumerable<TimeWatts> GetMeterReadings(IDictionary<string, IList<PeriodWattData>> daily,
-            IDictionary<string, IList<PeriodWattData>> monthly, IDictionary<string, IList<PeriodWattData>> yearly);
+        protected abstract IEnumerable<TimeWatts> GetMeterSummary(
+            IDictionary<string, IList<PeriodWattData>> daily,
+            IDictionary<string, IList<PeriodWattData>> monthly,
+            IDictionary<string, IList<PeriodWattData>> yearly);
 
         private static IEnumerable<AggregationYear> GetYearPeriods(DateTime startDate, DateTime endDate)
         {
@@ -140,7 +148,6 @@ namespace SolarDigest.Api.Summarizers
             return dayPeriods;
         }
 
-
         private async Task<IDictionary<string, IList<PeriodWattData>>> GetDailyReadings(string siteId, MeterType meterType,
             IReadOnlyCollection<DateRange> dayPeriods)
         {
@@ -155,6 +162,8 @@ namespace SolarDigest.Api.Summarizers
             {
                 for (var date = dayPeriod.StartDateTime; date <= dayPeriod.EndDateTime; date = date.AddDays(1))
                 {
+                    _logger.LogDebug($"Getting daily {meterType} data for {date.GetSolarDateString()}");
+
                     var dailyPowerItems = _dailyTable.GetMeterPowerAsync(siteId, date, meterType);
 
                     await foreach (var powerItem in dailyPowerItems.ConfigureAwait(false))
@@ -164,10 +173,12 @@ namespace SolarDigest.Api.Summarizers
                             meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                         }
 
-                        meterReadings[powerItem.Time].Add(new(1, powerItem.Watts, powerItem.WattHour));
+                        meterReadings[powerItem.Time].Add(new PeriodWattData(1, powerItem.Watts, powerItem.WattHour));
                     }
                 }
             }
+
+            _logger.LogDebug("Daily readings have been read");
 
             return meterReadings;
         }
@@ -184,6 +195,9 @@ namespace SolarDigest.Api.Summarizers
 
             foreach (var monthPeriod in monthPeriods)
             {
+                _logger.LogDebug($"Getting monthly {meterType} data between {monthPeriod.StartDate.GetSolarDateString()} and  " +
+                                 $"{monthPeriod.EndDate.GetSolarDateString()}");
+
                 var monthlyPowerItems = _monthlyTable.GetMeterDataAsync(siteId, monthPeriod.Year, monthPeriod.Month, meterType);
 
                 await foreach (var powerItem in monthlyPowerItems.ConfigureAwait(false))
@@ -193,9 +207,11 @@ namespace SolarDigest.Api.Summarizers
                         meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                     }
 
-                    meterReadings[powerItem.Time].Add(new(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
+                    meterReadings[powerItem.Time].Add(new PeriodWattData(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
                 }
             }
+
+            _logger.LogDebug("Monthly readings have been read");
 
             return meterReadings;
         }
@@ -212,6 +228,9 @@ namespace SolarDigest.Api.Summarizers
 
             foreach (var yearPeriod in yearPeriods)
             {
+                _logger.LogDebug($"Getting monthly {meterType} data between {yearPeriod.StartDate.GetSolarDateString()} and  " +
+                                 $"{yearPeriod.EndDate.GetSolarDateString()}");
+
                 var yearlyPowerItems = _yearlyTable.GetMeterDataAsync(siteId, yearPeriod.Year, meterType);
 
                 await foreach (var powerItem in yearlyPowerItems.ConfigureAwait(false))
@@ -221,9 +240,11 @@ namespace SolarDigest.Api.Summarizers
                         meterReadings.Add(powerItem.Time, new List<PeriodWattData>());
                     }
 
-                    meterReadings[powerItem.Time].Add(new(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
+                    meterReadings[powerItem.Time].Add(new PeriodWattData(powerItem.DayCount, powerItem.Watts, powerItem.WattHour));
                 }
             }
+
+            _logger.LogDebug("Yearly readings have been read");
 
             return meterReadings;
         }

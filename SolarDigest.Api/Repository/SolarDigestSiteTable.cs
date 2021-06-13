@@ -15,7 +15,7 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.Site;
 
-        public SolarDigestSiteTable(IMapper mapper, IFunctionLogger logger)
+        public SolarDigestSiteTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)
         {
         }

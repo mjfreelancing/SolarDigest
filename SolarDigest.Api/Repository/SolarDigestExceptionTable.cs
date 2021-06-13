@@ -11,7 +11,7 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.Exception;
 
-        public SolarDigestExceptionTable(IMapper mapper, IFunctionLogger logger)
+        public SolarDigestExceptionTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)
         {
         }

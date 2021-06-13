@@ -1,4 +1,5 @@
-﻿using SolarDigest.Api.Repository;
+﻿using SolarDigest.Api.Logging;
+using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System;
 using System.Collections.Generic;
@@ -8,13 +9,15 @@ namespace SolarDigest.Api.Summarizers
     internal sealed class DailyAveragePowerSummarizer : PowerSummarizerBase, IDailyAveragePowerSummarizer
     {
         public DailyAveragePowerSummarizer(ISolarDigestPowerTable dailyTable, ISolarDigestPowerMonthlyTable monthlyTable,
-            ISolarDigestPowerYearlyTable yearlyTable)
-            : base(dailyTable, monthlyTable, yearlyTable)
+            ISolarDigestPowerYearlyTable yearlyTable, ISolarDigestLogger logger)
+            : base(dailyTable, monthlyTable, yearlyTable, logger)
         {
         }
 
-        protected override IEnumerable<TimeWatts> GetMeterReadings(IDictionary<string, IList<PeriodWattData>> daily,
-            IDictionary<string, IList<PeriodWattData>> monthly, IDictionary<string, IList<PeriodWattData>> yearly)
+        protected override IEnumerable<TimeWatts> GetMeterSummary(
+            IDictionary<string, IList<PeriodWattData>> daily,
+            IDictionary<string, IList<PeriodWattData>> monthly,
+            IDictionary<string, IList<PeriodWattData>> yearly)
         {
             var meterReadings = new List<TimeWatts>();
 

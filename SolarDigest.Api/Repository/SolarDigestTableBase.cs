@@ -23,22 +23,21 @@ namespace SolarDigest.Api.Repository
 
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private readonly Lazy<AmazonDynamoDBClient> _dbClient = new(() => new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-        {
-            Timeout = new TimeSpan(0, 0, 10),
-            RetryMode = RequestRetryMode.Standard,
-            MaxErrorRetry = 2
-        }));
-
-        private AmazonDynamoDBClient DbClient => _dbClient.Value;
+        private static readonly AmazonDynamoDBClient DbClient
+            = new(new AmazonDynamoDBConfig
+            {
+                Timeout = new TimeSpan(0, 0, 10),
+                RetryMode = RequestRetryMode.Standard,
+                MaxErrorRetry = 2
+            });
 
         protected ISolarDigestTable TableImpl => this;
         protected IMapper Mapper { get; }
-        protected IFunctionLogger Logger { get; }
+        protected ISolarDigestLogger Logger { get; }
 
         public abstract string TableName { get; }
 
-        protected SolarDigestTableBase(IMapper mapper, IFunctionLogger logger)
+        protected SolarDigestTableBase(IMapper mapper, ISolarDigestLogger logger)
         {
             Mapper = mapper.WhenNotNull(nameof(mapper));
             Logger = logger.WhenNotNull(nameof(logger));

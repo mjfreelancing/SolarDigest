@@ -7,7 +7,7 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.EnergyCosts;
 
-        public SolarDigestEnergyCostsTable(IMapper mapper, IFunctionLogger logger)
+        public SolarDigestEnergyCostsTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)
         {
         }

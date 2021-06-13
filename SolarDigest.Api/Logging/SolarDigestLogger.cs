@@ -3,7 +3,7 @@ using System;
 
 namespace SolarDigest.Api.Logging
 {
-    internal sealed class FunctionLogger : IFunctionLogger
+    internal sealed class SolarDigestLogger : ISolarDigestLogger
     {
         private ILambdaLogger _lambdaLogger;
 

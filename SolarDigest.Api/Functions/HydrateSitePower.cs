@@ -147,7 +147,7 @@ namespace SolarDigest.Api.Functions
         }
 
         private static async Task ProcessPowerForDateRangeAsync(Site site, ISolarEdgeApi solarEdgeApi, ISolarDigestPowerTable powerTable,
-            DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, IFunctionLogger logger)
+            DateTime hydrateStartDateTime, DateTime hydrateEndDateTime, IMapper mapper, ISolarDigestLogger logger)
         {
             var startDateTime = hydrateStartDateTime.GetSolarDateTimeString();      // In site local time
             var endDateTime = hydrateEndDateTime.GetSolarDateTimeString();
@@ -269,7 +269,7 @@ namespace SolarDigest.Api.Functions
         }
 
         private static async Task SendEventToProcessRemainingPeriodAsync(string siteId, DateTime startDateTime, DateTime endDateTime,
-            IFunctionLogger logger)
+            ISolarDigestLogger logger)
         {
             logger.LogDebug($"Posting an event to handle the range {startDateTime.GetSolarDateTimeString()} to {endDateTime.GetSolarDateTimeString()}");
 

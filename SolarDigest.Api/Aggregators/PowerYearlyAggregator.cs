@@ -16,9 +16,9 @@ namespace SolarDigest.Api.Aggregators
     {
         private readonly ISolarDigestPowerTable _powerTable;
         private readonly ISolarDigestPowerYearlyTable _powerYearlyTable;
-        private readonly IFunctionLogger _logger;
+        private readonly ISolarDigestLogger _logger;
 
-        public PowerYearlyAggregator(ISolarDigestPowerTable powerTable, ISolarDigestPowerYearlyTable powerYearlyTable, IFunctionLogger logger)
+        public PowerYearlyAggregator(ISolarDigestPowerTable powerTable, ISolarDigestPowerYearlyTable powerYearlyTable, ISolarDigestLogger logger)
         {
             _powerTable = powerTable.WhenNotNull(nameof(powerTable));
             _powerYearlyTable = powerYearlyTable.WhenNotNull(nameof(powerYearlyTable));

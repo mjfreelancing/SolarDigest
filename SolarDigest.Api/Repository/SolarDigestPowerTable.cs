@@ -17,7 +17,7 @@ namespace SolarDigest.Api.Repository
     {
         public override string TableName => Constants.Table.Power;
 
-        public SolarDigestPowerTable(IMapper mapper, IFunctionLogger logger)
+        public SolarDigestPowerTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)
         {
         }

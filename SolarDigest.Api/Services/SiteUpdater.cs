@@ -12,9 +12,9 @@ namespace SolarDigest.Api.Services
     internal sealed class SiteUpdater : ISiteUpdater
     {
         private readonly ISolarDigestSiteTable _siteTable;
-        private readonly IFunctionLogger _logger;
+        private readonly ISolarDigestLogger _logger;
 
-        public SiteUpdater(ISolarDigestSiteTable siteTable, IFunctionLogger logger)
+        public SiteUpdater(ISolarDigestSiteTable siteTable, ISolarDigestLogger logger)
         {
             _siteTable = siteTable.WhenNotNull(nameof(siteTable));
             _logger = logger.WhenNotNull(nameof(logger));
