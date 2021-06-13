@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SolarDigest.Api.Aggregators;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Models;
-using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using System;

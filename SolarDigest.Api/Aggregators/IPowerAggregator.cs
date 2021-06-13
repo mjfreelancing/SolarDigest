@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Processors
+namespace SolarDigest.Api.Aggregators
 {
     public interface IPowerAggregator
     {

@@ -3,11 +3,11 @@ using Amazon.Lambda.Serialization.SystemTextJson;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SolarDigest.Api.Aggregators;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
-using SolarDigest.Api.Processors;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
 using SolarDigest.Api.Services.SolarEdge;
@@ -63,16 +63,16 @@ namespace SolarDigest.Api
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();
             services.AddScoped<GetSitePowerSummaryPayloadValidator>();
-            services.AddScoped<IDailyAveragePowerSummarizer, DailyAveragePowerSummarizer>();
-            services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
-            services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
-            services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();
-            services.AddScoped<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
-            services.AddScoped<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
-            services.AddScoped<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
+            services.AddTransient<IDailyAveragePowerSummarizer, DailyAveragePowerSummarizer>();
+            services.AddTransient<ISolarDigestSiteTable, SolarDigestSiteTable>();
+            services.AddTransient<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
+            services.AddTransient<ISolarDigestPowerTable, SolarDigestPowerTable>();
+            services.AddTransient<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
+            services.AddTransient<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
+            services.AddTransient<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
             services.AddTransient<IPowerMonthlyAggregator, PowerMonthlyAggregator>();
             services.AddTransient<IPowerYearlyAggregator, PowerYearlyAggregator>();
-            services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
+            services.AddTransient<ISolarEdgeApi, SolarEdgeApi>();
             services.AddAutoMapper(typeof(SolarViewProfile));
 
             // for troubleshooting mapping

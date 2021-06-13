@@ -81,7 +81,7 @@ namespace SolarDigest.Api.Functions
             return new SitePower(timeWatts);
         }
 
-        private Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId, MeterType meterType,
+        private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId, MeterType meterType,
             DateTime startDate, DateTime endDate)
         {
             var summarizer = serviceProvider.GetRequiredService<IDailyAveragePowerSummarizer>();

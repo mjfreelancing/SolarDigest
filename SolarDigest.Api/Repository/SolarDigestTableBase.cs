@@ -3,6 +3,7 @@ using AllOverIt.Helpers;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime;
 using AutoMapper;
 using Newtonsoft.Json;
 using Polly;
@@ -22,7 +23,13 @@ namespace SolarDigest.Api.Repository
 
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private readonly Lazy<AmazonDynamoDBClient> _dbClient = new(() => new AmazonDynamoDBClient());
+        private readonly Lazy<AmazonDynamoDBClient> _dbClient = new(() => new AmazonDynamoDBClient(new AmazonDynamoDBConfig
+        {
+            Timeout = new TimeSpan(0, 0, 10),
+            RetryMode = RequestRetryMode.Standard,
+            MaxErrorRetry = 2
+        }));
+
         private AmazonDynamoDBClient DbClient => _dbClient.Value;
 
         protected ISolarDigestTable TableImpl => this;

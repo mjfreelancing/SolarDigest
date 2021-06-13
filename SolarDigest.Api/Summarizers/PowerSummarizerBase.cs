@@ -1,6 +1,5 @@
 ﻿using AllOverIt.Extensions;
 using AllOverIt.Helpers;
-using AllOverIt.Tasks;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Repository;
@@ -42,12 +41,17 @@ namespace SolarDigest.Api.Summarizers
             var monthPeriods = GetMonthPeriods(startDate, endDate, yearPeriods).AsReadOnlyList();
             var dayPeriods = GetDayPeriods(startDate, endDate, yearPeriods, monthPeriods);
 
-            var (daily, monthly, yearly) = await TaskHelper
-                .WhenAll(
-                    GetDailyReadings(siteId, meterType, dayPeriods),
-                    GetMonthlyReadings(siteId, meterType, monthPeriods),
-                    GetYearlyReadings(siteId, meterType, yearPeriods))
-                .ConfigureAwait(false);
+            //var (daily, monthly, yearly) = await TaskHelper
+            //    .WhenAll(
+            //        GetDailyReadings(siteId, meterType, dayPeriods),
+            //        GetMonthlyReadings(siteId, meterType, monthPeriods),
+            //        GetYearlyReadings(siteId, meterType, yearPeriods))
+            //    .ConfigureAwait(false);
+
+            // execute in reverse only to help with possible DynamoDb warming up
+            var yearly = await GetYearlyReadings(siteId, meterType, yearPeriods).ConfigureAwait(false);
+            var monthly = await GetMonthlyReadings(siteId, meterType, monthPeriods).ConfigureAwait(false);
+            var daily = await GetDailyReadings(siteId, meterType, dayPeriods).ConfigureAwait(false);
 
             return GetMeterReadings(daily, monthly, yearly);
         }

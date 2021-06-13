@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Processors
+namespace SolarDigest.Api.Aggregators
 {
     internal sealed class PowerMonthlyAggregator : IPowerMonthlyAggregator
     {
