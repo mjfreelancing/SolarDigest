@@ -59,6 +59,7 @@ namespace SolarDigest.Api.Summarizers
                 .ConfigureAwait(false);
 
             _logger.LogDebug("Get summarized meter readings");
+
             return GetMeterSummary(daily, monthly, yearly);
         }
 

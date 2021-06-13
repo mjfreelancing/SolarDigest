@@ -63,16 +63,16 @@ namespace SolarDigest.Api
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();
             services.AddScoped<GetSitePowerSummaryPayloadValidator>();
-            services.AddTransient<IDailyAveragePowerSummarizer, DailyAveragePowerSummarizer>();
-            services.AddTransient<ISolarDigestSiteTable, SolarDigestSiteTable>();
-            services.AddTransient<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
-            services.AddTransient<ISolarDigestPowerTable, SolarDigestPowerTable>();
-            services.AddTransient<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
-            services.AddTransient<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
-            services.AddTransient<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
-            services.AddTransient<IPowerMonthlyAggregator, PowerMonthlyAggregator>();
-            services.AddTransient<IPowerYearlyAggregator, PowerYearlyAggregator>();
-            services.AddTransient<ISolarEdgeApi, SolarEdgeApi>();
+            services.AddScoped<IDailyAveragePowerSummarizer, DailyAveragePowerSummarizer>();
+            services.AddScoped<ISolarDigestSiteTable, SolarDigestSiteTable>();
+            services.AddScoped<ISolarDigestExceptionTable, SolarDigestExceptionTable>();
+            services.AddScoped<ISolarDigestPowerTable, SolarDigestPowerTable>();
+            services.AddScoped<ISolarDigestPowerMonthlyTable, SolarDigestPowerMonthlyTable>();
+            services.AddScoped<ISolarDigestPowerYearlyTable, SolarDigestPowerYearlyTable>();
+            services.AddScoped<ISolarDigestPowerUpdateHistoryTable, SolarDigestPowerUpdateHistoryTable>();
+            services.AddScoped<IPowerMonthlyAggregator, PowerMonthlyAggregator>();
+            services.AddScoped<IPowerYearlyAggregator, PowerYearlyAggregator>();
+            services.AddScoped<ISolarEdgeApi, SolarEdgeApi>();
             services.AddAutoMapper(typeof(SolarViewProfile));
 
             // for troubleshooting mapping
