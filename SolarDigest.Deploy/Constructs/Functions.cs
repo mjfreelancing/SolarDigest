@@ -128,7 +128,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateHydrateSitePowerFunction()
         {
             HydrateSitePowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 192, 15)
+                CreateFunction(_appProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 512, 15)
                     .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
                     .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(nameof(DynamoDbTables.Site)))
                     .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.Power)))
@@ -149,7 +149,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAggregateSitePowerFunction()
         {
             AggregateSitePowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site")
+                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 512)
 
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power))
 
@@ -162,8 +162,9 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateGetSitePowerSummary()
         {
+            // Testing shows 768MB RAM is required to avoid DynamoDb execution timeout even though the function only uses around 140MB
             GetSitePowerSummaryFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site")
+                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 768)
                     .GrantDescribeTableData(_iam,
                         nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power),
                         nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
