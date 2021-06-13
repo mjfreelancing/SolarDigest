@@ -41,14 +41,15 @@ namespace SolarDigest.Api.Functions
                 // check subsequent hours in case a trigger was missed
                 if (siteLocalTime.Hour >= Constants.RefreshHour.UpdateHistoryEmail)
                 {
-                    var lastSummaryDate = site.GetLastSummaryDate();
+                    // the last summary date was the previous end date, so we start from the next day
+                    var nextStartDate = site.GetLastSummaryDate().AddDays(1);
                     var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
 
-                    if (nextEndDate > lastSummaryDate)
+                    if (nextEndDate >= nextStartDate)
                     {
                         var updateHistoryTable = serviceProvider.GetRequiredService<ISolarDigestPowerUpdateHistoryTable>();
 
-                        var historyItems = await updateHistoryTable.GetPowerUpdatesAsync(site.Id, lastSummaryDate, nextEndDate)
+                        var historyItems = await updateHistoryTable.GetPowerUpdatesAsync(site.Id, nextStartDate, nextEndDate)
                             .ToListAsync()
                             .ConfigureAwait(false);
 
