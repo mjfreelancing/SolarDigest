@@ -8,12 +8,15 @@ namespace SolarDigest.Models
     public sealed class PowerConnection
     {
         public IEnumerable<PowerEdge> Edges { get; }
+        public IEnumerable<TimeWatts> Nodes { get; }
         public int TotalCount { get; }
         public PageInfo PageInfo { get; }
 
         public PowerConnection(IEnumerable<TimeWatts> timeWatts, Func<TimeWatts, string> cursorResolver)
         {
-            var timeWattsCollection = timeWatts
+            Nodes = timeWatts.AsReadOnlyCollection();
+
+            var timeWattsCollection = Nodes
                 .Select(item => new PowerEdge(item, cursorResolver.Invoke(item)))
                 .AsReadOnlyCollection();
 

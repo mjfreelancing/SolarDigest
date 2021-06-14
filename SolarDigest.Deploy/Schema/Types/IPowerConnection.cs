@@ -10,6 +10,9 @@ namespace SolarDigest.Deploy.Schema.Types
         public IPowerEdge[] Edges { get; }
 
         [SchemaTypeRequired]
+        public ITimeWatts[] Nodes { get; }
+
+        [SchemaTypeRequired]
         public int TotalCount { get; }
 
         // not required since TotalCount can be zero
