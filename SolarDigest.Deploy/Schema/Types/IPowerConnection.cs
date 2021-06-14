@@ -7,8 +7,12 @@ namespace SolarDigest.Deploy.Schema.Types
     internal interface IPowerConnection
     {
         [SchemaTypeRequired]
-        public ITimeWatts[] TimeWatts { get; }
+        public IPowerEdge[] Edges { get; }
 
-        public string NextToken { get; }
+        [SchemaTypeRequired]
+        public int TotalCount { get; }
+
+        // not required since TotalCount can be zero
+        public IPageInfo PageInfo { get; }
     }
 }

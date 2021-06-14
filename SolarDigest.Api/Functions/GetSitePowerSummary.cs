@@ -27,11 +27,17 @@ namespace SolarDigest.Api.Functions
         startDate
         timeZoneId
         power(filter: {meterType: $meterType, summaryType: $summaryType, startDate: $startDate, endDate: $endDate}) {
-          nextToken
-          timeWatts {
-            time
-            wattHour
-            watts
+          pageInfo {
+            hasNextPage
+            startCursor
+          }
+          edges {
+            cursor
+            node {
+              time
+              wattHour
+              watts
+            }
           }
         }
       }
@@ -51,9 +57,9 @@ namespace SolarDigest.Api.Functions
 
     // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
 
-    public sealed class GetSitePowerSummary : FunctionBase<GetSitePowerSummaryPayload, SitePower>
+    public sealed class GetSitePowerSummary : FunctionBase<GetSitePowerSummaryPayload, PowerConnection>
     {
-        protected override async Task<SitePower> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)
+        protected override async Task<PowerConnection> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)
         {
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
@@ -80,7 +86,7 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug("Returning with the requested power summary");
 
-            return new SitePower(timeWatts);
+            return new PowerConnection(timeWatts, item => item.Time.ToBase64());
         }
 
         private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId, MeterType meterType,

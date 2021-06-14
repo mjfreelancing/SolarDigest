@@ -6,9 +6,9 @@
   </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AllOverIt" Version="1.6.0" />
-        <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.108.0" />
-        <PackageReference Include="Amazon.CDK.AWS.CloudFormation" Version="1.108.0" />
+        <PackageReference Include="AllOverIt" Version="1.7.0" />
+        <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.108.1" />
+        <PackageReference Include="Amazon.CDK.AWS.CloudFormation" Version="1.108.1" />
     </ItemGroup>
 
 </Project>
