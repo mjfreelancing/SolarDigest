@@ -26,7 +26,7 @@ namespace SolarDigest.Models
             if (TotalCount > 0)
             {
                 // todo: to be implemented
-                PageInfo = new PageInfo(string.Empty, false);
+                PageInfo = new PageInfo(string.Empty, false, false);
             }
         }
     }

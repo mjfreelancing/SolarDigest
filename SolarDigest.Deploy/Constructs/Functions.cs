@@ -181,11 +181,20 @@ namespace SolarDigest.Deploy.Constructs
                     @"  ""version"" : ""2017-02-28"",",
                     @"  ""operation"": ""Invoke"",",
                     @"  ""payload"": {",
-                    @"    ""siteId"": $util.toJson($context.source.id),",
-                    @"    ""startDate"": $util.toJson($context.arguments.filter.startDate),",
-                    @"    ""endDate"": $util.toJson($context.arguments.filter.endDate),",
-                    @"    ""meterType"": $util.toJson($context.arguments.filter.meterType),",
-                    @"    ""summaryType"": $util.toJson($context.arguments.filter.summaryType)",
+                    @"    ""siteId"": $util.toJson($ctx.source.id),",
+
+                    @"    #if (!$util.isNull($ctx.args.limit))",
+                    @"      ""limit"": $util.toJson($ctx.args.limit),",
+                    @"    #end",
+
+                    @"    #if (!$util.isNull($ctx.args.startCursor))",
+                    @"      ""startCursor"": $util.toJson($ctx.args.startCursor),",
+                    @"    #end",
+
+                    @"    ""startDate"": $util.toJson($ctx.args.filter.startDate),",
+                    @"    ""endDate"": $util.toJson($ctx.args.filter.endDate),",
+                    @"    ""meterType"": $util.toJson($ctx.args.filter.meterType),",
+                    @"    ""summaryType"": $util.toJson($ctx.args.filter.summaryType)",
                     "  }",
                     "}"
                 )

@@ -64,6 +64,9 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
 
+            payload.Limit ??= 100;
+            payload.StartCursor ??= string.Empty;
+
             // AppSync enforces the dates and enum values, but we validate them anyway (along with the site Id)
             serviceProvider.InvokeValidator<GetSitePowerSummaryPayloadValidator, GetSitePowerSummaryPayload>(payload);
 
@@ -76,7 +79,8 @@ namespace SolarDigest.Api.Functions
             var summaryType = payload.SummaryType.As<SummaryType>();
 
             logger.LogDebug($"Getting power summary ({meterType}, {summaryType}) for site Id " +
-                            $"{siteId} between {payload.StartDate} and {payload.EndDate}");
+                            $"{siteId} between {payload.StartDate} and {payload.EndDate}. Page limit " +
+                            $"{payload.Limit}, start cursor {payload.StartCursor}");
 
             var timeWatts = summaryType switch
             {

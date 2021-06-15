@@ -32,6 +32,6 @@ namespace SolarDigest.Deploy.Schema.Types
 
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
-        IPowerConnection Power([SchemaTypeRequired] IPowerFilterInput filter);
+        IPowerConnection Power(int limit, string startCursor, [SchemaTypeRequired] IPowerFilterInput filter);
     }
 }

@@ -23,7 +23,7 @@ namespace SolarDigest.Deploy
                 //    @"  ""payload"": {",
                 //    @"    ""username"": $utils.toJson($ctx.identity.claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']),",
                 //    @"    ""source"": ""$utils.escapeJavaScript($utils.toJson($ctx.source))"",",
-                //    @"    ""arguments"": ""$utils.escapeJavaScript($utils.toJson($ctx.arguments))""",
+                //    @"    ""arguments"": ""$utils.escapeJavaScript($utils.toJson($ctx.args))""",
                 //    "    }",
                 //    @"}"
                 //);
@@ -32,7 +32,7 @@ namespace SolarDigest.Deploy
                     "{",
                     @"  ""version"" : ""2017-02-28"",",
                     @"  ""operation"": ""Invoke"",",
-                    @"  ""payload"": $util.toJson($context.arguments)",
+                    @"  ""payload"": $util.toJson($ctx.args)",
                     @"}"
                 );
 
@@ -59,7 +59,7 @@ namespace SolarDigest.Deploy
                 //);
 
                 _defaultResponseMapping ??= StringHelpers.AppendAsLines(
-                    "$util.toJson($context.result.payload)"
+                    "$util.toJson($ctx.result.payload)"
                 );
 
                 return _defaultResponseMapping;
