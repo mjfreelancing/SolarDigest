@@ -6,10 +6,7 @@ namespace SolarDigest.Deploy.Schema.Types
     [SchemaType(GraphqlSchemaType.Type, "PageInfo")]
     internal interface IPageInfo
     {
-        [SchemaTypeRequired]
-        public string StartCursor { get; }
-        
-        [SchemaTypeRequired]
-        public bool HasNextPage { get; }
+        public string PreviousPageCursor { get; }
+        public string NextPageCursor { get; }
     }
 }

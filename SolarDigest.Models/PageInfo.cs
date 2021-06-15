@@ -2,15 +2,18 @@
 {
     public sealed class PageInfo
     {
-        public string StartCursor { get; }
-        public bool HasNextPage { get; }
-        public bool HasPreviousPage { get; }
+        public string PreviousPageCursor { get; }
+        public string NextPageCursor { get; }
 
-        public PageInfo(string startCursor, bool hasNextPage, bool hasPreviousPage)
+        public PageInfo()
         {
-            StartCursor = startCursor;
-            HasNextPage = hasNextPage;
-            HasPreviousPage = hasPreviousPage;
+        }
+
+        // based on the page size (limit) of the current query
+        public PageInfo(string previousPageCursor, string nextPageCursor)
+        {
+            PreviousPageCursor = previousPageCursor;
+            NextPageCursor = nextPageCursor;
         }
     }
 }

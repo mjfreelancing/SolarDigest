@@ -5,6 +5,8 @@
         internal const string DateFormat = "yyyy-MM-dd";
         internal const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
+        internal const int DefaultPaginationLimit = 100;
+
         internal static class SolarEdge
         {
             public const string MonitoringUri = "https://monitoringapi.solaredge.com/";

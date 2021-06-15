@@ -64,7 +64,7 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
 
-            payload.Limit ??= 100;
+            payload.Limit ??= Constants.DefaultPaginationLimit;
             payload.StartCursor ??= string.Empty;
 
             // AppSync enforces the dates and enum values, but we validate them anyway (along with the site Id)
@@ -77,10 +77,11 @@ namespace SolarDigest.Api.Functions
             var endDate = payload.EndDate.ParseSolarDate();
             var meterType = payload.MeterType.As<MeterType>();
             var summaryType = payload.SummaryType.As<SummaryType>();
+            var pagination = new Pagination(payload.Limit.Value, payload.StartCursor);
 
             logger.LogDebug($"Getting power summary ({meterType}, {summaryType}) for site Id " +
                             $"{siteId} between {payload.StartDate} and {payload.EndDate}. Page limit " +
-                            $"{payload.Limit}, start cursor {payload.StartCursor}");
+                            $"{pagination.Limit}, start cursor {pagination.StartCursor}");
 
             var timeWatts = summaryType switch
             {
@@ -90,11 +91,11 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug("Returning with the requested power summary");
 
-            return new PowerConnection(timeWatts, item => item.Time.ToBase64());
+            return new PowerConnection(timeWatts, item => item.Time.ToBase64(), pagination);
         }
 
-        private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId, MeterType meterType,
-            DateTime startDate, DateTime endDate)
+        private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId,
+            MeterType meterType, DateTime startDate, DateTime endDate)
         {
             var summarizer = serviceProvider.GetRequiredService<IDailyAveragePowerSummarizer>();
 
