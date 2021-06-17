@@ -25,30 +25,24 @@ namespace SolarDigest.Models
                 if (!pagination.StartCursor.IsNullOrEmpty())
                 {
                     var startTime = pagination.StartCursor.FromBase64();
-
                     startIndex = allData.FindIndex(item => item.Time == startTime);
                 }
 
                 if (startIndex != -1)
                 {
-                    string previousCursor = null;
-                    string nextCursor = null;
-
                     var previousPageStart = startIndex - pagination.Limit;
 
-                    if (previousPageStart >= 0)
-                    {
-                        previousCursor = allData.ElementAt(previousPageStart).Time.ToBase64();
-                    }
+                    var previousCursor = previousPageStart >= 0
+                        ? allData.ElementAt(previousPageStart).Time.ToBase64()
+                        : allData.First().Time.ToBase64();
 
                     var nextPageStart = startIndex + pagination.Limit;
 
-                    if (nextPageStart < TotalCount)
-                    {
-                        nextCursor = allData.ElementAt(nextPageStart).Time.ToBase64();
-                    }
+                    var nextCursor = nextPageStart < TotalCount
+                        ? allData.ElementAt(nextPageStart).Time.ToBase64()
+                        : null;
 
-                    PageInfo = new PageInfo(previousCursor, nextCursor);
+                    PageInfo = new(previousCursor, nextCursor);
 
                     Nodes = allData
                         .Skip(startIndex)

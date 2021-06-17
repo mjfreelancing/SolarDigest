@@ -2,6 +2,6 @@
 {
     public enum SummaryType
     {
-        Average
+        DailyAverage
     }
 }

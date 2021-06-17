@@ -64,6 +64,11 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
 
+            if (payload is IRequiresNormalisation requiresNormalisation)
+            {
+                requiresNormalisation.Normalise();
+            }
+
             payload.Limit ??= Constants.DefaultPaginationLimit;
             payload.StartCursor ??= string.Empty;
 
@@ -85,7 +90,7 @@ namespace SolarDigest.Api.Functions
 
             var timeWatts = summaryType switch
             {
-                SummaryType.Average => await GetDailyAveragePowerSummary(serviceProvider, siteId, meterType, startDate, endDate).ConfigureAwait(false),
+                SummaryType.DailyAverage => await GetDailyAveragePowerSummary(serviceProvider, siteId, meterType, startDate, endDate).ConfigureAwait(false),
                 _ => throw new InvalidOperationException($"Unexpected summary type '{summaryType}'")
             };
 

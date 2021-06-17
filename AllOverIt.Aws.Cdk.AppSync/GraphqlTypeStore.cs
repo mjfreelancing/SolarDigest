@@ -126,7 +126,7 @@ namespace AllOverIt.Aws.Cdk.AppSync
         {
             var enumType = new EnumType(type.Name, new EnumTypeOptions
             {
-                Definition = type.GetEnumNames().Select(item => item.ToUpper()).ToArray()
+                Definition = type.GetEnumNames().Select(item => item.ToUpperSnakeCase()).ToArray()
             });
 
             _fieldTypes.Add(

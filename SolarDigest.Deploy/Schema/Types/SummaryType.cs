@@ -2,6 +2,6 @@
 {
     internal enum SummaryType
     {
-        Average
+        DailyAverage
     }
 }
