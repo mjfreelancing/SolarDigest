@@ -13,5 +13,10 @@ namespace SolarDigest.Api.Extensions
         {
             return DateTime.ParseExact(timestamp, Constants.DateTimeFormat, null);
         }
+
+        public static string NormaliseEnumValue(this string value)
+        {
+            return value.Replace("_", string.Empty);
+        }
     }
 }

@@ -64,11 +64,6 @@ namespace SolarDigest.Api.Functions
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
 
-            if (payload is IRequiresNormalisation requiresNormalisation)
-            {
-                requiresNormalisation.Normalise();
-            }
-
             payload.Limit ??= Constants.DefaultPaginationLimit;
             payload.StartCursor ??= string.Empty;
 

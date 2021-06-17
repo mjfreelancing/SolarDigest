@@ -2,8 +2,7 @@
 
 namespace SolarDigest.Api.Functions.Payloads
 {
-    // associated with a lambda resolver request
-    public sealed class AddSitePayload
+    public sealed class AddSitePayload : AppSyncPayloadBase
     {
         public string Id { get; set; }
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SolarDigest.Api.Aggregators;
 using SolarDigest.Api.Exceptions;
+using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Mapping;
@@ -101,6 +102,12 @@ namespace SolarDigest.Api
 
                 try
                 {
+                    if (payload is IRequiresNormalisation model)
+                    {
+                        // For example, convert FEED_IN to FEEDIN so it can later be interpreted as the enum MeterType.FeedIn
+                        model.Normalise();
+                    }
+
                     var handlerContext = new FunctionContext<TPayload>(scopedServiceProvider, logger, payload);
                     var result = await InvokeHandlerAsync(handlerContext).ConfigureAwait(false);
 
