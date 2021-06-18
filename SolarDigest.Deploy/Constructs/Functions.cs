@@ -248,7 +248,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetUploadUrlFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
-                    .GrantGetParameters(_iam, "Secrets");
+                    .GrantPutParameters(_iam, "Secrets");
         }
     }
 }

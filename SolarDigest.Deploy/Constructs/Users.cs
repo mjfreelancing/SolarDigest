@@ -19,11 +19,11 @@ namespace SolarDigest.Deploy.Constructs
         {
             _iam = iam.WhenNotNull(nameof(iam));
 
-            UploadUserAccessKey = CreateUser(UploadUserName, "UploadS3", Constants.S3Buckets.UploadsBucketName);
-            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", Constants.S3Buckets.UploadsBucketName);
+            UploadUserAccessKey = CreateUser(UploadUserName, "UploadS3", _iam.GetUploadS3PolicyStatement(Constants.S3Buckets.UploadsBucketName));
+            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", _iam.GetUploadS3PolicyStatement(Constants.S3Buckets.DownloadsBucketName));
         }
 
-        private CfnAccessKey CreateUser(string username, string policyId, string bucket)
+        private CfnAccessKey CreateUser(string username, string policyId, PolicyStatement policyStatement)
         {
             var user = new User(this, username, new UserProps
             {
@@ -32,7 +32,7 @@ namespace SolarDigest.Deploy.Constructs
 
             var policy = new Policy(this, policyId, new PolicyProps
             {
-                Statements = new[] { _iam.GetDownloadS3PolicyStatement(bucket) }
+                Statements = new[] { policyStatement }
             });
 
             user.AttachInlinePolicy(policy);

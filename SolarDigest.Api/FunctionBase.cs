@@ -62,6 +62,7 @@ namespace SolarDigest.Api
             services.AddScoped<IEmailSender, EmailSender>();
             services.AddScoped<ISiteUpdater, SiteUpdater>();
             services.AddScoped<IParameterStore, ParameterStore>();
+            services.AddScoped<IPresignedUrlCreator, PresignedUrlCreator>();
             services.AddScoped<GetSitePayloadValidator>();
             services.AddScoped<AddSitePayloadValidator>();
             services.AddScoped<UpdateSitePayloadValidator>();

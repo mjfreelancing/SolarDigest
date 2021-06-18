@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Functions.Responses;
 using SolarDigest.Api.Services;
@@ -11,11 +10,11 @@ namespace SolarDigest.Api.Functions
     {
         protected override async Task<GetUploadUrlResponse> InvokeHandlerAsync(FunctionContext<GetUploadUrlPayload> context)
         {
-            var parameterStore = context.ScopedServiceProvider.GetRequiredService<IParameterStore>();
+            var urlCreator = context.ScopedServiceProvider.GetRequiredService<IPresignedUrlCreator>();
 
-            var response = await parameterStore.GetByPathAsync($"{Constants.Parameters.SecretsRoot}/BucketUploadUser");
+            var url = await urlCreator.CreateUploadUrlAsync(context.Payload.Filename);
 
-            return new GetUploadUrlResponse { Url = JsonConvert.SerializeObject(response) };
+            return new GetUploadUrlResponse { Url = url };
         }
     }
 }

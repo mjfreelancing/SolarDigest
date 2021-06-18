@@ -19,6 +19,18 @@
             public const string SecretsRoot = "/Secrets";
         }
 
+        internal static class Users
+        {
+            public const string BucketDownloadUser = "BucketDownloadUser";
+            public const string BucketUploadUser = "BucketUploadUser";
+        }
+
+        internal static class S3Buckets
+        {
+            internal const string UploadsBucketName = "solardigest-uploads";
+            internal const string DownloadsBucketName = "solardigest-downloads";
+        }
+
         internal static class Events
         {
             public const string Source = "SolarDigest.Api";

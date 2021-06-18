@@ -106,5 +106,12 @@ namespace SolarDigest.Deploy.Extensions
 
             return function;
         }
+
+        public static IFunction GrantPutParameters(this IFunction function, Iam iam, string path)
+        {
+            function.AddToRolePolicy(iam.GetParameterPolicyStatement(path));
+
+            return function;
+        }
     }
 }
