@@ -6,7 +6,11 @@
         internal const int DataVersion = 1;
         internal const int ServiceVersion = 1;
 
-        internal const string S3LambdaCodeBucketName = "solardigest-code";
+        internal static class S3Buckets
+        {
+            internal const string LambdaSourceCodeBucketName = "solardigest-code";
+            internal const string UploadsBucketName = "solardigest-uploads";
+        }
 
         // should really be something like {ServiceName}-V{ApiVersion} - needs a file version too
         internal const string S3CodeBucketKeyName = "publish.zip";

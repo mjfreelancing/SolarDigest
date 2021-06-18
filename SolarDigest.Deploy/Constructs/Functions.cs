@@ -38,7 +38,7 @@ namespace SolarDigest.Deploy.Constructs
             _iam = iam.WhenNotNull(nameof(iam));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
 
-            _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3LambdaCodeBucketName);
+            _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3Buckets.LambdaSourceCodeBucketName);
 
             CreateGetSiteFunction();
             CreateAddSiteFunction();
@@ -54,7 +54,8 @@ namespace SolarDigest.Deploy.Constructs
             CreateGetUploadUrlFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
+        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default,
+            int timeoutMinutes = 5)
         {
             var props = new FunctionProps
             {

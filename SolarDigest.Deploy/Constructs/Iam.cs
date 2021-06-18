@@ -23,6 +23,32 @@ namespace SolarDigest.Deploy.Constructs
             CreateSendEmailPolicyStatements();
         }
 
+        public PolicyStatement GetDownloadS3Policy(string bucket)
+        {
+            return new(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "s3:GetObject"
+                },
+                Resources = new[] { $"arn:aws:s3:::{bucket}/*" }
+            });
+        }
+
+        public PolicyStatement GetUploadS3Policy(string bucket)
+        {
+            return new(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "s3:PutObject"
+                },
+                Resources = new[] { $"arn:aws:s3:::{bucket}/*" }
+            });
+        }
+
         public PolicyStatement GetDynamoDescribeTablePolicy(params string[] tableNames)
         {
             return new (new PolicyStatementProps

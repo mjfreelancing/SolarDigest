@@ -22,6 +22,8 @@ namespace SolarDigest.Deploy.Stacks
             var stack = app.CreateRootStack(apiProps);
 
             var iam = new Iam(stack, apiProps);
+            _ = new Users(stack,  iam);
+            _ = new S3Buckets(stack);
             var mappingTemplates = new SolarDigestMappingTemplates();
             var functions = new Functions(stack, apiProps, iam, mappingTemplates);
             var cloudWatch = new LogGroups(stack, apiProps);

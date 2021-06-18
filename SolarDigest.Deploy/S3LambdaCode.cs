@@ -12,7 +12,7 @@ namespace SolarDigest.Deploy
         {
             CodeBucket = new Bucket(this, "LambdaCodeBucket", new BucketProps
             {
-                BucketName = Constants.S3LambdaCodeBucketName
+                BucketName = Constants.S3Buckets.LambdaSourceCodeBucketName
             });
         }
     }
