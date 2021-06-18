@@ -1,6 +1,8 @@
 using AllOverIt.Helpers;
 using Flurl;
 using Flurl.Http;
+using Polly;
+using Polly.Retry;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models.SolarEdge;
@@ -13,6 +15,10 @@ namespace SolarDigest.Api.Services.SolarEdge
 {
     internal sealed class SolarEdgeApi : ISolarEdgeApi
     {
+        private readonly AsyncRetryPolicy _httpRetryPolicy = Policy
+            .Handle<FlurlHttpTimeoutException>()
+            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(250 * retryAttempt));
+
         private readonly ISolarDigestLogger _logger;
 
         public SolarEdgeApi(ISolarDigestLogger logger)
@@ -38,12 +44,11 @@ namespace SolarDigest.Api.Services.SolarEdge
                 _logger.LogDebug(
                     $"Requesting power details for site {powerQuery.SiteId} between {powerQuery.StartDateTime} and {powerQuery.EndDateTime}");
 
-                var solarData = await uri.GetJsonAsync<PowerDataDto>();
+                var solarData = await _httpRetryPolicy.ExecuteAsync(() => uri.GetJsonAsync<PowerDataDto>());
 
                 _logger.LogDebug("Power details received successfully");
 
                 return solarData;
-
             }
             catch (FlurlHttpTimeoutException exception)
             {
@@ -84,7 +89,7 @@ namespace SolarDigest.Api.Services.SolarEdge
             {
                 _logger.LogDebug($"Requesting energy details for site {powerQuery.SiteId} between {powerQuery.StartDateTime} and {powerQuery.EndDateTime}");
 
-                var solarData = await uri.GetJsonAsync<EnergyDataDto>();
+                var solarData = await _httpRetryPolicy.ExecuteAsync(() => uri.GetJsonAsync<EnergyDataDto>());
 
                 _logger.LogDebug("Energy details received successfully");
 

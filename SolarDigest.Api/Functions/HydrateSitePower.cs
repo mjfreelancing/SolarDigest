@@ -162,8 +162,8 @@ namespace SolarDigest.Api.Functions
             };
 
             var (powerResults, energyResults) = await TaskHelper.WhenAll(
-                solarEdgeApi!.GetPowerDetailsAsync(site.ApiKey, powerQuery),
-                solarEdgeApi!.GetEnergyDetailsAsync(site.ApiKey, powerQuery)
+                solarEdgeApi.GetPowerDetailsAsync(site.ApiKey, powerQuery),
+                solarEdgeApi.GetEnergyDetailsAsync(site.ApiKey, powerQuery)
             ).ConfigureAwait(false);
 
             var powerData = mapper!.Map<SolarData>(powerResults);
