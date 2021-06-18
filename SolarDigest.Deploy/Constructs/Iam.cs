@@ -1,4 +1,5 @@
-﻿using Amazon.CDK;
+﻿using AllOverIt.Extensions;
+using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
 using SolarDigest.Deploy.Helpers;
 using System.Collections.Generic;
@@ -11,7 +12,6 @@ namespace SolarDigest.Deploy.Constructs
         private readonly SolarDigestAppProps _appProps;
 
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
-        //internal PolicyStatement GetParameterPolicyStatement { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
         public Iam(Construct scope, SolarDigestAppProps appProps)
@@ -19,11 +19,10 @@ namespace SolarDigest.Deploy.Constructs
         {
             _appProps = appProps;
             CreateDefaultEventBridgePolicyStatement();
-            //CreateGetParameterPolicyStatement();
             CreateSendEmailPolicyStatements();
         }
 
-        public PolicyStatement GetDownloadS3Policy(string bucket)
+        public PolicyStatement GetDownloadS3PolicyStatement(string bucket)
         {
             return new(new PolicyStatementProps
             {
@@ -36,7 +35,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetUploadS3Policy(string bucket)
+        public PolicyStatement GetUploadS3PolicyStatement(string bucket)
         {
             return new(new PolicyStatementProps
             {
@@ -49,7 +48,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoDescribeTablePolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoDescribeTablePolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -62,7 +61,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoQueryTablePolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoQueryTablePolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -75,7 +74,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoBatchWriteTablePolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoBatchWriteTablePolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -88,7 +87,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoReadDataPolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoReadDataPolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -106,7 +105,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoWriteDataPolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoWriteDataPolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -122,7 +121,7 @@ namespace SolarDigest.Deploy.Constructs
             });
         }
 
-        public PolicyStatement GetDynamoStreamReadPolicy(params string[] tableNames)
+        public PolicyStatement GetDynamoStreamReadPolicyStatement(params string[] tableNames)
         {
             return new (new PolicyStatementProps
             {
@@ -135,6 +134,29 @@ namespace SolarDigest.Deploy.Constructs
                     "dynamodb:ListStreams"
                 },
                 Resources = GetTableArns(tableNames)
+            });
+        }
+
+        // path should not include leading or trailing slashes
+        public PolicyStatement GetParameterPolicyStatement(string path)
+        {
+            var stack = Stack.Of(this);
+
+            var resourcePath = path.IsNullOrEmpty()
+                ? "*"
+                : $"{path}/*";
+
+            return new PolicyStatement(new PolicyStatementProps
+            {
+                Effect = Effect.ALLOW,
+                Actions = new[]
+                {
+                    "ssm:GetParameter", "ssm:GetParametersByPath"
+                },
+                Resources = new[]
+                {
+                    $"arn:aws:ssm:{stack.Region}:{stack.Account}:parameter/{resourcePath}"
+                }
             });
         }
 
@@ -155,24 +177,6 @@ namespace SolarDigest.Deploy.Constructs
                 }
             });
         }
-
-        //private void CreateGetParameterPolicyStatement()
-        //{
-        //    var stack = Stack.Of(this);
-
-        //    GetParameterPolicyStatement = new PolicyStatement(new PolicyStatementProps
-        //    {
-        //        Effect = Effect.ALLOW,
-        //        Actions = new[]
-        //        {
-        //            "ssm:GetParameter"
-        //        },
-        //        Resources = new[]
-        //        {
-        //            $"arn:aws:ssm:{stack.Region}:{stack.Account}:parameter/*"
-        //        }
-        //    });
-        //}
 
         private void CreateSendEmailPolicyStatements()
         {

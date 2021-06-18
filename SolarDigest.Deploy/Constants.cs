@@ -2,6 +2,9 @@
 {
     internal static class Constants
     {
+        // should really be something like {ServiceName}-V{ApiVersion} - needs a file version too
+        internal const string S3CodeBucketKeyName = "publish.zip";
+
         internal const string AppName = "SolarDigest";
         internal const int DataVersion = 1;
         internal const int ServiceVersion = 1;
@@ -10,10 +13,8 @@
         {
             internal const string LambdaSourceCodeBucketName = "solardigest-code";
             internal const string UploadsBucketName = "solardigest-uploads";
+            internal const string DownloadsBucketName = "solardigest-downloads";
         }
-
-        // should really be something like {ServiceName}-V{ApiVersion} - needs a file version too
-        internal const string S3CodeBucketKeyName = "publish.zip";
 
         internal static class Function
         {

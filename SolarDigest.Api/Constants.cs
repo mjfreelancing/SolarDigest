@@ -2,6 +2,8 @@
 {
     internal static class Constants
     {
+        internal static readonly Amazon.RegionEndpoint RegionEndpoint = Amazon.RegionEndpoint.APSoutheast2;
+
         internal const string DateFormat = "yyyy-MM-dd";
         internal const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
@@ -12,10 +14,10 @@
             public const string MonitoringUri = "https://monitoringapi.solaredge.com/";
         }
 
-        //internal static class Parameters
-        //{
-        //    public const string SolarEdgeApiKey = "/SolarDigest/SolarEdgeApiKey";
-        //}
+        internal static class Parameters
+        {
+            public const string SecretsRoot = "/Secrets";
+        }
 
         internal static class Events
         {

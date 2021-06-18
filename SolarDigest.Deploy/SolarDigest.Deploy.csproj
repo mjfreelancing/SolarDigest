@@ -15,6 +15,7 @@
         <PackageReference Include="Amazon.CDK.AWS.Events.Targets" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.Lambda" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.Lambda.EventSources" Version="1.108.1" />
+        <PackageReference Include="Amazon.CDK.AWS.SSM" Version="1.108.1" />
     </ItemGroup>
 
     <ItemGroup>

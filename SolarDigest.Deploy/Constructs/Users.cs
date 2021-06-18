@@ -11,16 +11,19 @@ namespace SolarDigest.Deploy.Constructs
 
         private readonly Iam _iam;
 
+        internal CfnAccessKey UploadUserAccessKey { get; }
+        internal CfnAccessKey DownloadUserAccessKey { get; }
+
         public Users(Construct scope, Iam iam)
             : base(scope, "Users")
         {
             _iam = iam.WhenNotNull(nameof(iam));
 
-            CreateUser(DownloadUserName, "DownloadS3", Constants.S3Buckets.UploadsBucketName);
-            CreateUser(UploadUserName, "UploadS3", Constants.S3Buckets.UploadsBucketName);
+            UploadUserAccessKey = CreateUser(UploadUserName, "UploadS3", Constants.S3Buckets.UploadsBucketName);
+            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", Constants.S3Buckets.UploadsBucketName);
         }
 
-        private void CreateUser(string username, string policyId, string bucket)
+        private CfnAccessKey CreateUser(string username, string policyId, string bucket)
         {
             var user = new User(this, username, new UserProps
             {
@@ -29,10 +32,15 @@ namespace SolarDigest.Deploy.Constructs
 
             var policy = new Policy(this, policyId, new PolicyProps
             {
-                Statements = new[] { _iam.GetDownloadS3Policy(bucket) }
+                Statements = new[] { _iam.GetDownloadS3PolicyStatement(bucket) }
             });
 
             user.AttachInlinePolicy(policy);
+
+            return new CfnAccessKey(this, $"{username}AccessKey", new CfnAccessKeyProps
+            {
+                UserName = username
+            });
         }
     }
 }

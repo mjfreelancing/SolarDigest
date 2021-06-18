@@ -10,10 +10,11 @@ namespace SolarDigest.Deploy.Constructs
         {
             // todo: this needs to be created in another stack - since the source code needs to be
             // placed in there before this deployment is performed.
-            //
+
             //CreateBucket(Constants.S3Buckets.LambdaSourceCodeBucketName);
 
             CreateBucket(Constants.S3Buckets.UploadsBucketName);
+            CreateBucket(Constants.S3Buckets.DownloadsBucketName);
         }
 
         private void CreateBucket(string bucketName)

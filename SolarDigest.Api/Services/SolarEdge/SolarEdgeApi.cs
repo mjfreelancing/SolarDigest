@@ -110,20 +110,5 @@ namespace SolarDigest.Api.Services.SolarEdge
                     powerQuery.EndDateTime);
             }
         }
-
-        //private static async Task<string> GetApiKeyAsync()            // todo: create a service that takes a paramName as input
-        //{
-        //    using (var client = new AmazonSimpleSystemsManagementClient(Amazon.RegionEndpoint.APSoutheast2))
-        //    {
-        //        var request = new GetParameterRequest
-        //        {
-        //            Name = Constants.Parameters.SolarEdgeApiKey
-        //        };
-
-        //        var response = await client.GetParameterAsync(request);
-
-        //        return response.Parameter.Value;
-        //    }
-        //}
     }
 }

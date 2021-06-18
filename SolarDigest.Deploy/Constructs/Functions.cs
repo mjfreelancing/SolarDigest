@@ -240,13 +240,15 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetDownloadUrlFunction()
         {
             GetDownloadUrlFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded");
+                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
+                    .GrantGetParameters(_iam, "Secrets");
         }
 
         private void CreateGetUploadUrlFunction()
         {
             GetUploadUrlFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded");
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
+                    .GrantGetParameters(_iam, "Secrets");
         }
     }
 }

@@ -19,7 +19,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantDescribeTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement = iam.GetDynamoDescribeTablePolicy(tableNames);
+            var statement = iam.GetDynamoDescribeTablePolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -27,7 +27,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantReadTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement = iam.GetDynamoReadDataPolicy(tableNames);
+            var statement = iam.GetDynamoReadDataPolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -35,7 +35,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantWriteTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement = iam.GetDynamoWriteDataPolicy(tableNames);
+            var statement = iam.GetDynamoWriteDataPolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -51,7 +51,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantBatchWriteTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement = iam.GetDynamoBatchWriteTablePolicy(tableNames);
+            var statement = iam.GetDynamoBatchWriteTablePolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -59,7 +59,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantQueryTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement = iam.GetDynamoQueryTablePolicy(tableNames);
+            var statement = iam.GetDynamoQueryTablePolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -67,7 +67,7 @@ namespace SolarDigest.Deploy.Extensions
 
         public static IFunction GrantStreamReadData(this IFunction function, Iam iam, params string[] tableNames)
         {
-            var statement  = iam.GetDynamoStreamReadPolicy(tableNames);
+            var statement  = iam.GetDynamoStreamReadPolicyStatement(tableNames);
             function.AddToRolePolicy(statement);
 
             return function;
@@ -96,6 +96,13 @@ namespace SolarDigest.Deploy.Extensions
         public static IFunction GrantPutDefaultEventBridgeEvents(this IFunction function, Iam iam)
         {
             function.AddToRolePolicy(iam.PutDefaultEventBridgeEventsPolicyStatement);
+
+            return function;
+        }
+
+        public static IFunction GrantGetParameters(this IFunction function, Iam iam, string path)
+        {
+            function.AddToRolePolicy(iam.GetParameterPolicyStatement(path));
 
             return function;
         }
