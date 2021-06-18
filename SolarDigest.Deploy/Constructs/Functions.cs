@@ -28,6 +28,8 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction AggregateSitePowerFunction { get; private set; }
         internal IFunction GetSitePowerSummaryFunction { get; private set; }
         internal IFunction EmailSiteUpdateHistoryFunction { get; private set; }
+        internal IFunction GetDownloadUrlFunction { get; private set; }
+        internal IFunction GetUploadUrlFunction { get; private set; }
 
         public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
             : base(scope, "Function")
@@ -48,6 +50,8 @@ namespace SolarDigest.Deploy.Constructs
             CreateAggregateSitePowerFunction();
             CreateGetSitePowerSummary();
             CreateEmailSiteUpdateHistoryFunction();
+            CreateGetDownloadUrlFunction();
+            CreateGetUploadUrlFunction();
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
@@ -110,7 +114,7 @@ namespace SolarDigest.Deploy.Constructs
 
             EmailExceptionFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
-                    .AddPolicyStatements(_iam.SendEmailPolicyStatement)
+                    .GrantSendEmail(_iam)
                     .AddEventSource(exceptionTable)
                     .GrantStreamReadData(_iam, nameof(DynamoDbTables.Exception));
         }
@@ -119,8 +123,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             HydrateAllSitesPowerFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
+                    .GrantPutDefaultEventBridgeEvents(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
-                    .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
                     .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
@@ -129,9 +133,9 @@ namespace SolarDigest.Deploy.Constructs
         {
             HydrateSitePowerFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 512, 15)
-                    .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
-                    .AddPolicyStatements(_iam.GetDynamoDescribeTablePolicy(nameof(DynamoDbTables.Site)))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.Power)))
+                    .GrantPutDefaultEventBridgeEvents(_iam)
+                    .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
+                    .GrantBatchWriteTableData(_iam, nameof(DynamoDbTables.Power))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception), nameof(DynamoDbTables.PowerUpdateHistory))
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
         }
@@ -140,8 +144,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             AggregateAllSitesPowerFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.AggregateAllSitesPower, "Aggregate power data for all sites")
+                    .GrantPutDefaultEventBridgeEvents(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
-                    .AddPolicyStatements(_iam.PutDefaultEventBridgeEventsPolicyStatement)
                     .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
@@ -150,12 +154,9 @@ namespace SolarDigest.Deploy.Constructs
         {
             AggregateSitePowerFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 512)
-
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power))
-
-                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.Power)))
-                    .AddPolicyStatements(_iam.GetDynamoBatchWriteTablePolicy(nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly)))
-
+                    .GrantQueryTableData(_iam, nameof(DynamoDbTables.Power))
+                    .GrantBatchWriteTableData(_iam, nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
@@ -169,34 +170,57 @@ namespace SolarDigest.Deploy.Constructs
                         nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power),
                         nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
 
-                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.Power),
-                        nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly)))
+                    .GrantQueryTableData(_iam, nameof(DynamoDbTables.Power), nameof(DynamoDbTables.PowerMonthly),
+                        nameof(DynamoDbTables.PowerYearly))
 
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetSitePowerSummary,
-                StringHelpers.AppendAsLines(
-                    "{",
-                    @"  ""version"" : ""2017-02-28"",",
-                    @"  ""operation"": ""Invoke"",",
-                    @"  ""payload"": {",
-                    @"    ""siteId"": $util.toJson($ctx.source.id),",
+                StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": {
+                        ""siteId"": $util.toJson($ctx.source.id),
 
-                    @"    #if (!$util.isNull($ctx.args.limit))",
-                    @"      ""limit"": $util.toJson($ctx.args.limit),",
-                    @"    #end",
+                        #if (!$util.isNull($ctx.args.limit))
+                          ""limit"": $util.toJson($ctx.args.limit),
+                        #end
 
-                    @"    #if (!$util.isNull($ctx.args.startCursor))",
-                    @"      ""startCursor"": $util.toJson($ctx.args.startCursor),",
-                    @"    #end",
+                        #if (!$util.isNull($ctx.args.startCursor))
+                          ""startCursor"": $util.toJson($ctx.args.startCursor),
+                        #end
 
-                    @"    ""startDate"": $util.toJson($ctx.args.filter.startDate),",
-                    @"    ""endDate"": $util.toJson($ctx.args.filter.endDate),",
-                    @"    ""meterType"": $util.toJson($ctx.args.filter.meterType),",
-                    @"    ""summaryType"": $util.toJson($ctx.args.filter.summaryType)",
-                    "  }",
-                    "}"
+                        ""startDate"": $util.toJson($ctx.args.filter.startDate),
+                        ""endDate"": $util.toJson($ctx.args.filter.endDate),
+                        ""meterType"": $util.toJson($ctx.args.filter.meterType),
+                        ""summaryType"": $util.toJson($ctx.args.filter.summaryType)
+                      }
+                    }"
+
+
+                //"{",
+                //@"  ""version"" : ""2017-02-28"",",
+                //@"  ""operation"": ""Invoke"",",
+                //@"  ""payload"": {",
+                //@"    ""siteId"": $util.toJson($ctx.source.id),",
+
+                //@"    #if (!$util.isNull($ctx.args.limit))",
+                //@"      ""limit"": $util.toJson($ctx.args.limit),",
+                //@"    #end",
+
+                //@"    #if (!$util.isNull($ctx.args.startCursor))",
+                //@"      ""startCursor"": $util.toJson($ctx.args.startCursor),",
+                //@"    #end",
+
+                //@"    ""startDate"": $util.toJson($ctx.args.filter.startDate),",
+                //@"    ""endDate"": $util.toJson($ctx.args.filter.endDate),",
+                //@"    ""meterType"": $util.toJson($ctx.args.filter.meterType),",
+                //@"    ""summaryType"": $util.toJson($ctx.args.filter.summaryType)",
+                //"  }",
+                //"}"
                 )
             );
         }
@@ -205,15 +229,23 @@ namespace SolarDigest.Deploy.Constructs
         {
             EmailSiteUpdateHistoryFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.EmailAllSitesUpdateHistory, "Sends all sites a summary of power processing")
-                    .AddPolicyStatements(_iam.SendEmailPolicyStatement)
-
+                    .GrantSendEmail(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.PowerUpdateHistory))
-
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
-
-                    .AddPolicyStatements(_iam.GetDynamoQueryTablePolicy(nameof(DynamoDbTables.PowerUpdateHistory)))
-
+                    .GrantQueryTableData(_iam, nameof(DynamoDbTables.PowerUpdateHistory))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
+        }
+
+        private void CreateGetDownloadUrlFunction()
+        {
+            GetDownloadUrlFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded");
+        }
+
+        private void CreateGetUploadUrlFunction()
+        {
+            GetUploadUrlFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded");
         }
     }
 }

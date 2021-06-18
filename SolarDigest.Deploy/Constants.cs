@@ -23,6 +23,8 @@
             internal const string AggregateSitePower = "AggregateSitePower";
             internal const string GetSitePowerSummary = "GetSitePowerSummary";
             internal const string EmailAllSitesUpdateHistory = "EmailAllSitesUpdateHistory";
+            internal const string GetUploadUrl = "GetUploadUrl";
+            internal const string GetDownloadUrl = "GetDownloadUrl";
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Amazon.CDK.AWS.DynamoDB;
-using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Lambda.EventSources;
 using SolarDigest.Deploy.Constructs;
@@ -8,15 +7,15 @@ namespace SolarDigest.Deploy.Extensions
 {
     internal static class FunctionExtensions
     {
-        public static IFunction AddPolicyStatements(this IFunction function, params PolicyStatement[] statements)
-        {
-            foreach (var statement in statements)
-            {
-                function.AddToRolePolicy(statement);
-            }
+        //public static IFunction AddPolicyStatements(this IFunction function, params PolicyStatement[] statements)
+        //{
+        //    foreach (var statement in statements)
+        //    {
+        //        function.AddToRolePolicy(statement);
+        //    }
 
-            return function;
-        }
+        //    return function;
+        //}
 
         public static IFunction GrantDescribeTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
@@ -50,10 +49,33 @@ namespace SolarDigest.Deploy.Extensions
             return function;
         }
 
+        public static IFunction GrantBatchWriteTableData(this IFunction function, Iam iam, params string[] tableNames)
+        {
+            var statement = iam.GetDynamoBatchWriteTablePolicy(tableNames);
+            function.AddToRolePolicy(statement);
+
+            return function;
+        }
+
+        public static IFunction GrantQueryTableData(this IFunction function, Iam iam, params string[] tableNames)
+        {
+            var statement = iam.GetDynamoQueryTablePolicy(tableNames);
+            function.AddToRolePolicy(statement);
+
+            return function;
+        }
+
         public static IFunction GrantStreamReadData(this IFunction function, Iam iam, params string[] tableNames)
         {
             var statement  = iam.GetDynamoStreamReadPolicy(tableNames);
             function.AddToRolePolicy(statement);
+
+            return function;
+        }
+
+        public static IFunction GrantSendEmail(this IFunction function, Iam iam)
+        {
+            function.AddToRolePolicy(iam.SendEmailPolicyStatement);
 
             return function;
         }
@@ -67,6 +89,13 @@ namespace SolarDigest.Deploy.Extensions
             });
 
             function.AddEventSource(exceptionTableEventSource);
+
+            return function;
+        }
+
+        public static IFunction GrantPutDefaultEventBridgeEvents(this IFunction function, Iam iam)
+        {
+            function.AddToRolePolicy(iam.PutDefaultEventBridgeEventsPolicyStatement);
 
             return function;
         }

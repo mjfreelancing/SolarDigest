@@ -28,12 +28,13 @@ namespace SolarDigest.Deploy
                 //    @"}"
                 //);
 
-                _defaultRequestMapping ??= StringHelpers.AppendAsLines(
-                    "{",
-                    @"  ""version"" : ""2017-02-28"",",
-                    @"  ""operation"": ""Invoke"",",
-                    @"  ""payload"": $util.toJson($ctx.args)",
-                    @"}"
+                _defaultRequestMapping ??= StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": $util.toJson($ctx.args)
+                    }"
                 );
 
                 return _defaultRequestMapping;
@@ -58,7 +59,7 @@ namespace SolarDigest.Deploy
                 //    "#end"
                 //);
 
-                _defaultResponseMapping ??= StringHelpers.AppendAsLines(
+                _defaultResponseMapping ??= StringHelpers.Prettify(
                     "$util.toJson($ctx.result.payload)"
                 );
 

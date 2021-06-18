@@ -10,6 +10,13 @@ namespace SolarDigest.Deploy.Schema
         [LambdaDataSource(Constants.AppName, Constants.Function.GetSite)]
         ISite Site([SchemaTypeRequired] string id);
 
+        [SchemaTypeRequired]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadUrl)]
+        string Upload([SchemaTypeRequired] string filename);
+
+        [SchemaTypeRequired]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetDownloadUrl)]
+        string Download([SchemaTypeRequired] string filename);
 
         // for testing
 
