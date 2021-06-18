@@ -197,7 +197,7 @@ namespace SolarDigest.Api.Repository
 
                 var retryPolicy = Policy
                     .Handle<ProvisionedThroughputExceededException>()
-                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+                    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt));
 
                 foreach (var batch in batches)
                 {

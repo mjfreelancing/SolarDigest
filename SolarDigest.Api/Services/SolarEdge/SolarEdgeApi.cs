@@ -17,7 +17,7 @@ namespace SolarDigest.Api.Services.SolarEdge
     {
         private readonly AsyncRetryPolicy _httpRetryPolicy = Policy
             .Handle<FlurlHttpTimeoutException>()
-            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(250 * retryAttempt));
+            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt));
 
         private readonly ISolarDigestLogger _logger;
 
