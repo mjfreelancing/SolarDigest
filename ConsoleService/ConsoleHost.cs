@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.IO;
 
 namespace ConsoleService
 {
@@ -10,6 +12,12 @@ namespace ConsoleService
         {
             var builder = Host
                 .CreateDefaultBuilder(args)
+                .ConfigureHostConfiguration(configHost =>
+                {
+                    configHost.SetBasePath(Directory.GetCurrentDirectory());
+                    configHost.AddEnvironmentVariables();
+                    configHost.AddCommandLine(args);
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<HostedConsoleService>();

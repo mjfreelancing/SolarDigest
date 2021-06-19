@@ -1,20 +1,18 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Functions.Payloads;
-using SolarDigest.Api.Functions.Responses;
 using SolarDigest.Api.Services;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Functions
 {
-    public sealed class GetUploadUrl : FunctionBase<GetUploadUrlPayload, GetUploadUrlResponse>
+    // if we ever need to return more than the URL, then encapsulate in a 'GetUploadUrlResponse'
+    public sealed class GetUploadUrl : FunctionBase<GetUploadUrlPayload, string>
     {
-        protected override async Task<GetUploadUrlResponse> InvokeHandlerAsync(FunctionContext<GetUploadUrlPayload> context)
+        protected override async Task<string> InvokeHandlerAsync(FunctionContext<GetUploadUrlPayload> context)
         {
             var urlCreator = context.ScopedServiceProvider.GetRequiredService<IPresignedUrlCreator>();
 
-            var url = await urlCreator.CreateUploadUrlAsync(context.Payload.Filename);
-
-            return new GetUploadUrlResponse { Url = url };
+            return await urlCreator.CreateUploadUrlAsync(context.Payload.Filename);
         }
     }
 }
