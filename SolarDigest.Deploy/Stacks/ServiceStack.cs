@@ -6,6 +6,10 @@ using System;
 
 namespace SolarDigest.Deploy.Stacks
 {
+    // When deleting this stack, need to manually delete:
+    //  * log groups
+    //  * solardigest-uploads and solardigest-downloads S3 buckets
+    //
     internal sealed class ServiceStack
     {
         public static App CreateApp()
@@ -22,12 +26,19 @@ namespace SolarDigest.Deploy.Stacks
             var stack = app.CreateRootStack(apiProps);
 
             var iam = new Iam(stack, apiProps);
-            var users = new Users(stack,  iam);
-            _ = new ParameterStore(stack, users);
+
             _ = new S3Buckets(stack);
+
+            var users = new Users(stack,  iam);
+
+            _ = new ParameterStore(stack, users);
+
             var mappingTemplates = new SolarDigestMappingTemplates();
+
             var functions = new Functions(stack, apiProps, iam, mappingTemplates);
+
             var cloudWatch = new LogGroups(stack, apiProps);
+
             _ = new EventBridge(stack, apiProps, functions, cloudWatch);
 
             var authMode = new AuthorizationMode

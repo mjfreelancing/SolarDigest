@@ -12,7 +12,9 @@ namespace SolarDigest.Api.Functions
         {
             var urlCreator = context.ScopedServiceProvider.GetRequiredService<IPresignedUrlCreator>();
 
-            return await urlCreator.CreateUploadUrlAsync(context.Payload.Filename);
+            var payload = context.Payload;
+
+            return await urlCreator.CreateUploadUrlAsync(payload.Filename, payload.UploadId, payload.PartNumber);
         }
     }
 }

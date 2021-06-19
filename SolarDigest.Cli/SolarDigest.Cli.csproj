@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="AllOverIt" Version="1.7.0" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.1.4" />
         <PackageReference Include="Flurl.Http" Version="3.2.0" />
         <PackageReference Include="GraphQL.Client" Version="3.2.3" />
         <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.3" />

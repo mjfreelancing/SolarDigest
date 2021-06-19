@@ -54,8 +54,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateGetUploadUrlFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default,
-            int timeoutMinutes = 5)
+        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
         {
             var props = new FunctionProps
             {
@@ -200,28 +199,6 @@ namespace SolarDigest.Deploy.Constructs
                         ""summaryType"": $util.toJson($ctx.args.filter.summaryType)
                       }
                     }"
-
-
-                //"{",
-                //@"  ""version"" : ""2017-02-28"",",
-                //@"  ""operation"": ""Invoke"",",
-                //@"  ""payload"": {",
-                //@"    ""siteId"": $util.toJson($ctx.source.id),",
-
-                //@"    #if (!$util.isNull($ctx.args.limit))",
-                //@"      ""limit"": $util.toJson($ctx.args.limit),",
-                //@"    #end",
-
-                //@"    #if (!$util.isNull($ctx.args.startCursor))",
-                //@"      ""startCursor"": $util.toJson($ctx.args.startCursor),",
-                //@"    #end",
-
-                //@"    ""startDate"": $util.toJson($ctx.args.filter.startDate),",
-                //@"    ""endDate"": $util.toJson($ctx.args.filter.endDate),",
-                //@"    ""meterType"": $util.toJson($ctx.args.filter.meterType),",
-                //@"    ""summaryType"": $util.toJson($ctx.args.filter.summaryType)",
-                //"  }",
-                //"}"
                 )
             );
         }
@@ -249,6 +226,25 @@ namespace SolarDigest.Deploy.Constructs
             GetUploadUrlFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
                     .GrantPutParameters(_iam, "Secrets");
+
+            _mappingTemplates.RegisterRequestMapping(
+                Constants.Function.GetUploadUrl,
+                StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": {
+                        ""filename"": $util.toJson($ctx.args.input.filename),
+                        ""uploadId"": $util.toJson($ctx.args.input.uploadId),
+
+                        #if (!$util.isNull($ctx.args.input.partNumber))
+                          ""partNumber"": $util.toJson($ctx.args.input.partNumber),
+                        #end
+                      }
+                    }"
+                )
+            );
         }
     }
 }

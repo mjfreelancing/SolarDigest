@@ -2,6 +2,6 @@
 {
     internal sealed class DownloadUrlPayload
     {
-        public string Download { get; set; }
+        public string DownloadUrl { get; set; }
     }
 }

@@ -41,10 +41,10 @@ namespace SolarDigest.Cli.Commands.Download
                 var request = new GraphQLHttpRequest
                 {
                     Query = @"
-                        query Download($filename: String!) {
-                            download(filename: $filename) 
+                        query DownloadUrl($filename: String!) {
+                            downloadUrl(filename: $filename) 
                         }",
-                    OperationName = "Download",
+                    OperationName = "DownloadUrl",
                     Variables = new
                     {
                         filename = downloadFile
@@ -56,7 +56,7 @@ namespace SolarDigest.Cli.Commands.Download
                     graphQLClient.HttpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
                     var response = await graphQLClient.SendQueryAsync<DownloadUrlPayload>(request);
-                    var downloadUrl = response.Data.Download;
+                    var downloadUrl = response.Data.DownloadUrl;
 
                     _logger.LogDebug($"Pre-signed Url: {downloadUrl}");
 

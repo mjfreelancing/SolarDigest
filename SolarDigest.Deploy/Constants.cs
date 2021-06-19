@@ -2,7 +2,6 @@
 {
     internal static class Constants
     {
-        // should really be something like {ServiceName}-V{ApiVersion} - needs a file version too
         internal const string S3CodeBucketKeyName = "publish.zip";
 
         internal const string AppName = "SolarDigest";

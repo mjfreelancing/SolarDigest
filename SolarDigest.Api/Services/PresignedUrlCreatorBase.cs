@@ -18,9 +18,10 @@ namespace SolarDigest.Api.Services
         }
 
         public abstract Task<string> CreateDownloadUrlAsync(string name);
-        public abstract Task<string> CreateUploadUrlAsync(string name);
+        public abstract Task<string> CreateUploadUrlAsync(string name, string uploadId, int? partNumber);
 
-        protected async Task<string> CreateUrlAsync(string bucket, string name, string userSecretPath, HttpVerb verb)
+        protected async Task<string> CreateUrlAsync(string bucket, string name, string userSecretPath, HttpVerb verb,
+            string uploadId = default, int? partNumber = default)
         {
             var response = await _parameterStore.GetByPathAsync(userSecretPath);
 
@@ -40,7 +41,9 @@ namespace SolarDigest.Api.Services
                 BucketName = bucket,
                 Key = name,
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                Verb = verb
+                Verb = verb,
+                UploadId = uploadId,
+                PartNumber = partNumber ?? default
             };
 
             return s3Client.GetPreSignedURL(request);

@@ -37,6 +37,10 @@ namespace SolarDigest.Deploy.Constructs
 
             user.AttachInlinePolicy(policy);
 
+            //return null;
+
+            // todo: work out why these cannot be included at the same time on an initial deploy
+
             return new CfnAccessKey(this, $"{username}AccessKey", new CfnAccessKeyProps
             {
                 UserName = username
