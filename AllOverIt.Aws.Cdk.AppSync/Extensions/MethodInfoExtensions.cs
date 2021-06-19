@@ -1,4 +1,6 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using AllOverIt.Aws.Cdk.AppSync.Exceptions;
+using AllOverIt.Extensions;
 using Amazon.CDK.AWS.AppSync;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +34,13 @@ namespace AllOverIt.Aws.Cdk.AppSync.Extensions
             foreach (var parameterInfo in parameters)
             {
                 var paramType = parameterInfo.ParameterType;
+
+                if (paramType.IsGenericNullableType())
+                {
+                    throw new SchemaException($"Unexpected nullable argument '{parameterInfo.Name}' on method '{methodInfo.DeclaringType!.FullName}.{methodInfo.Name}'. " +
+                                              $"The presence of {nameof(SchemaTypeRequiredAttribute)} is used to declare a property required and its absence makes it optional.");
+                }
+
                 var isRequired = parameterInfo.IsGqlTypeRequired();
                 var isList = paramType.IsArray;
                 var isRequiredList = isList && parameterInfo.IsGqlArrayRequired();

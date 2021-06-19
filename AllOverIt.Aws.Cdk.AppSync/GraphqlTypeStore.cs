@@ -1,4 +1,6 @@
-﻿using AllOverIt.Aws.Cdk.AppSync.Extensions;
+﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using AllOverIt.Aws.Cdk.AppSync.Exceptions;
+using AllOverIt.Aws.Cdk.AppSync.Extensions;
 using AllOverIt.Aws.Cdk.AppSync.Factories;
 using AllOverIt.Extensions;
 using AllOverIt.Helpers;
@@ -136,8 +138,7 @@ namespace AllOverIt.Aws.Cdk.AppSync
             return enumType;
         }
 
-        private IIntermediateType CreateInterfaceType(SystemType type, GraphqlSchemaTypeDescriptor typeDescriptor,
-            Action<IIntermediateType> typeCreated)
+        private IIntermediateType CreateInterfaceType(SystemType type, GraphqlSchemaTypeDescriptor typeDescriptor, Action<IIntermediateType> typeCreated)
         {
             try
             {
@@ -199,6 +200,12 @@ namespace AllOverIt.Aws.Cdk.AppSync
             foreach (var propertyInfo in properties)
             {
                 var propertyType = propertyInfo.PropertyType;
+
+                if (propertyType.IsGenericNullableType())
+                {
+                    throw new SchemaException($"Unexpected nullable property '{propertyInfo.Name}' on type '{type.FullName}'. The presence of " +
+                                              $"{nameof(SchemaTypeRequiredAttribute)} is used to declare a property required and its absence makes it optional.");
+                }
 
                 if (schemaTypeDescriptor.SchemaType == GraphqlSchemaType.Input && propertyType != typeof(string) && (propertyType.IsInterface || propertyType.IsClass))
                 {
