@@ -20,7 +20,7 @@ namespace SolarDigest.Deploy.Constructs
             _iam = iam.WhenNotNull(nameof(iam));
 
             UploadUserAccessKey = CreateUser(UploadUserName, "UploadS3", _iam.GetUploadS3PolicyStatement(Constants.S3Buckets.UploadsBucketName));
-            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", _iam.GetUploadS3PolicyStatement(Constants.S3Buckets.DownloadsBucketName));
+            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", _iam.GetDownloadS3PolicyStatement(Constants.S3Buckets.DownloadsBucketName));
         }
 
         private CfnAccessKey CreateUser(string username, string policyId, PolicyStatement policyStatement)

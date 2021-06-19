@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Amazon.S3;
-using SolarDigest.Api.Services;
+﻿using Amazon.S3;
+using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Services
 {
     internal sealed class PresignedUrlCreator : PresignedUrlCreatorBase
     {

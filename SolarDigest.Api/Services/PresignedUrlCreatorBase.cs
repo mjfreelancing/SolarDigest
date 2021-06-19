@@ -1,13 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using AllOverIt.Extensions;
+﻿using AllOverIt.Extensions;
 using AllOverIt.Helpers;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
-using SolarDigest.Api.Services;
+using System;
+using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Services
 {
     internal abstract class PresignedUrlCreatorBase : IPresignedUrlCreator
     {

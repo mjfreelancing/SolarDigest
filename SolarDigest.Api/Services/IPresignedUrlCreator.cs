@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace SolarDigest.Api.Functions
+namespace SolarDigest.Api.Services
 {
     public interface IPresignedUrlCreator
     {
