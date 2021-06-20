@@ -16,15 +16,15 @@ namespace SolarDigest.Deploy.Schema
         string UploadUrl([SchemaTypeRequired] IUploadUrlInput input);
 
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadParts)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadMultiPart)]
         IUploadMultiParts UploadMultiPartUrls([SchemaTypeRequired] IUploadMultiPartInput input);
 
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadPartsAbort)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadMultiPartAbort)]
         string UploadMultiPartAbort([SchemaTypeRequired] IUploadMultiPartAbortInput input);
 
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadPartsComplete)]
+        [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadMultiPartComplete)]
         string UploadMultiPartComplete([SchemaTypeRequired] IUploadMultiPartCompleteInput input);
 
         [SchemaTypeRequired]

@@ -28,9 +28,9 @@
             internal const string GetSitePowerSummary = "GetSitePowerSummary";
             internal const string EmailAllSitesUpdateHistory = "EmailAllSitesUpdateHistory";
             internal const string GetUploadUrl = "GetUploadUrl";
-            internal const string GetUploadParts = "GetUploadParts";
-            internal const string GetUploadPartsAbort = "GetUploadPartsAbort";
-            internal const string GetUploadPartsComplete = "GetUploadPartsComplete";
+            internal const string GetUploadMultiPart = "GetUploadMultiPart";
+            internal const string GetUploadMultiPartAbort = "GetUploadMultiPartAbort";
+            internal const string GetUploadMultiPartComplete = "GetUploadMultiPartComplete";
             internal const string GetDownloadUrl = "GetDownloadUrl";
         }
     }

@@ -29,9 +29,9 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction GetSitePowerSummaryFunction { get; private set; }
         internal IFunction EmailSiteUpdateHistoryFunction { get; private set; }
         internal IFunction GetUploadUrlFunction { get; private set; }
-        internal IFunction GetUploadPartsFunction { get; private set; }
-        internal IFunction GetUploadPartsAbortFunction { get; private set; }
-        internal IFunction GetUploadPartsCompleteFunction { get; private set; }
+        internal IFunction GetUploadMultiPartFunction { get; private set; }
+        internal IFunction GetUploadMultiPartAbortFunction { get; private set; }
+        internal IFunction GetUploadMultiPartCompleteFunction { get; private set; }
         internal IFunction GetDownloadUrlFunction { get; private set; }
 
         public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
@@ -54,9 +54,9 @@ namespace SolarDigest.Deploy.Constructs
             CreateGetSitePowerSummary();
             CreateEmailSiteUpdateHistoryFunction();
             CreateGetUploadUrlFunction();
-            CreateGetUploadPartsFunction();
-            CreateGetUploadPartsAbortFunction();
-            CreateGetUploadPartsCompleteFunction();
+            CreateGetUploadMultiPartFunction();
+            CreateGetUploadMultiPartAbortFunction();
+            CreateGetUploadMultiPartCompleteFunction();
             CreateGetDownloadUrlFunction();
         }
 
@@ -246,10 +246,10 @@ namespace SolarDigest.Deploy.Constructs
             );
         }
 
-        private void CreateGetUploadPartsFunction()
+        private void CreateGetUploadMultiPartFunction()
         {
-            GetUploadPartsFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadParts, "Generates pre-signed Urls for a batch of uploads")
+            GetUploadMultiPartFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPart, "Generates pre-signed Urls for a batch of uploads")
                     .GrantPutParameters(_iam, "Secrets");
 
             //_mappingTemplates.RegisterRequestMapping(
@@ -272,10 +272,10 @@ namespace SolarDigest.Deploy.Constructs
             //);
         }
 
-        private void CreateGetUploadPartsAbortFunction()
+        private void CreateGetUploadMultiPartAbortFunction()
         {
-            GetUploadPartsAbortFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadPartsAbort, "Aborts a previously initiated multi-part upload")
+            GetUploadMultiPartAbortFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartAbort, "Aborts a previously initiated multi-part upload")
                     .GrantPutParameters(_iam, "Secrets");
 
             //_mappingTemplates.RegisterRequestMapping(
@@ -298,10 +298,10 @@ namespace SolarDigest.Deploy.Constructs
             //);
         }
 
-        private void CreateGetUploadPartsCompleteFunction()
+        private void CreateGetUploadMultiPartCompleteFunction()
         {
-            GetUploadPartsCompleteFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadPartsComplete, "Completes a previously initiated multi-part upload")
+            GetUploadMultiPartCompleteFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartComplete, "Completes a previously initiated multi-part upload")
                     .GrantPutParameters(_iam, "Secrets");
 
             //_mappingTemplates.RegisterRequestMapping(
