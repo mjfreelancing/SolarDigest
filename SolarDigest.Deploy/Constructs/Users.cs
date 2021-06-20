@@ -1,50 +1,47 @@
-﻿using AllOverIt.Helpers;
-using Amazon.CDK;
+﻿using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
+using System.Collections.Generic;
 
 namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class Users : Construct
     {
-        private const string DownloadUserName = "BucketDownloadUser";
-        private const string UploadUserName = "BucketUploadUser";
+        // Caching users that need their access/secret keys to be added to the ParameterStore
+        internal readonly IDictionary<string, CfnAccessKey> UserAccessKeys = new Dictionary<string, CfnAccessKey>();
 
-        private readonly Iam _iam;
-
-        internal CfnAccessKey UploadUserAccessKey { get; }
-        internal CfnAccessKey DownloadUserAccessKey { get; }
+        internal const string UploadUserName = "BucketUploadUser";
+        internal const string DownloadUserName = "BucketDownloadUser";
 
         public Users(Construct scope, Iam iam)
             : base(scope, "Users")
         {
-            _iam = iam.WhenNotNull(nameof(iam));
-
-            UploadUserAccessKey = CreateUser(UploadUserName, "UploadS3", _iam.GetUploadS3PolicyStatement(Constants.S3Buckets.UploadsBucketName));
-            DownloadUserAccessKey = CreateUser(DownloadUserName, "DownloadS3", _iam.GetDownloadS3PolicyStatement(Constants.S3Buckets.DownloadsBucketName));
+            CreateUser(UploadUserName, iam.GetUploadS3PolicyStatement(Constants.S3Buckets.UploadsBucketName), true);
+            CreateUser(DownloadUserName, iam.GetDownloadS3PolicyStatement(Constants.S3Buckets.DownloadsBucketName), true);
         }
 
-        private CfnAccessKey CreateUser(string username, string policyId, PolicyStatement policyStatement)
+        private void CreateUser(string username, PolicyStatement policyStatement, bool addToCache)
         {
             var user = new User(this, username, new UserProps
             {
                 UserName = username
             });
 
-            var policy = new Policy(this, policyId, new PolicyProps
+            var policy = new Policy(this, $"{username}Policy", new PolicyProps
             {
                 Statements = new[] { policyStatement }
             });
 
             user.AttachInlinePolicy(policy);
 
-            //return null;
-
-            // todo: work out why these cannot be included at the same time on an initial deploy
-
-            return new CfnAccessKey(this, $"{username}AccessKey", new CfnAccessKeyProps
+            var accessKey = new CfnAccessKey(this, $"{username}AccessKey", new CfnAccessKeyProps
             {
-                UserName = username
+                UserName = user.UserName
             });
+
+            if (addToCache)
+            {
+                UserAccessKeys.Add(username, accessKey);
+            }
         }
     }
 }

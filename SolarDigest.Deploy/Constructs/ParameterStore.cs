@@ -1,6 +1,6 @@
 ﻿using Amazon.CDK;
-using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.SSM;
+using System;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -9,27 +9,34 @@ namespace SolarDigest.Deploy.Constructs
         public ParameterStore(Construct scope, Users users)
             : base(scope, "Parameters")
         {
-            CreateAccessKeyParameters(users.UploadUserAccessKey);
-            CreateAccessKeyParameters(users.DownloadUserAccessKey);
+            CreateAccessKeyParameters(Users.UploadUserName, users);
+            CreateAccessKeyParameters(Users.DownloadUserName, users);
         }
 
-        private void CreateAccessKeyParameters(CfnAccessKey accessKey)
+        private void CreateAccessKeyParameters(string username, Users users)
         {
             // NOTE: Secure strings are not supported by Cloud Formation. Something to revisit.
 
-            _ = new StringParameter(this, $"{accessKey.UserName}AccessKey", new StringParameterProps
+            if (!users.UserAccessKeys.TryGetValue(username, out var accessKey))
+            {
+                throw new InvalidOperationException($"The user '{username}' does not have a cached access key");
+            }
+
+            // Note: cannot use accessKey.UserName in place of username
+
+            _ = new StringParameter(this, $"{username}AccessKey", new StringParameterProps
             {
                 Tier = ParameterTier.STANDARD,
                 Type = ParameterType.STRING,
-                ParameterName = $"/Secrets/{accessKey.UserName}/AccessKey",
+                ParameterName = $"/Secrets/{username}/AccessKey",
                 StringValue = accessKey.Ref
             });
 
-            _ = new StringParameter(this, $"{accessKey.UserName}SecretKey", new StringParameterProps
+            _ = new StringParameter(this, $"{username}SecretKey", new StringParameterProps
             {
                 Tier = ParameterTier.STANDARD,
                 Type = ParameterType.STRING,
-                ParameterName = $"/Secrets/{accessKey.UserName}/SecretKey",
+                ParameterName = $"/Secrets/{username}/SecretKey",
                 StringValue = accessKey.AttrSecretAccessKey
             });
         }
