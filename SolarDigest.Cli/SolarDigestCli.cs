@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Cli.Commands;
 using SolarDigest.Cli.Commands.Download;
+using SolarDigest.Cli.Commands.Upload;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace SolarDigest.Cli
             _configuration = configuration.WhenNotNull(nameof(configuration));
             _serviceProvider = serviceProvider.WhenNotNull(nameof(serviceProvider));
 
+            _commandHandlers.Add("upload", typeof(UploadFileCommand));
             _commandHandlers.Add("download", typeof(DownloadFileCommand));
         }
 
@@ -31,14 +33,22 @@ namespace SolarDigest.Cli
             {
                 if (_configuration.GetValue<string>(command) != null)
                 {
-                    var handler = _serviceProvider.GetRequiredService(type) as ICommand;
-                    await handler!.Execute().ConfigureAwait(false);
+                    try
+                    {
+                        var handler = _serviceProvider.GetRequiredService(type) as ICommand;
+                        await handler!.Execute().ConfigureAwait(false);
 
-                    return 0;
+                        return 0;
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception);
+                        return -2;
+                    }
                 }
             }
 
-            return -1;
+            return 0;
         }
     }
 }

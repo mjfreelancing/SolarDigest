@@ -28,8 +28,11 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction AggregateSitePowerFunction { get; private set; }
         internal IFunction GetSitePowerSummaryFunction { get; private set; }
         internal IFunction EmailSiteUpdateHistoryFunction { get; private set; }
-        internal IFunction GetDownloadUrlFunction { get; private set; }
         internal IFunction GetUploadUrlFunction { get; private set; }
+        internal IFunction GetUploadPartsFunction { get; private set; }
+        internal IFunction GetUploadPartsAbortFunction { get; private set; }
+        internal IFunction GetUploadPartsCompleteFunction { get; private set; }
+        internal IFunction GetDownloadUrlFunction { get; private set; }
 
         public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
             : base(scope, "Function")
@@ -50,8 +53,11 @@ namespace SolarDigest.Deploy.Constructs
             CreateAggregateSitePowerFunction();
             CreateGetSitePowerSummary();
             CreateEmailSiteUpdateHistoryFunction();
-            CreateGetDownloadUrlFunction();
             CreateGetUploadUrlFunction();
+            CreateGetUploadPartsFunction();
+            CreateGetUploadPartsAbortFunction();
+            CreateGetUploadPartsCompleteFunction();
+            CreateGetDownloadUrlFunction();
         }
 
         private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
@@ -214,13 +220,6 @@ namespace SolarDigest.Deploy.Constructs
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
 
-        private void CreateGetDownloadUrlFunction()
-        {
-            GetDownloadUrlFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
-                    .GrantGetParameters(_iam, "Secrets");
-        }
-
         private void CreateGetUploadUrlFunction()
         {
             GetUploadUrlFunction =
@@ -245,6 +244,91 @@ namespace SolarDigest.Deploy.Constructs
                     }"
                 )
             );
+        }
+
+        private void CreateGetUploadPartsFunction()
+        {
+            GetUploadPartsFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadParts, "Generates pre-signed Urls for a batch of uploads")
+                    .GrantPutParameters(_iam, "Secrets");
+
+            //_mappingTemplates.RegisterRequestMapping(
+            //    Constants.Function.GetUploadUrl,
+            //    StringHelpers.Prettify(
+            //        @"
+            //        {
+            //          ""version"" : ""2017-02-28"",
+            //          ""operation"": ""Invoke"",
+            //          ""payload"": {
+            //            ""filename"": $util.toJson($ctx.args.input.filename),
+            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
+
+            //            #if (!$util.isNull($ctx.args.input.partNumber))
+            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
+            //            #end
+            //          }
+            //        }"
+            //    )
+            //);
+        }
+
+        private void CreateGetUploadPartsAbortFunction()
+        {
+            GetUploadPartsAbortFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadPartsAbort, "Aborts a previously initiated multi-part upload")
+                    .GrantPutParameters(_iam, "Secrets");
+
+            //_mappingTemplates.RegisterRequestMapping(
+            //    Constants.Function.GetUploadUrl,
+            //    StringHelpers.Prettify(
+            //        @"
+            //        {
+            //          ""version"" : ""2017-02-28"",
+            //          ""operation"": ""Invoke"",
+            //          ""payload"": {
+            //            ""filename"": $util.toJson($ctx.args.input.filename),
+            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
+
+            //            #if (!$util.isNull($ctx.args.input.partNumber))
+            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
+            //            #end
+            //          }
+            //        }"
+            //    )
+            //);
+        }
+
+        private void CreateGetUploadPartsCompleteFunction()
+        {
+            GetUploadPartsCompleteFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadPartsComplete, "Completes a previously initiated multi-part upload")
+                    .GrantPutParameters(_iam, "Secrets");
+
+            //_mappingTemplates.RegisterRequestMapping(
+            //    Constants.Function.GetUploadUrl,
+            //    StringHelpers.Prettify(
+            //        @"
+            //        {
+            //          ""version"" : ""2017-02-28"",
+            //          ""operation"": ""Invoke"",
+            //          ""payload"": {
+            //            ""filename"": $util.toJson($ctx.args.input.filename),
+            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
+
+            //            #if (!$util.isNull($ctx.args.input.partNumber))
+            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
+            //            #end
+            //          }
+            //        }"
+            //    )
+            //);
+        }
+
+        private void CreateGetDownloadUrlFunction()
+        {
+            GetDownloadUrlFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
+                    .GrantGetParameters(_iam, "Secrets");
         }
     }
 }

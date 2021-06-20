@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SolarDigest.Cli.Commands.Download;
+using SolarDigest.Cli.Commands.Upload;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Cli
@@ -45,6 +46,7 @@ namespace SolarDigest.Cli
                                 //    settings.SetDefaults();
                                 //});
 
+                                services.AddTransient<UploadFileCommand>();
                                 services.AddTransient<DownloadFileCommand>();
                         });
                 })

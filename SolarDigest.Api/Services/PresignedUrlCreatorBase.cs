@@ -41,10 +41,14 @@ namespace SolarDigest.Api.Services
                 BucketName = bucket,
                 Key = name,
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                Verb = verb,
-                UploadId = uploadId,
-                PartNumber = partNumber ?? default
+                Verb = verb
             };
+
+            if (partNumber.HasValue)
+            {
+                request.UploadId = uploadId;
+                request.PartNumber = partNumber.Value;
+            }
 
             return s3Client.GetPreSignedURL(request);
         }

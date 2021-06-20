@@ -1,11 +1,11 @@
 {
   "profiles": {
     "SolarDigest.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "--download sample.txt --destination C:\\Temp",
-      "environmentVariables": {
-        "ENVIRONMENT": "Development"
-      }
+        "commandName": "Project",
+        "commandLineArgs": "--upload C:\\Data\\SolarDigest.zip --download SolarDigest.zip --destination C:\\Temp",
+        "environmentVariables": {
+            "ENVIRONMENT": "Development"
+        }
     }
   }
 }
