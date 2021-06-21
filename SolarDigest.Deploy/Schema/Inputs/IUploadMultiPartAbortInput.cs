@@ -10,6 +10,6 @@ namespace SolarDigest.Deploy.Schema.Inputs
         string Filename { get; set; }
 
         [SchemaTypeRequired]
-        int UploadId { get; set; }
+        string UploadId { get; set; }
     }
 }

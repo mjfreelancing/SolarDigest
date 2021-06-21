@@ -275,24 +275,20 @@ namespace SolarDigest.Deploy.Constructs
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartAbort, "Aborts a previously initiated multi-part upload")
                     .GrantPutParameters(_iam, "Secrets");
 
-            //_mappingTemplates.RegisterRequestMapping(
-            //    Constants.Function.GetUploadUrl,
-            //    StringHelpers.Prettify(
-            //        @"
-            //        {
-            //          ""version"" : ""2017-02-28"",
-            //          ""operation"": ""Invoke"",
-            //          ""payload"": {
-            //            ""filename"": $util.toJson($ctx.args.input.filename),
-            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
-
-            //            #if (!$util.isNull($ctx.args.input.partNumber))
-            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
-            //            #end
-            //          }
-            //        }"
-            //    )
-            //);
+            _mappingTemplates.RegisterRequestMapping(
+                Constants.Function.GetUploadMultiPartAbort,
+                StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": {
+                        ""filename"": $util.toJson($ctx.args.input.filename),
+                        ""uploadId"": $util.toJson($ctx.args.input.uploadId)
+                      }
+                    }"
+                )
+            );
         }
 
         private void CreateGetUploadMultiPartCompleteFunction()
@@ -302,7 +298,7 @@ namespace SolarDigest.Deploy.Constructs
                     .GrantPutParameters(_iam, "Secrets");
 
             //_mappingTemplates.RegisterRequestMapping(
-            //    Constants.Function.GetUploadUrl,
+            //    Constants.Function.GetUploadMultiPartComplete,
             //    StringHelpers.Prettify(
             //        @"
             //        {

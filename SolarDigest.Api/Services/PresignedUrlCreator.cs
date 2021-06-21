@@ -51,10 +51,10 @@ namespace SolarDigest.Api.Services
         private async Task<string> CreateUrlAsync(string bucket, string name, string userSecretPath, HttpVerb verb,
             string uploadId = default, int? partNumber = default)
         {
-            var response = await _parameterStore.GetByPathAsync(userSecretPath);
+            var parameters = await _parameterStore.GetByPathAsync(userSecretPath);
 
-            response.TryGetValue($"{userSecretPath}/AccessKey", out var accessKey);
-            response.TryGetValue($"{userSecretPath}/SecretKey", out var secretKey);
+            parameters.TryGetValue($"{userSecretPath}/AccessKey", out var accessKey);
+            parameters.TryGetValue($"{userSecretPath}/SecretKey", out var secretKey);
 
             if (accessKey.IsNullOrEmpty() || secretKey.IsNullOrEmpty())
             {

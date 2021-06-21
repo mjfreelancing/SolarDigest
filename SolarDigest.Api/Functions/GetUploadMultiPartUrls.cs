@@ -20,10 +20,10 @@ namespace SolarDigest.Api.Functions
 
             var userSecretPath = $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketUploadUser}";
 
-            var response = await parameterStore.GetByPathAsync(userSecretPath).ConfigureAwait(false);
+            var parameters = await parameterStore.GetByPathAsync(userSecretPath).ConfigureAwait(false);
 
-            response.TryGetValue($"{userSecretPath}/AccessKey", out var accessKey);
-            response.TryGetValue($"{userSecretPath}/SecretKey", out var secretKey);
+            parameters.TryGetValue($"{userSecretPath}/AccessKey", out var accessKey);
+            parameters.TryGetValue($"{userSecretPath}/SecretKey", out var secretKey);
 
             var client = new AmazonS3Client(accessKey, secretKey);
 

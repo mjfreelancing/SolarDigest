@@ -21,11 +21,11 @@ namespace SolarDigest.Deploy.Schema
 
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadMultiPartAbort)]
-        string UploadMultiPartAbort([SchemaTypeRequired] IUploadMultiPartAbortInput input);
+        bool UploadMultiPartAbort([SchemaTypeRequired] IUploadMultiPartAbortInput input);
 
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetUploadMultiPartComplete)]
-        string UploadMultiPartComplete([SchemaTypeRequired] IUploadMultiPartCompleteInput input);
+        bool UploadMultiPartComplete([SchemaTypeRequired] IUploadMultiPartCompleteInput input);
 
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.GetDownloadUrl)]

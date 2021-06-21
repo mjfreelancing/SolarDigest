@@ -10,7 +10,7 @@ namespace SolarDigest.Deploy.Schema.Inputs
         public string Filename { get; set; }
 
         [SchemaTypeRequired]
-        int UploadId { get; set; }
+        string UploadId { get; set; }
 
         [SchemaTypeRequired]
         IUploadMultiPartETagInput[] ETags { get; }
