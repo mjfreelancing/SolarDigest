@@ -30,7 +30,7 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction GetSitePowerSummaryFunction { get; private set; }
         internal IFunction EmailSiteUpdateHistoryFunction { get; private set; }
         internal IFunction GetUploadUrlFunction { get; private set; }
-        internal IFunction GetUploadMultiPartFunction { get; private set; }
+        internal IFunction GetUploadMultiPartUrlsFunction { get; private set; }
         internal IFunction GetUploadMultiPartAbortFunction { get; private set; }
         internal IFunction GetUploadMultiPartCompleteFunction { get; private set; }
         internal IFunction GetDownloadUrlFunction { get; private set; }
@@ -55,7 +55,7 @@ namespace SolarDigest.Deploy.Constructs
             CreateGetSitePowerSummary();
             CreateEmailSiteUpdateHistoryFunction();
             CreateGetUploadUrlFunction();
-            CreateGetUploadMultiPartFunction();
+            CreateGetUploadMultiPartUrlsFunction();
             CreateGetUploadMultiPartAbortFunction();
             CreateGetUploadMultiPartCompleteFunction();
             CreateGetDownloadUrlFunction();
@@ -247,30 +247,26 @@ namespace SolarDigest.Deploy.Constructs
             );
         }
 
-        private void CreateGetUploadMultiPartFunction()
+        private void CreateGetUploadMultiPartUrlsFunction()
         {
-            GetUploadMultiPartFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPart, "Generates pre-signed Urls for a batch of uploads")
+            GetUploadMultiPartUrlsFunction =
+                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartUrls, "Generates pre-signed Urls for a batch of uploads")
                     .GrantPutParameters(_iam, "Secrets");
 
-            //_mappingTemplates.RegisterRequestMapping(
-            //    Constants.Function.GetUploadUrl,
-            //    StringHelpers.Prettify(
-            //        @"
-            //        {
-            //          ""version"" : ""2017-02-28"",
-            //          ""operation"": ""Invoke"",
-            //          ""payload"": {
-            //            ""filename"": $util.toJson($ctx.args.input.filename),
-            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
-
-            //            #if (!$util.isNull($ctx.args.input.partNumber))
-            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
-            //            #end
-            //          }
-            //        }"
-            //    )
-            //);
+            _mappingTemplates.RegisterRequestMapping(
+                Constants.Function.GetUploadMultiPartUrls,
+                StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": {
+                        ""filename"": $util.toJson($ctx.args.input.filename),
+                        ""partCount"": $util.toJson($ctx.args.input.partCount)
+                      }
+                    }"
+                )
+            );
         }
 
         private void CreateGetUploadMultiPartAbortFunction()

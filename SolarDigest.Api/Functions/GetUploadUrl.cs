@@ -14,7 +14,7 @@ namespace SolarDigest.Api.Functions
 
             var payload = context.Payload;
 
-            return await urlCreator.CreateUploadUrlAsync(payload.Filename, payload.UploadId, payload.PartNumber);
+            return await urlCreator.CreateUploadUrlAsync(payload.Filename);
         }
     }
 }
