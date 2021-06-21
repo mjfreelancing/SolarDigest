@@ -21,6 +21,12 @@ namespace SolarDigest.Cli.Commands.Upload
     // https://www.altostra.com/blog/multipart-uploads-with-s3-presigned-url
     // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/index.html?page=S3/MS3InitiateMultipartUploadInitiateMultipartUploadRequest.html
     // https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateMultipartUpload.html
+    // https://insecurity.blog/2021/03/06/securing-amazon-s3-presigned-urls/
+
+    // https://aws.amazon.com/s3/faqs/
+    // The total volume of data and number of objects you can store are unlimited. Individual Amazon S3 objects can range in size from a
+    // minimum of 0 bytes to a maximum of 5 terabytes. The largest object that can be uploaded in a single PUT is 5 gigabytes. For objects
+    // larger than 100 megabytes, customers should consider using the Multipart Upload capability.
 
     internal sealed class UploadFileCommand : ICommand
     {
@@ -78,7 +84,10 @@ namespace SolarDigest.Cli.Commands.Upload
 
                     var streamContent = new StreamContent(memoryStream, chunkSize);
 
-                    var putResponse = await url.WithTimeout(TimeSpan.FromMinutes(5)).PutAsync(streamContent).ConfigureAwait(false);
+                    var putResponse = await url
+                        .WithTimeout(TimeSpan.FromMinutes(5))
+                        .PutAsync(streamContent)
+                        .ConfigureAwait(false);
 
                     UploadPartResponse partResponse = null;
 

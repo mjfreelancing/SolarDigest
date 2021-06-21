@@ -5,7 +5,7 @@ using Amazon.CDK.AWS.AppSync;
 
 namespace SolarDigest.Deploy
 {
-    internal sealed class SolarDigestGraphql : AppGraphqlApi
+    internal sealed class SolarDigestGraphql : AppGraphqlBase
     {
         public SolarDigestGraphql(Construct scope, SolarDigestAppProps appProps, IAuthorizationMode authMode, IMappingTemplates mappingTemplates)
             : base(scope, "GraphQl", new GraphqlApiProps

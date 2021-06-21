@@ -7,8 +7,8 @@
   </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AllOverIt.Aws.Cdk.AppSync" Version="0.1.1" />
         <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.108.1" />
-        <PackageReference Include="Amazon.CDK.AWS.CloudFormation" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.CloudWatch" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.DynamoDB" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.Events" Version="1.108.1" />
@@ -16,10 +16,6 @@
         <PackageReference Include="Amazon.CDK.AWS.Lambda" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.Lambda.EventSources" Version="1.108.1" />
         <PackageReference Include="Amazon.CDK.AWS.SSM" Version="1.108.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\AllOverIt.Aws.Cdk.AppSync\AllOverIt.Aws.Cdk.AppSync.csproj" />
     </ItemGroup>
 
 </Project>
