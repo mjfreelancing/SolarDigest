@@ -1,4 +1,5 @@
-﻿using AllOverIt.Aws.Cdk.AppSync;
+﻿using AllOverIt.Aws.Cdk.AppSync.Helpers;
+using AllOverIt.Aws.Cdk.AppSync.MappingTemplates;
 using AllOverIt.Helpers;
 using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;

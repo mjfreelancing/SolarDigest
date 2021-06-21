@@ -1,21 +1,11 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using AllOverIt.Aws.Cdk.AppSync.Schema.Types;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
     [SchemaType(GraphqlSchemaType.Type, "PowerConnection")]
-    internal interface IPowerConnection
+    internal interface IPowerConnection : IConnection<IPowerEdge, ITimeWatts>
     {
-        [SchemaTypeRequired]
-        public IPowerEdge[] Edges { get; }
-
-        [SchemaTypeRequired]
-        public ITimeWatts[] Nodes { get; }
-
-        [SchemaTypeRequired]
-        public int TotalCount { get; }
-
-        // not required since TotalCount can be zero
-        public IPageInfo PageInfo { get; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync.Attributes;
 using AllOverIt.Aws.Cdk.AppSync.Extensions;
 using AllOverIt.Aws.Cdk.AppSync.Factories;
+using AllOverIt.Aws.Cdk.AppSync.MappingTemplates;
 using AllOverIt.Extensions;
 using AllOverIt.Helpers;
 using Amazon.CDK.AWS.AppSync;

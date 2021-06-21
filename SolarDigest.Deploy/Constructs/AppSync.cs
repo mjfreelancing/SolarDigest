@@ -1,4 +1,4 @@
-﻿using AllOverIt.Aws.Cdk.AppSync;
+﻿using AllOverIt.Aws.Cdk.AppSync.MappingTemplates;
 using Amazon.CDK;
 using Amazon.CDK.AWS.AppSync;
 using SolarDigest.Deploy.Schema;

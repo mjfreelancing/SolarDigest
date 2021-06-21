@@ -1,4 +1,6 @@
 ﻿using Amazon.CDK;
+using CDKEnvironment = Amazon.CDK.Environment;
+using SystemEnvironment = System.Environment;
 
 namespace SolarDigest.Deploy.Extensions
 {
@@ -9,10 +11,10 @@ namespace SolarDigest.Deploy.Extensions
             return new(app, $"{appProps.StackName}V{appProps.Version}", new StackProps
             {
                 Description = $"Creates all resources for {appProps.StackName}",
-                Env = new Environment
+                Env = new CDKEnvironment
                 {
-                    Account = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
-                    Region = System.Environment.GetEnvironmentVariable("CDK_DEFAULT_REGION")
+                    Account = SystemEnvironment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),
+                    Region = SystemEnvironment.GetEnvironmentVariable("CDK_DEFAULT_REGION")
                 }
             });
         }

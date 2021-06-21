@@ -1,18 +1,14 @@
-﻿using AllOverIt.Aws.Cdk.AppSync;
-using AllOverIt.Extensions;
-using SolarDigest.Deploy.Helpers;
-using System.Collections.Generic;
+﻿using AllOverIt.Aws.Cdk.AppSync.Helpers;
+using AllOverIt.Aws.Cdk.AppSync.MappingTemplates;
 
 namespace SolarDigest.Deploy
 {
-    internal sealed class SolarDigestMappingTemplates : IMappingTemplates
+    internal sealed class SolarDigestMappingTemplates : MappingTemplatesBase
     {
         private string _defaultRequestMapping;
         private string _defaultResponseMapping;
-        private readonly IDictionary<string, string> _functionRequestMappings = new Dictionary<string, string>();
-        private readonly IDictionary<string, string> _functionResponseMappings = new Dictionary<string, string>();
 
-        public string DefaultRequestMapping
+        public override string DefaultRequestMapping
         {
             get
             {
@@ -41,7 +37,7 @@ namespace SolarDigest.Deploy
             }
         }
 
-        public string DefaultResponseMapping
+        public override string DefaultResponseMapping
         {
             get
             {
@@ -65,40 +61,6 @@ namespace SolarDigest.Deploy
 
                 return _defaultResponseMapping;
             }
-        }
-
-        public void RegisterRequestMapping(string functionName, string mapping)
-        {
-            _functionRequestMappings.Add(functionName, mapping);
-        }
-
-        public void RegisterResponseMapping(string functionName, string mapping)
-        {
-            _functionResponseMappings.Add(functionName, mapping);
-        }
-
-        public string GetRequestMapping(string functionName)
-        {
-            if (functionName.IsNullOrEmpty())
-            {
-                return DefaultRequestMapping;
-            }
-
-            var mapping = _functionRequestMappings.GetValueOrDefault(functionName);
-
-            return mapping ?? DefaultRequestMapping;
-        }
-
-        public string GetResponseMapping(string functionName)
-        {
-            if (functionName.IsNullOrEmpty())
-            {
-                return DefaultResponseMapping;
-            }
-
-            var mapping = _functionResponseMappings.GetValueOrDefault(functionName);
-
-            return mapping ?? DefaultResponseMapping;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.S3;
+using System;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -13,17 +14,31 @@ namespace SolarDigest.Deploy.Constructs
 
             //CreateBucket(Constants.S3Buckets.LambdaSourceCodeBucketName);
 
-            CreateBucket(Constants.S3Buckets.UploadsBucketName);
+            CreateBucket(Constants.S3Buckets.UploadsBucketName, config =>
+            {
+                config.LifecycleRules = new ILifecycleRule[]
+                {
+                    new LifecycleRule
+                    {
+                        AbortIncompleteMultipartUploadAfter = Duration.Days(1)
+                    }
+                };
+            });
+
             CreateBucket(Constants.S3Buckets.DownloadsBucketName);
         }
 
-        private void CreateBucket(string bucketName)
+        private void CreateBucket(string bucketName, Action<BucketProps> configAction = default)
         {
-            _ = new Bucket(this, bucketName, new BucketProps
+            var bucketProps = new BucketProps
             {
                 BucketName = bucketName,
                 RemovalPolicy = RemovalPolicy.RETAIN
-            });
+            };
+
+            configAction?.Invoke(bucketProps);
+
+            _ = new Bucket(this, bucketName, bucketProps);
         }
     }
 }

@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using SystemEnvironment = System.Environment;
 
-namespace SolarDigest.Deploy.Helpers
+namespace AllOverIt.Aws.Cdk.AppSync.Helpers
 {
-    internal static class StringHelpers
+    public static class StringHelpers
     {
         public static string Prettify(string lines)
         {

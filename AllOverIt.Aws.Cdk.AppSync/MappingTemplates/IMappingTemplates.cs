@@ -1,4 +1,4 @@
-﻿namespace AllOverIt.Aws.Cdk.AppSync
+﻿namespace AllOverIt.Aws.Cdk.AppSync.MappingTemplates
 {
     public interface IMappingTemplates
     {
