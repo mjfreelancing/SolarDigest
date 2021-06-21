@@ -225,7 +225,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetUploadUrlFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
-                    .GrantPutParameters(_iam, "Secrets");
+                    .GrantPutParameters(_iam, "Secrets")
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetUploadUrl,
@@ -251,7 +252,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetUploadMultiPartUrlsFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartUrls, "Generates pre-signed Urls for a batch of uploads")
-                    .GrantPutParameters(_iam, "Secrets");
+                    .GrantPutParameters(_iam, "Secrets")
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetUploadMultiPartUrls,
@@ -273,7 +275,8 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetUploadMultiPartAbortFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartAbort, "Aborts a previously initiated multi-part upload")
-                    .GrantPutParameters(_iam, "Secrets");
+                    .GrantPutParameters(_iam, "Secrets")
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
             _mappingTemplates.RegisterRequestMapping(
                 Constants.Function.GetUploadMultiPartAbort,
@@ -295,33 +298,32 @@ namespace SolarDigest.Deploy.Constructs
         {
             GetUploadMultiPartCompleteFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartComplete, "Completes a previously initiated multi-part upload")
-                    .GrantPutParameters(_iam, "Secrets");
+                    .GrantPutParameters(_iam, "Secrets")
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
-            //_mappingTemplates.RegisterRequestMapping(
-            //    Constants.Function.GetUploadMultiPartComplete,
-            //    StringHelpers.Prettify(
-            //        @"
-            //        {
-            //          ""version"" : ""2017-02-28"",
-            //          ""operation"": ""Invoke"",
-            //          ""payload"": {
-            //            ""filename"": $util.toJson($ctx.args.input.filename),
-            //            ""uploadId"": $util.toJson($ctx.args.input.uploadId),
-
-            //            #if (!$util.isNull($ctx.args.input.partNumber))
-            //              ""partNumber"": $util.toJson($ctx.args.input.partNumber),
-            //            #end
-            //          }
-            //        }"
-            //    )
-            //);
+            _mappingTemplates.RegisterRequestMapping(
+                Constants.Function.GetUploadMultiPartComplete,
+                StringHelpers.Prettify(
+                    @"
+                    {
+                      ""version"" : ""2017-02-28"",
+                      ""operation"": ""Invoke"",
+                      ""payload"": {
+                        ""filename"": $util.toJson($ctx.args.input.filename),
+                        ""uploadId"": $util.toJson($ctx.args.input.uploadId),
+                        ""eTags"": $util.toJson($ctx.args.input.eTags)
+                      }
+                    }"
+                )
+            );
         }
 
         private void CreateGetDownloadUrlFunction()
         {
             GetDownloadUrlFunction =
                 CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
-                    .GrantGetParameters(_iam, "Secrets");
+                    .GrantGetParameters(_iam, "Secrets")
+                    .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }
     }
 }

@@ -14,7 +14,10 @@ namespace SolarDigest.Api.Functions
         {
             var logger = context.Logger;
             var payload = context.Payload;
+            var uploadId = payload.UploadId;
             var filename = payload.Filename;
+
+            logger.LogDebug($"Aborting multi-part upload for file '{filename}', UploadId '{uploadId}'");
 
             var parameterStore = context.ScopedServiceProvider.GetRequiredService<IParameterStore>();
 
@@ -26,10 +29,6 @@ namespace SolarDigest.Api.Functions
             response.TryGetValue($"{userSecretPath}/SecretKey", out var secretKey);
 
             var client = new AmazonS3Client(accessKey, secretKey);
-
-            var uploadId = payload.UploadId;
-
-            logger.LogDebug($"Aborting multi-part upload for file '{filename}', UploadId '{uploadId}'");
 
             var abortRequest = new AbortMultipartUploadRequest
             {

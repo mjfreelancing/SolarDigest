@@ -19,6 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ConsoleService\ConsoleService.csproj" />
+        <ProjectReference Include="..\SolarDigest.Models\SolarDigest.Models.csproj" />
     </ItemGroup>
 
 </Project>

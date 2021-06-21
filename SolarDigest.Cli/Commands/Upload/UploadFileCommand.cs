@@ -1,12 +1,12 @@
-﻿using AllOverIt.Helpers;
-using Amazon.S3;
-using Amazon.S3.Model;
+﻿using AllOverIt.Extensions;
+using AllOverIt.Helpers;
 using Flurl.Http;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SolarDigest.Cli.Extensions;
+using SolarDigest.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,45 +41,36 @@ namespace SolarDigest.Cli.Commands.Upload
 
         public async Task Execute()
         {
-            var bucketName = "solardigest-uploads";
-            var qualifiedFilename = @"C:\Data\SolarDigest.zip";
+            var qualifiedFilename = @"C:\Data\GitHub\mjfreelancing\Projects\SolarDigest.zip";
             var filename = Path.GetFileName(qualifiedFilename);
-
-            var client = new AmazonS3Client("access_key", "secret_key");
-
-            // ------------------------------------------------------------------------------------------------
-
-            var initRequest = new InitiateMultipartUploadRequest
-            {
-                BucketName = bucketName,
-                Key = filename
-            };
-
-            var initResponse = await client.InitiateMultipartUploadAsync(initRequest).ConfigureAwait(false);
-
-            // ------------------------------------------------------------------------------------------------
 
             using (var inputStream = File.OpenRead(qualifiedFilename))
             {
                 var chunkSize = 5 * 1024 * 1024;
                 var inputLength = inputStream.Length;
-                var partNumber = 0;
+
+                var partCount = (int)Math.Floor((double)inputLength / chunkSize);
+
+                if (partCount * chunkSize != inputLength)
+                {
+                    partCount++;
+                }
+
+                var uploadMultiParts = await GetUploadMultiParts(filename, partCount);
 
                 var responses = new List<UploadPartResponse>();
-
-
-
+                var partNumber = 0;
 
                 while (inputStream.Position < inputLength)
                 {
-                    var url = await GetPresignedUrl(filename, initResponse.UploadId, ++partNumber);
-
-
+                    var url = uploadMultiParts.Parts.ElementAt(partNumber).Url;
+                    partNumber++;
 
                     var memoryStream = new MemoryStream();
 
                     // todo: need to check how much was read
                     var bytesRead = await inputStream.CopyToStreamAsync(memoryStream, chunkSize, 8092).ConfigureAwait(false);
+
                     memoryStream.Position = 0;
 
                     var streamContent = new StreamContent(memoryStream, chunkSize);
@@ -92,8 +83,7 @@ namespace SolarDigest.Cli.Commands.Upload
                     UploadPartResponse partResponse = null;
 
 
-
-                    if (putResponse.StatusCode == (int) HttpStatusCode.OK)
+                    if (putResponse.StatusCode == (int)HttpStatusCode.OK)
                     {
                         if (putResponse.Headers.TryGetFirst("ETag", out var etag))
                         {
@@ -103,7 +93,7 @@ namespace SolarDigest.Cli.Commands.Upload
                             responses.Add(partResponse);
                         }
                     }
-                    
+
                     if (partResponse == null)
                     {
                         responses.Clear();
@@ -111,48 +101,18 @@ namespace SolarDigest.Cli.Commands.Upload
                     }
                 }
 
-
-
-
-
-
                 if (responses.Any())
                 {
-                    // Complete the multipart upload
-                    var compRequest = new CompleteMultipartUploadRequest
-                    {
-                        BucketName = bucketName,
-                        Key = filename,
-                        UploadId = initResponse.UploadId,
-                        PartETags = responses
-                            .Select(item =>
-                                new PartETag
-                                {
-                                    ETag = item.ETag,
-                                    PartNumber = item.PartNumber
-                                })
-                            .ToList()
-                    };
-                    
-                    var completeResponse = await client.CompleteMultipartUploadAsync(compRequest).ConfigureAwait(false);
-
+                    await CompleteUploadMultiParts(filename, uploadMultiParts.UploadId, responses).ConfigureAwait(false);
                 }
                 else
                 {
-                    var abortRequest = new AbortMultipartUploadRequest
-                    {
-                        UploadId = initResponse.UploadId,
-                        BucketName = bucketName,
-                        Key = filename
-                    };
-
-                    /*var abortResponse =*/
-                    await client.AbortMultipartUploadAsync(abortRequest).ConfigureAwait(false);
+                    // todo: implement the abort code - similar to CompleteUploadMultiParts()
                 }
             }
         }
 
-        private async Task<string> GetPresignedUrl(string filename, string uploadId, int partNumber)
+        private async Task<UploadMultiParts> GetUploadMultiParts(string filename, int partCount)
         {
             var graphqlUrl = _configuration.GetValue<string>("GraphqlUrl");         // via user secrets / environment variables
             var apiKey = _configuration.GetValue<string>("x-api-key");              // via user secrets / environment variables
@@ -162,35 +122,64 @@ namespace SolarDigest.Cli.Commands.Upload
                 var request = new GraphQLHttpRequest
                 {
                     Query = @"
-                        query UploadUrl($input: UploadUrlInput!) {
-                            uploadUrl(input: $input) 
+                        query UploadMultiPartUrls($input: UploadMultiPartInput!) {
+                            uploadMultiPartUrls(input: $input) {
+                                uploadId
+                                parts {
+                                      partNumber
+                                      url
+                                }
+                            }
                         }",
-                    OperationName = "UploadUrl",
+                    OperationName = "UploadMultiPartUrls",
+                    Variables = new
+                    {
+                        input = new
+                        {
+                            filename,
+                            partCount
+                        }
+                    }
+                };
+
+                graphQLClient.HttpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+
+                var response = await graphQLClient.SendQueryAsync<UploadMultiPartUrlsPayload>(request).ConfigureAwait(false);
+
+                return response.Data.UploadMultiPartUrls;
+            }
+        }
+
+        private async Task<bool> CompleteUploadMultiParts(string filename, string uploadId, IEnumerable<UploadPartResponse> parts)
+        {
+            var graphqlUrl = _configuration.GetValue<string>("GraphqlUrl");         // via user secrets / environment variables
+            var apiKey = _configuration.GetValue<string>("x-api-key");              // via user secrets / environment variables
+
+            using (var graphQLClient = new GraphQLHttpClient(graphqlUrl, new NewtonsoftJsonSerializer()))
+            {
+                var request = new GraphQLHttpRequest
+                {
+                    Query = @"
+                        query UploadMultiPartComplete($input: UploadMultiPartCompleteInput!) {
+                            uploadMultiPartComplete(input: $input)
+                        }",
+                    OperationName = "UploadMultiPartComplete",
                     Variables = new
                     {
                         input = new
                         {
                             filename,
                             uploadId,
-                            partNumber
+                            eTags = parts.Select(item => new{item.PartNumber, item.ETag}).AsReadOnlyCollection()
                         }
                     }
                 };
 
-                try
-                {
-                    graphQLClient.HttpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                graphQLClient.HttpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
 
-                    var response = await graphQLClient.SendQueryAsync<UploadUrlPayload>(request);
+                var response = await graphQLClient.SendQueryAsync<UploadMultiPartCompletePayload>(request).ConfigureAwait(false);
 
-                    return response.Data.UploadUrl;
-                }
-                catch (Exception exception)
-                {
-                    _logger.LogError(exception.Message);
-                }
-
-                return string.Empty;
+                return response.Data.UploadMultiPartComplete;
             }
         }
     }

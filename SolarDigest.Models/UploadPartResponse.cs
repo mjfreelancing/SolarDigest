@@ -1,6 +1,6 @@
-﻿namespace SolarDigest.Cli.Commands.Upload
+﻿namespace SolarDigest.Models
 {
-    internal class UploadPartResponse
+    public sealed class UploadPartResponse
     {
         public int PartNumber { get; }
         public string ETag { get; }
