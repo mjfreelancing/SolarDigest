@@ -4,7 +4,7 @@ using AllOverIt.Aws.Cdk.AppSync.Schema.Types;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
-    [SchemaType(GraphqlSchemaType.Type, "PowerEdge")]
+    [SchemaType("PowerEdge", GraphqlSchemaType.Type)]
     internal interface IPowerEdge : IEdge<ITimeWatts>
     {
     }

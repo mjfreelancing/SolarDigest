@@ -3,7 +3,7 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [SchemaType(GraphqlSchemaType.Input, "UploadMultiPartInput")]
+    [SchemaType("UploadMultiPartInput", GraphqlSchemaType.Input)]
     internal interface IUploadMultiPartInput
     {
         [SchemaTypeRequired]

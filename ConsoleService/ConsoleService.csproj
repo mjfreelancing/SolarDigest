@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AllOverIt" Version="1.7.0" />
+        <PackageReference Include="AllOverIt" Version="1.10.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     </ItemGroup>
 

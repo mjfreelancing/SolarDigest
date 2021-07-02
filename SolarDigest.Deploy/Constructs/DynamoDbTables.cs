@@ -34,8 +34,18 @@ namespace SolarDigest.Deploy.Constructs
                 ConfigureWriteAutoScaling(table);
             });
 
-            PowerMonthly = CreateTable(nameof(PowerMonthly), true);
-            PowerYearly = CreateTable(nameof(PowerYearly), true);
+            PowerMonthly = CreateTable(nameof(PowerMonthly), true, default, default, table =>
+            {
+                ConfigureReadAutoScaling(table);
+                ConfigureWriteAutoScaling(table);
+            });
+
+            PowerYearly = CreateTable(nameof(PowerYearly), true, default, default, table =>
+            {
+                ConfigureReadAutoScaling(table);
+                ConfigureWriteAutoScaling(table);
+            });
+
             PowerUpdateHistory = CreateTable(nameof(PowerUpdateHistory), true);
         }
 
@@ -59,7 +69,7 @@ namespace SolarDigest.Deploy.Constructs
             return table;
         }
 
-        private static void ConfigureReadAutoScaling(Table table, double minCapacity = 5, double maxCapacity = 25, double utilizationPercent = 80)
+        private static void ConfigureReadAutoScaling(Table table, double minCapacity = 5, double maxCapacity = 25, double utilizationPercent = 60)
         {
             table
                 .AutoScaleReadCapacity(new EnableScalingProps
@@ -77,7 +87,7 @@ namespace SolarDigest.Deploy.Constructs
                 });
         }
 
-        private static void ConfigureWriteAutoScaling(Table table, double minCapacity = 5, double maxCapacity = 25, double utilizationPercent = 80)
+        private static void ConfigureWriteAutoScaling(Table table, double minCapacity = 5, double maxCapacity = 25, double utilizationPercent = 60)
         {
             table
                 .AutoScaleWriteCapacity(new EnableScalingProps

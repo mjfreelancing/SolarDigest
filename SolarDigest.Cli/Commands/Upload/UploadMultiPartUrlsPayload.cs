@@ -1,4 +1,4 @@
-﻿using SolarDigest.Models;
+﻿using SolarDigest.Models.UploadMultiPart;
 
 namespace SolarDigest.Cli.Commands.Upload
 {

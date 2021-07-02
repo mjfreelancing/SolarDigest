@@ -1,15 +1,14 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
-using System;
+using AllOverIt.Aws.Cdk.AppSync.Schema.Types;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [SchemaType(GraphqlSchemaType.Input, "SiteInput")]
+    [SchemaType("SiteInput", GraphqlSchemaType.Input)]
     internal interface ISiteInput
     {
         [SchemaTypeRequired]
-        [SchemaDateType]
-        public DateTime StartDate { get; }
+        public AwsTypeDate StartDate { get; }
 
         [SchemaTypeRequired]
         public string ApiKey { get; }

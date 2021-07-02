@@ -6,7 +6,6 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using AutoMapper;
 using Newtonsoft.Json;
-using Polly;
 using SolarDigest.Api.Data;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
@@ -19,8 +18,6 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Api.Repository
 {
-    // todo: wrap ALL methods in Polly
-
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
         private static readonly AmazonDynamoDBClient DbClient
@@ -28,7 +25,8 @@ namespace SolarDigest.Api.Repository
             {
                 Timeout = new TimeSpan(0, 0, 10),
                 RetryMode = RequestRetryMode.Standard,
-                MaxErrorRetry = 2
+                MaxErrorRetry = 10,
+                
             });
 
         protected ISolarDigestTable TableImpl => this;
@@ -195,10 +193,6 @@ namespace SolarDigest.Api.Repository
 
                 Logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
-                var retryPolicy = Policy
-                    .Handle<ProvisionedThroughputExceededException>()
-                    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromMilliseconds(500 * retryAttempt));
-
                 foreach (var batch in batches)
                 {
                     if (cancellationToken.IsCancellationRequested)
@@ -213,7 +207,7 @@ namespace SolarDigest.Api.Repository
 
                     var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
 
-                    var response = await retryPolicy.ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken));
+                    var response = await DbClient.BatchWriteItemAsync(batchRequest, cancellationToken);
 
                     yield return response;
                 }

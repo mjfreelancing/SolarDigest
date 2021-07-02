@@ -6,7 +6,7 @@ using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SolarDigest.Cli.Extensions;
-using SolarDigest.Models;
+using SolarDigest.Models.UploadMultiPart;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +17,11 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Cli.Commands.Upload
 {
+    // Command: upload --file <filename>
+    // ---------------------------------
+    // Where  : <filename> must be fully qualified if not in the current folder. Will be uploaded to the S3 uploads folder.
+    //
+
     // Upload references
     // https://www.altostra.com/blog/multipart-uploads-with-s3-presigned-url
     // https://docs.aws.amazon.com/sdkfornet/v3/apidocs/index.html?page=S3/MS3InitiateMultipartUploadInitiateMultipartUploadRequest.html
@@ -33,6 +38,8 @@ namespace SolarDigest.Cli.Commands.Upload
         private readonly IConfiguration _configuration;
         private readonly ILogger<UploadFileCommand> _logger;
 
+        public static string Identifier => "upload";
+
         public UploadFileCommand(IConfiguration configuration, ILogger<UploadFileCommand> logger)
         {
             _configuration = configuration.WhenNotNull(nameof(configuration));
@@ -41,7 +48,7 @@ namespace SolarDigest.Cli.Commands.Upload
 
         public async Task Execute()
         {
-            var qualifiedFilename = @"C:\Data\GitHub\mjfreelancing\Projects\SolarDigest.zip";
+            var qualifiedFilename = _configuration.GetValue<string>("file");
             var filename = Path.GetFileName(qualifiedFilename);
 
             using (var inputStream = File.OpenRead(qualifiedFilename))

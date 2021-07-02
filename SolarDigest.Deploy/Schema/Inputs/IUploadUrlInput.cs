@@ -3,7 +3,7 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [SchemaType(GraphqlSchemaType.Input, "UploadUrlInput")]
+    [SchemaType("UploadUrlInput", GraphqlSchemaType.Input)]
     internal interface IUploadUrlInput
     {
         [SchemaTypeRequired]

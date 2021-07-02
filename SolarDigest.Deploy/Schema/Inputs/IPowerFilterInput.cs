@@ -1,20 +1,18 @@
 ﻿using AllOverIt.Aws.Cdk.AppSync;
 using AllOverIt.Aws.Cdk.AppSync.Attributes;
+using AllOverIt.Aws.Cdk.AppSync.Schema.Types;
 using SolarDigest.Deploy.Schema.Types;
-using System;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [SchemaType(GraphqlSchemaType.Input, "PowerFilterInput")]
+    [SchemaType("PowerFilterInput", GraphqlSchemaType.Input)]
     internal interface IPowerFilterInput
     {
         [SchemaTypeRequired]
-        [SchemaDateType]
-        public DateTime StartDate { get; }
+        public AwsTypeDate StartDate { get; }
 
         [SchemaTypeRequired]
-        [SchemaDateType]
-        public DateTime EndDate { get; }
+        public AwsTypeDate EndDate { get; }
 
         [SchemaTypeRequired]
         public MeterType MeterType { get; }

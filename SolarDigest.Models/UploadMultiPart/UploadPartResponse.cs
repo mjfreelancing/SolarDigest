@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Models
+﻿namespace SolarDigest.Models.UploadMultiPart
 {
     public sealed class UploadPartResponse
     {

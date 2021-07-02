@@ -1,4 +1,4 @@
-﻿using SolarDigest.Models;
+﻿using SolarDigest.Models.UploadMultiPart;
 using System.Collections.Generic;
 
 namespace SolarDigest.Api.Functions.Payloads

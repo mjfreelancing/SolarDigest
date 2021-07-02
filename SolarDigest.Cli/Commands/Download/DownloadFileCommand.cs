@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Cli.Commands.Download
 {
-    // Command: --download <filename> [--destination <folder>]
-    // ----------------------------------------------------------------------------------------
+    // Command: download --file <filename> [--destination <folder>]
+    // ------------------------------------------------------------
     // Where  : <filename> must exist in the S3 downloads folder
     //          [--destination <folder>] is optional. The current location will be the default destination if not provided.
     //
@@ -20,6 +20,8 @@ namespace SolarDigest.Cli.Commands.Download
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<DownloadFileCommand> _logger;
+
+        public static string Identifier => "download";
 
         public DownloadFileCommand(IConfiguration configuration, ILogger<DownloadFileCommand> logger)
         {
@@ -31,10 +33,10 @@ namespace SolarDigest.Cli.Commands.Download
         {
             var graphqlUrl = _configuration.GetValue<string>("GraphqlUrl");         // via user secrets / environment variables
             var apiKey = _configuration.GetValue<string>("x-api-key");              // via user secrets / environment variables
-            var downloadFile = _configuration.GetValue<string>("download");         // via command line
+            var filename = _configuration.GetValue<string>("file");                 // via command line
             var destination = _configuration.GetValue<string>("destination");       // via command line
 
-            _logger.LogInformation($"Requesting to download {downloadFile} from {graphqlUrl}");
+            _logger.LogInformation($"Requesting to download {filename} from {graphqlUrl}");
 
             using (var graphQLClient = new GraphQLHttpClient(graphqlUrl, new NewtonsoftJsonSerializer()))
             {
@@ -47,7 +49,7 @@ namespace SolarDigest.Cli.Commands.Download
                     OperationName = "DownloadUrl",
                     Variables = new
                     {
-                        filename = downloadFile
+                        filename
                     }
                 };
 

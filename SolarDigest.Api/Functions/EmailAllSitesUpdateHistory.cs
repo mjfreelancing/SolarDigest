@@ -50,7 +50,7 @@ namespace SolarDigest.Api.Functions
                         var updateHistoryTable = serviceProvider.GetRequiredService<ISolarDigestPowerUpdateHistoryTable>();
 
                         var historyItems = await updateHistoryTable.GetPowerUpdatesAsync(site.Id, nextStartDate, nextEndDate)
-                            .ToListAsync()
+                            .AsListAsync()
                             .ConfigureAwait(false);
 
                         logger.LogDebug($"Generating email content for {historyItems.Count} items");

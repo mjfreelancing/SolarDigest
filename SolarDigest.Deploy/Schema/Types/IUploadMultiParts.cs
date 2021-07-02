@@ -3,7 +3,7 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Types
 {
-    [SchemaType(GraphqlSchemaType.Type, "UploadMultiParts")]
+    [SchemaType("UploadMultiParts", GraphqlSchemaType.Type)]
     internal interface IUploadMultiParts
     {
         [SchemaTypeRequired]

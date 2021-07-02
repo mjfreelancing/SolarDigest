@@ -3,7 +3,7 @@ using AllOverIt.Aws.Cdk.AppSync.Attributes;
 
 namespace SolarDigest.Deploy.Schema.Inputs
 {
-    [SchemaType(GraphqlSchemaType.Input, "SiteTimestampsInput")]
+    [SchemaType("SiteTimestampsInput", GraphqlSchemaType.Input)]
     internal interface ISiteTimestampsInput
     {
         public string LastAggregationDate { get; }

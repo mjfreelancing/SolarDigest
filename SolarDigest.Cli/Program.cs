@@ -48,6 +48,7 @@ namespace SolarDigest.Cli
 
                                 services.AddTransient<UploadFileCommand>();
                                 services.AddTransient<DownloadFileCommand>();
+                                services.AddTransient<PowerCommand>();
                         });
                 })
                 .Run();
