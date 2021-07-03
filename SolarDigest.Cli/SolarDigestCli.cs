@@ -52,7 +52,7 @@ namespace SolarDigest.Cli
                 }
             }
 
-            return 0;
+            return -1;
         }
     }
 }
