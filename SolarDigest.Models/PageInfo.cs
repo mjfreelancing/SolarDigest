@@ -2,9 +2,10 @@
 {
     public sealed class PageInfo
     {
-        public string PreviousPageCursor { get; }
-        public string NextPageCursor { get; }
+        public string PreviousPageCursor { get; set; }
+        public string NextPageCursor { get; set; }
 
+        // required for when there's no page info and for graphql responses
         public PageInfo()
         {
         }

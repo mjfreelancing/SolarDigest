@@ -58,10 +58,11 @@ namespace SolarDigest.Api.Summarizers
                 var averageWatts = totalDays == 0 ? 0.0d : totalWatts / totalDays;
                 var averageWattHour = totalDays == 0 ? 0.0d : totalWattHour / totalDays;
 
-                var timeWatts = new TimeWatts(
+                var timeWatts = TimeWatts.Create(
                     formattedTime,
                     Math.Round(averageWatts, 6, MidpointRounding.AwayFromZero),
-                    Math.Round(averageWattHour, 6, MidpointRounding.AwayFromZero));
+                    Math.Round(averageWattHour, 6, MidpointRounding.AwayFromZero)
+                );
 
                 meterReadings.Add(timeWatts);
             }

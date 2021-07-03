@@ -1,5 +1,5 @@
 ﻿using SolarDigest.Api.Models;
-using SolarDigest.Api.Models.SolarEdge;
+using SolarDigest.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using SolarDigest.Models;
+using System.Collections.Generic;
 
 namespace SolarDigest.Api.Models.SolarEdge
 {

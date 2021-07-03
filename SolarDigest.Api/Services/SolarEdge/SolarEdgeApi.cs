@@ -7,6 +7,7 @@ using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Services.SolarEdge.Response;
+using SolarDigest.Models;
 using System;
 using System.Net;
 using System.Threading.Tasks;

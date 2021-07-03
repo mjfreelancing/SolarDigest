@@ -1,7 +1,7 @@
 ﻿using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Models;
-using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Validation;
+using SolarDigest.Models;
 
 namespace SolarDigest.Api.Functions.Validators
 {

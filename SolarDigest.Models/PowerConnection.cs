@@ -7,18 +7,21 @@ namespace SolarDigest.Models
 {
     public sealed class PowerConnection
     {
-        public IEnumerable<PowerEdge> Edges { get; } = Enumerable.Empty<PowerEdge>();
-        public IEnumerable<TimeWatts> Nodes { get; } = Enumerable.Empty<TimeWatts>();
-        public int TotalCount { get; }
-        public PageInfo PageInfo { get; } = new();
+        public IEnumerable<PowerEdge> Edges { get; set; } = Enumerable.Empty<PowerEdge>();
+        public IEnumerable<TimeWatts> Nodes { get; set; } = Enumerable.Empty<TimeWatts>();
+        public int TotalCount { get; set; }
+        public PageInfo PageInfo { get; set; } = new();
 
-        public PowerConnection(IEnumerable<TimeWatts> timeWatts, Func<TimeWatts, string> cursorResolver, Pagination pagination)
+        public static PowerConnection Create(IEnumerable<TimeWatts> timeWatts, Func<TimeWatts, string> cursorResolver, Pagination pagination)
         {
             var allData = timeWatts.ToList();
 
-            TotalCount = allData.Count;
+            var powerConnection = new PowerConnection
+            {
+                TotalCount = allData.Count
+            };
 
-            if (TotalCount > 0)
+            if (powerConnection.TotalCount > 0)
             {
                 var startIndex = 0;
 
@@ -38,22 +41,24 @@ namespace SolarDigest.Models
 
                     var nextPageStart = startIndex + pagination.Limit;
 
-                    var nextCursor = nextPageStart < TotalCount
+                    var nextCursor = nextPageStart < powerConnection.TotalCount
                         ? allData.ElementAt(nextPageStart).Time.ToBase64()
                         : null;
 
-                    PageInfo = new(previousCursor, nextCursor);
+                    powerConnection.PageInfo = new(previousCursor, nextCursor);
 
-                    Nodes = allData
+                    powerConnection.Nodes = allData
                         .Skip(startIndex)
                         .Take(pagination.Limit)
                         .AsReadOnlyCollection();
 
-                    Edges = Nodes
-                        .Select(item => new PowerEdge(item, cursorResolver.Invoke(item)))
+                    powerConnection.Edges = powerConnection.Nodes
+                        .Select(item => PowerEdge.Create(item, cursorResolver.Invoke(item)))
                         .AsReadOnlyCollection();
                 }
             }
+
+            return powerConnection;
         }
     }
 }

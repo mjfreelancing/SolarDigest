@@ -2,15 +2,18 @@
 {
     public sealed class TimeWatts
     {
-        public string Time { get; }
-        public double Watts { get; }
-        public double WattHour { get; }
+        public string Time { get; set; }
+        public double Watts { get; set; }
+        public double WattHour { get; set; }
 
-        public TimeWatts(string time, double watts, double wattHour)
+        public static TimeWatts Create(string time, double watts, double wattHour)
         {
-            Time = time;
-            Watts = watts;
-            WattHour = wattHour;
+            return new TimeWatts
+            {
+                Time = time,
+                Watts = watts,
+                WattHour = wattHour
+            };
         }
     }
 }

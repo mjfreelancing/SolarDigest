@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Models
+﻿namespace SolarDigest.Models
 {
     public enum SummaryType
     {

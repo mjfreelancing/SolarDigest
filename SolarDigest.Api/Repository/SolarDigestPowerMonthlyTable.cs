@@ -3,7 +3,7 @@ using AutoMapper;
 using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
-using SolarDigest.Api.Models.SolarEdge;
+using SolarDigest.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;

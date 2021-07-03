@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Api.Models.SolarEdge
+﻿namespace SolarDigest.Models
 {
     public enum MeterType
     {

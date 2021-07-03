@@ -3,8 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Functions.Validators;
-using SolarDigest.Api.Models;
-using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Summarizers;
 using SolarDigest.Models;
 using System;
@@ -91,7 +89,7 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug("Returning with the requested power summary");
 
-            return new PowerConnection(timeWatts, item => item.Time.ToBase64(), pagination);
+            return PowerConnection.Create(timeWatts, item => item.Time.ToBase64(), pagination);
         }
 
         private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId,

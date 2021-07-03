@@ -1,5 +1,5 @@
 ﻿using SolarDigest.Api.Extensions;
-using SolarDigest.Api.Models.SolarEdge;
+using SolarDigest.Models;
 using System;
 
 namespace SolarDigest.Api.Models
