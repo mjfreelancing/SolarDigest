@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Cli.Commands;
 using SolarDigest.Cli.Commands.Download;
 using SolarDigest.Cli.Commands.Power;
+using SolarDigest.Cli.Commands.Site;
 using SolarDigest.Cli.Commands.Upload;
 using System;
 using System.Collections.Generic;
@@ -22,9 +23,10 @@ namespace SolarDigest.Cli
         {
             _serviceProvider = serviceProvider.WhenNotNull(nameof(serviceProvider));
 
+            _commandHandlers.Add(SiteDetailsCommand.Identifier, typeof(SiteDetailsCommand));
+            _commandHandlers.Add(SitePowerCommand.Identifier, typeof(SitePowerCommand));
             _commandHandlers.Add(UploadFileCommand.Identifier, typeof(UploadFileCommand));
             _commandHandlers.Add(DownloadFileCommand.Identifier, typeof(DownloadFileCommand));
-            _commandHandlers.Add(SitePowerCommand.Identifier, typeof(SitePowerCommand));
         }
 
         public async Task<int> Execute()

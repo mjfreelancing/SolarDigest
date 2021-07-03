@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Functions.Responses;
 using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Summarizers;
 using SolarDigest.Models;
@@ -61,9 +62,9 @@ namespace SolarDigest.Api.Functions
 
     // For the purpose of CDK deployment, all functions need to reside in the same (SolarDigest.Api.Functions) namespace.
 
-    public sealed class GetSitePowerSummary : FunctionBase<GetSitePowerSummaryPayload, PowerConnection>
+    public sealed class GetSitePowerSummary : FunctionBase<GetSitePowerSummaryPayload, GetSitePowerResponse>
     {
-        protected override async Task<PowerConnection> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)
+        protected override async Task<GetSitePowerResponse> InvokeHandlerAsync(FunctionContext<GetSitePowerSummaryPayload> context)
         {
             var serviceProvider = context.ScopedServiceProvider;
             var payload = context.Payload;
@@ -95,7 +96,7 @@ namespace SolarDigest.Api.Functions
 
             logger.LogDebug("Returning with the requested power summary");
 
-            return PowerConnection.Create(timeWatts, item => item.Time.ToBase64(), pagination);
+            return new GetSitePowerResponse(timeWatts, item => item.Time.ToBase64(), pagination);
         }
 
         private static Task<IEnumerable<TimeWatts>> GetDailyAveragePowerSummary(IServiceProvider serviceProvider, string siteId,

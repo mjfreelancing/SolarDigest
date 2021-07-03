@@ -1,12 +1,8 @@
 ﻿using AllOverIt.Extensions;
 using AllOverIt.Helpers;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.Newtonsoft;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SolarDigest.Cli.Commands.Upload;
-using SolarDigest.Cli.Extensions;
-using SolarDigest.Models;
+using SolarDigest.Graphql;
 using System;
 using System.Threading.Tasks;
 
@@ -25,13 +21,15 @@ namespace SolarDigest.Cli.Commands.Power
     //
     internal sealed class SitePowerCommand : ICommand
     {
+        private readonly ISolarDigestGraphql _solarDigestGraphql;
         private readonly IConfiguration _configuration;
         private readonly ILogger<SitePowerCommand> _logger;
 
         public static string Identifier => "power";
 
-        public SitePowerCommand(IConfiguration configuration, ILogger<SitePowerCommand> logger)
+        public SitePowerCommand(ISolarDigestGraphql solarDigestGraphql, IConfiguration configuration, ILogger<SitePowerCommand> logger)
         {
+            _solarDigestGraphql = solarDigestGraphql.WhenNotNull(nameof(solarDigestGraphql));
             _configuration = configuration.WhenNotNull(nameof(configuration));
             _logger = logger.WhenNotNull(nameof(logger));
         }
@@ -39,7 +37,7 @@ namespace SolarDigest.Cli.Commands.Power
         public async Task Execute()
         {
             // all via command line
-            var siteId = _configuration.GetValue<string>("site");
+            var siteId = _configuration.GetValue<string>("siteId");
             var meterType = _configuration.GetValue<string>("meterType");
             var summaryType = _configuration.GetValue<string>("summaryType");
             var startDate = _configuration.GetValue<string>("startDate");
@@ -47,27 +45,29 @@ namespace SolarDigest.Cli.Commands.Power
             var limit = _configuration.GetValue<int?>("limit");
             var startCursor = _configuration.GetValue<string>("startCursor");
 
-            for (;;)
+            for (; ; )
             {
+                Console.WriteLine();
                 Console.WriteLine("Querying...");
+                Console.WriteLine();
 
-                var sitePower = await GetSitePower(siteId, meterType.As<MeterType>(), summaryType.As<SummaryType>(), startDate, endDate, limit, startCursor);
+                var sitePower = await _solarDigestGraphql.GetSitePowerAsync(siteId, meterType, summaryType, startDate, endDate, limit, startCursor).ConfigureAwait(false);
 
-                if (sitePower.Power.TotalCount == 0)
+                if (sitePower.TotalCount == 0)
                 {
                     Console.WriteLine("No power data for the parameters provided.");
                     return;
                 }
 
-                foreach (var edge in sitePower.Power.Edges)
+                foreach (var edge in sitePower.Edges)
                 {
                     var node = edge.Node;
 
                     Console.WriteLine($"[{node.Time}] ({edge.Cursor}) = {node.Watts} Watts / {node.WattHour} Watt Hour");
                 }
 
-                var prevPageCursor = sitePower.Power.PageInfo?.PreviousPageCursor;
-                var nextPageCursor = sitePower.Power.PageInfo?.NextPageCursor;
+                var prevPageCursor = sitePower.PageInfo?.PreviousPageCursor;
+                var nextPageCursor = sitePower.PageInfo?.NextPageCursor;
 
                 var hasPreviousPage = !prevPageCursor?.IsNullOrEmpty() ?? false;
                 var hasNextPage = !nextPageCursor?.IsNullOrEmpty() ?? false;
@@ -78,7 +78,7 @@ namespace SolarDigest.Cli.Commands.Power
                     return;
                 }
 
-                Console.WriteLine("");
+                Console.WriteLine();
 
                 if (hasPreviousPage)
                 {
@@ -91,21 +91,21 @@ namespace SolarDigest.Cli.Commands.Power
                 }
 
                 Console.WriteLine("Press Q to quit page navigation");
-                Console.WriteLine("");
+                Console.WriteLine();
 
-                for (;;)
+                for (; ; )
                 {
                     var key = Console.ReadKey(true).Key;
 
                     if (hasPreviousPage && key == ConsoleKey.P)
                     {
-                        startCursor = sitePower.Power.PageInfo.PreviousPageCursor;
+                        startCursor = sitePower.PageInfo.PreviousPageCursor;
                         break;
                     }
 
                     if (hasNextPage && key == ConsoleKey.N)
                     {
-                        startCursor = sitePower.Power.PageInfo.NextPageCursor;
+                        startCursor = sitePower.PageInfo.NextPageCursor;
                         break;
                     }
 
@@ -114,70 +114,6 @@ namespace SolarDigest.Cli.Commands.Power
                         return;
                     }
                 }
-
-            }
-        }
-
-        private async Task<SitePower> GetSitePower(string siteId, MeterType meterType, SummaryType summaryType, string startDate, string endDate, int? limit, string startCursor)
-        {
-            var graphqlUrl = _configuration.GetValue<string>("GraphqlUrl");         // via user secrets / environment variables
-            var apiKey = _configuration.GetValue<string>("x-api-key");              // via user secrets / environment variables
-
-            using (var graphQLClient = new GraphQLHttpClient(graphqlUrl, new NewtonsoftJsonSerializer()))
-            {
-                var request = new GraphQLHttpRequest
-                {
-                    Query = @"
-                        query GetSite($siteId: String!, $meterType: MeterType!, $summaryType: SummaryType!, $startDate: AWSDate!, $endDate: AWSDate!, $limit: Int, $startCursor: String) {
-                          site(id: $siteId) {
-                            id
-                            contactEmail
-                            contactName
-                            lastAggregationDate
-                            lastRefreshDateTime
-                            lastSummaryDate
-                            startDate
-                            timeZoneId
-                            power(limit: $limit, startCursor: $startCursor, filter: {meterType: $meterType, summaryType: $summaryType, startDate: $startDate, endDate: $endDate}) {
-                              pageInfo {
-                                previousPageCursor
-                                nextPageCursor
-                              }
-                              totalCount
-                              nodes {
-                                time
-                                wattHour
-                                watts
-                              }
-                              edges {
-                                cursor
-                                node {
-                                  time
-                                  wattHour
-                                  watts
-                                }
-                              }
-                            }
-                          }
-                        }",
-                        OperationName = "GetSite",
-                        Variables = new
-                        {
-                            siteId,
-                            meterType = $"{meterType}".ToUpperSnakeCase(),
-                            summaryType = $"{summaryType}".ToUpperSnakeCase(),
-                            startDate,
-                            endDate,
-                            limit,
-                            startCursor
-                        }
-                };
-
-                graphQLClient.HttpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-
-                var response = await graphQLClient.SendQueryAsync<SitePowerPayload>(request).ConfigureAwait(false);
-
-                return response.Data.Site;
             }
         }
     }

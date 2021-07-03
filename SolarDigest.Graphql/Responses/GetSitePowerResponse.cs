@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using SolarDigest.Models;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace SolarDigest.Models
+namespace SolarDigest.Graphql.Responses
 {
-    public sealed class PowerConnection
+    public sealed class GetSitePowerResponse
     {
         public IEnumerable<PowerEdge> Edges { get; set; } = Enumerable.Empty<PowerEdge>();
-        public IEnumerable<TimeWatts> Nodes { get; set; } = Enumerable.Empty<TimeWatts>();
         public int TotalCount { get; set; }
         public PageInfo PageInfo { get; set; }
     }

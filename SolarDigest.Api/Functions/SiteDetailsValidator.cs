@@ -11,7 +11,7 @@ namespace SolarDigest.Api.Functions
         {
             // minimum fields required for a site being added / updated
             IsRequired(model => model.StartDate);
-            IsRequired(model => model.ApiKey);
+            IsRequired(model => model.ContactName);
             IsRequired(model => model.ContactEmail);
             IsRequired(model => model.TimeZoneId);
         }

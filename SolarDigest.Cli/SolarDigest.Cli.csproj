@@ -19,7 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\ConsoleService\ConsoleService.csproj" />
-        <ProjectReference Include="..\SolarDigest.Models\SolarDigest.Models.csproj" />
+        <ProjectReference Include="..\SolarDigest.Graphql\SolarDigest.Graphql.csproj" />
     </ItemGroup>
 
 </Project>

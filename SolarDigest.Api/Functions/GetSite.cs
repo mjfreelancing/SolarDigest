@@ -6,6 +6,7 @@ using SolarDigest.Api.Functions.Responses;
 using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Repository;
 using System.Threading.Tasks;
+using SolarDigest.Models;
 
 namespace SolarDigest.Api.Functions
 {

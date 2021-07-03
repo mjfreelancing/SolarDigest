@@ -5,7 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SolarDigest.Cli.Commands.Download;
 using SolarDigest.Cli.Commands.Power;
+using SolarDigest.Cli.Commands.Site;
 using SolarDigest.Cli.Commands.Upload;
+using SolarDigest.Graphql;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Cli
@@ -29,8 +31,8 @@ namespace SolarDigest.Cli
                         })
 
                         //.UseContentRoot(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                        
-                        .ConfigureLogging((hostContext,logging) =>
+
+                        .ConfigureLogging((hostContext, logging) =>
                         {
                             logging.AddConfiguration(hostContext.Configuration.GetSection("Logging"));
                             logging.SetMinimumLevel(LogLevel.Debug);
@@ -41,15 +43,25 @@ namespace SolarDigest.Cli
                         {
                             services
                                 .AddSingleton<IConsoleApp, SolarDigestCli>();
-                                //.AddOptions<MyConsoleAppSettings>().Bind(hostContext.Configuration.GetSection("ConsoleApp"))
-                                //.PostConfigure(settings =>
-                                //{
-                                //    settings.SetDefaults();
-                                //});
+                            //.AddOptions<MyConsoleAppSettings>().Bind(hostContext.Configuration.GetSection("ConsoleApp"))
+                            //.PostConfigure(settings =>
+                            //{
+                            //    settings.SetDefaults();
+                            //});
 
-                                services.AddTransient<UploadFileCommand>();
-                                services.AddTransient<DownloadFileCommand>();
-                                services.AddTransient<SitePowerCommand>();
+                            var graphqlConfig = new SolarDigestGraphqlConfiguration
+                            {
+                                // via user secrets / environment variables
+                                ApiUrl = hostContext.Configuration.GetValue<string>("GraphqlUrl"),
+                                ApiKey = hostContext.Configuration.GetValue<string>("x-api-key")
+                            };
+
+                            services.AddSingleton<ISolarDigestGraphqlConfiguration, SolarDigestGraphqlConfiguration>(_ => graphqlConfig);
+                            services.AddTransient<ISolarDigestGraphql, SolarDigestGraphql>();
+                            services.AddTransient<SitePowerCommand>();
+                            services.AddTransient<SiteDetailsCommand>();
+                            services.AddTransient<UploadFileCommand>();
+                            services.AddTransient<DownloadFileCommand>();
                         });
                 })
                 .Run();
