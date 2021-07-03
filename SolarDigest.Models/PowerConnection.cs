@@ -35,9 +35,19 @@ namespace SolarDigest.Models
                 {
                     var previousPageStart = startIndex - pagination.Limit;
 
-                    var previousCursor = previousPageStart >= 0
-                        ? allData.ElementAt(previousPageStart).Time.ToBase64()
-                        : allData.First().Time.ToBase64();
+                    string previousCursor = default;
+
+                    if (previousPageStart >= 0)
+                    {
+                        previousCursor = allData.ElementAt(previousPageStart).Time.ToBase64();
+                    }
+                    else
+                    {
+                        if (startIndex > 0 )
+                        {
+                            previousCursor = allData.First().Time.ToBase64();
+                        }
+                    }
 
                     var nextPageStart = startIndex + pagination.Limit;
 
