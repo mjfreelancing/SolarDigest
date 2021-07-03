@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using SolarDigest.Cli.Commands.Upload;
 using SolarDigest.Cli.Extensions;
 using SolarDigest.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Cli.Commands.Power
@@ -15,8 +16,8 @@ namespace SolarDigest.Cli.Commands.Power
     //                --startDate <startDate> --endDate <endDate> --limit <limit> --startCursor <startCursor>
     // ------------------------------------------------------------------------------------------------------
     //
-    // <meterType>      defaults to PRODUCTION
-    // <summaryType>    defaults to DAILY_AVERAGE
+    // <meterType>      defaults to Production
+    // <summaryType>    defaults to DailyAverage
     // <startDate>      defaults to site start date
     // <endDate>        defaults to the current date (in site local time)
     // <limit>          defaults to null (all data)
@@ -46,13 +47,75 @@ namespace SolarDigest.Cli.Commands.Power
             var limit = _configuration.GetValue<int?>("limit");
             var startCursor = _configuration.GetValue<string>("startCursor");
 
-            var sitePower = await GetSitePower(siteId, meterType.As<MeterType>(), summaryType.As<SummaryType>(), startDate, endDate, limit, startCursor);
+            for (;;)
+            {
+                Console.WriteLine("Querying...");
 
+                var sitePower = await GetSitePower(siteId, meterType.As<MeterType>(), summaryType.As<SummaryType>(), startDate, endDate, limit, startCursor);
 
+                if (sitePower.Power.TotalCount == 0)
+                {
+                    Console.WriteLine("No power data for the parameters provided.");
+                    return;
+                }
 
+                foreach (var edge in sitePower.Power.Edges)
+                {
+                    var node = edge.Node;
 
+                    Console.WriteLine($"[{node.Time}] ({edge.Cursor}) = {node.Watts} Watts / {node.WattHour} Watt Hour");
+                }
 
-            await Task.Delay(1);
+                var prevPageCursor = sitePower.Power.PageInfo?.PreviousPageCursor;
+                var nextPageCursor = sitePower.Power.PageInfo?.NextPageCursor;
+
+                var hasPreviousPage = !prevPageCursor?.IsNullOrEmpty() ?? false;
+                var hasNextPage = !nextPageCursor?.IsNullOrEmpty() ?? false;
+
+                if (!hasPreviousPage && !hasNextPage)
+                {
+                    Console.WriteLine("No more power data for the parameters provided.");
+                    return;
+                }
+
+                Console.WriteLine("");
+
+                if (hasPreviousPage)
+                {
+                    Console.WriteLine("Press P to show the previous page");
+                }
+
+                if (hasNextPage)
+                {
+                    Console.WriteLine("Press N to show the next page");
+                }
+
+                Console.WriteLine("Press Q to quit page navigation");
+                Console.WriteLine("");
+
+                for (;;)
+                {
+                    var key = Console.ReadKey(true).Key;
+
+                    if (hasPreviousPage && key == ConsoleKey.P)
+                    {
+                        startCursor = sitePower.Power.PageInfo.PreviousPageCursor;
+                        break;
+                    }
+
+                    if (hasNextPage && key == ConsoleKey.N)
+                    {
+                        startCursor = sitePower.Power.PageInfo.NextPageCursor;
+                        break;
+                    }
+
+                    if (key == ConsoleKey.Q)
+                    {
+                        return;
+                    }
+                }
+
+            }
         }
 
         private async Task<SitePower> GetSitePower(string siteId, MeterType meterType, SummaryType summaryType, string startDate, string endDate, int? limit, string startCursor)
@@ -76,24 +139,24 @@ namespace SolarDigest.Cli.Commands.Power
                             startDate
                             timeZoneId
                             power(limit: $limit, startCursor: $startCursor, filter: {meterType: $meterType, summaryType: $summaryType, startDate: $startDate, endDate: $endDate}) {
-                                  pageInfo {
-                                    previousPageCursor
-                                    nextPageCursor
-                                  }
-                                  totalCount
-                                  nodes {
-                                    time
-                                    wattHour
-                                    watts
-                                  }
-                                  edges {
-                                    cursor
-                                    node {
-                                      time
-                                      wattHour
-                                      watts
-                                    }
-                                  }
+                              pageInfo {
+                                previousPageCursor
+                                nextPageCursor
+                              }
+                              totalCount
+                              nodes {
+                                time
+                                wattHour
+                                watts
+                              }
+                              edges {
+                                cursor
+                                node {
+                                  time
+                                  wattHour
+                                  watts
+                                }
+                              }
                             }
                           }
                         }",

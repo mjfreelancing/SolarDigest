@@ -26,8 +26,14 @@ namespace SolarDigest.Api.Functions
         timeZoneId
         power(filter: {meterType: $meterType, summaryType: $summaryType, startDate: $startDate, endDate: $endDate}) {
           pageInfo {
-            hasNextPage
-            startCursor
+            previousPageCursor
+            nextPageCursor
+          }
+          totalCount
+          nodes {
+            time
+            wattHour
+            watts
           }
           edges {
             cursor
