@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Aggregators;
+using SolarDigest.Api.Events;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Functions.Payloads;
+using SolarDigest.Api.Functions.Validators;
 using SolarDigest.Api.Models;
 using SolarDigest.Api.Repository;
 using SolarDigest.Api.Services;
@@ -36,14 +38,15 @@ namespace SolarDigest.Api.Functions
         protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<AggregateSitePowerPayload> context)
         {
             var request = context.Payload.Detail;
+            var serviceProvider = context.ScopedServiceProvider;
 
-            // todo: add request validation
+            // A validator isn't normally required because the payload comes from event bridge but this is
+            // to protect against errors when triggered manually via the console.
+            serviceProvider.InvokeValidator<AggregateSitePowerPayloadValidator, AggregateSitePowerEvent>(request);
 
             var logger = context.Logger;
 
             logger.LogDebug($"Aggregating power for site Id {request.SiteId} between {request.StartDate} and {request.EndDate}");
-
-            var serviceProvider = context.ScopedServiceProvider;
 
             var siteTable = serviceProvider.GetRequiredService<ISolarDigestSiteTable>();
 
