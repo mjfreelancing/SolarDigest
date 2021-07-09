@@ -1,6 +1,7 @@
 ﻿using AllOverIt.Helpers;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Models;
+using SolarDigest.Shared.Extensions;
 using System;
 
 namespace SolarDigest.Api.Data
@@ -12,6 +13,7 @@ namespace SolarDigest.Api.Data
         public string StartDateTime { get; set; }
         public string EndDateTime { get; set; }
         public string Status { get; set; }
+        public long TimeToLive { get; set; }
 
         public PowerUpdateHistoryEntity()
         {
@@ -27,6 +29,7 @@ namespace SolarDigest.Api.Data
             var startDate = startDateTime.Date.GetSolarDateString();
             Id = $"{siteId}_{startDate}";
             Sort = $"{Guid.NewGuid()}";
+            TimeToLive = DateTime.UtcNow.AddMonths(12).ToEpoch();
         }
     }
 }

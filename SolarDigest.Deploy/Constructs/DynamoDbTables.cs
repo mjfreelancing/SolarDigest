@@ -44,7 +44,7 @@ namespace SolarDigest.Deploy.Constructs
                 ConfigureWriteAutoScaling(table);
             });
 
-            PowerUpdateHistory = CreateTable(nameof(PowerUpdateHistory), true);
+            PowerUpdateHistory = CreateTable(nameof(PowerUpdateHistory), true, default, "TimeToLive");
         }
 
         private ITable CreateTable(string tableName, bool hasSortKey = false, StreamViewType? streamViewType = default,
