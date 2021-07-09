@@ -55,7 +55,7 @@ namespace SolarDigest.Api.Functions
         // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb
         // (using the free tier).
         private const int MaxDaysPerInvocation = 7;
-        private const int MaxDaysPerRequest = MaxDaysPerInvocation * 12;
+        private const int MaxDaysPerRequest = MaxDaysPerInvocation * 16;        // ensures completion well within an hour
 
         protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
         {
