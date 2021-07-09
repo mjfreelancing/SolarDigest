@@ -1,6 +1,4 @@
-﻿using SolarDigest.Api.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace SolarDigest.Api.Extensions
 {
@@ -26,36 +24,36 @@ namespace SolarDigest.Api.Extensions
             return new(dateTime.Year, dateTime.Month, day, 0, 0, 0);
         }
 
-        public static DateTime GetEndOfMonth(this DateTime dateTime)
-        {
-            return new DateTime(
-                dateTime.Year, dateTime.Month,
-                DateTime.DaysInMonth(dateTime.Year, dateTime.Month), 23, 59, 59);
-        }
+        //public static DateTime GetEndOfMonth(this DateTime dateTime)
+        //{
+        //    return new DateTime(
+        //        dateTime.Year, dateTime.Month,
+        //        DateTime.DaysInMonth(dateTime.Year, dateTime.Month), 23, 59, 59);
+        //}
 
-        public static bool IsSameMonthYear(this DateTime dateTime, DateTime other)
-        {
-            return dateTime.Year == other.Year && dateTime.Month == other.Month;
-        }
+        //public static bool IsSameMonthYear(this DateTime dateTime, DateTime other)
+        //{
+        //    return dateTime.Year == other.Year && dateTime.Month == other.Month;
+        //}
 
-        public static IEnumerable<DateRange> GetWeeklyDateRangesUntil(this DateTime startDateTime, DateTime endDateTime)
-        {
-            var startRequestDate = startDateTime;
+        //public static IEnumerable<DateRange> GetWeeklyDateRangesUntil(this DateTime startDateTime, DateTime endDateTime)
+        //{
+        //    var startRequestDate = startDateTime;
 
-            do
-            {
-                var endRequestDate = startRequestDate.AddDays(6);
+        //    do
+        //    {
+        //        var endRequestDate = startRequestDate.AddDays(6);
 
-                if (endRequestDate > endDateTime)
-                {
-                    endRequestDate = endDateTime;
-                }
+        //        if (endRequestDate > endDateTime)
+        //        {
+        //            endRequestDate = endDateTime;
+        //        }
 
-                yield return new DateRange(startRequestDate, endRequestDate);
+        //        yield return new DateRange(startRequestDate, endRequestDate);
 
-                startRequestDate = endRequestDate.AddDays(1).Date;
+        //        startRequestDate = endRequestDate.AddDays(1).Date;
 
-            } while (startRequestDate < endDateTime);
-        }
+        //    } while (startRequestDate < endDateTime);
+        //}
     }
 }
