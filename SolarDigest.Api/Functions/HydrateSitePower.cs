@@ -54,7 +54,8 @@ namespace SolarDigest.Api.Functions
         // The solarEdge API can process, at most, 1 month of data at a time but we are limiting requests
         // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb
         // (using the free tier).
-        private const int MaxDaysToProcess = 7;
+        private const int MaxDaysToProcessPerInvocation = 7;
+        private const int MaxDaysPerRequestToProcess = MaxDaysToProcessPerInvocation * 12;
 
         protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
         {
@@ -97,7 +98,18 @@ namespace SolarDigest.Api.Functions
             // message. This approach then means the throughput won't be as bad and we can more easily track the most
             // recent refresh timestamp.
 
-            var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysToProcess);
+            // Having said that, we will process at-most 3 months for any given request. A full year of data, as an example,
+            // can take 2 hours to complete due to throttling and since hydration occurs every hour we are limiting the amount
+            // of data that can be processed per request.
+            if (hydrateEndDateTime - hydrateStartDateTime > TimeSpan.FromDays(MaxDaysPerRequestToProcess))
+            {
+                logger.LogDebug($"Limiting the request to a maximum of {MaxDaysPerRequestToProcess} days: " +
+                                $"{hydrateStartDateTime.GetSolarDateTimeString()} to {hydrateEndDateTime.GetSolarDateTimeString()}");
+
+                hydrateEndDateTime = hydrateStartDateTime.AddDays(MaxDaysPerRequestToProcess - 1);
+            }
+
+            var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysToProcessPerInvocation);
 
             var processingToEndDate = hydrateEndDateTime > maxAllowedEndDate
                 ? maxAllowedEndDate

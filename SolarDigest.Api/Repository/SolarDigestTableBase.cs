@@ -6,6 +6,8 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using AutoMapper;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using SolarDigest.Api.Data;
 using SolarDigest.Api.Exceptions;
 using SolarDigest.Api.Logging;
@@ -20,10 +22,13 @@ namespace SolarDigest.Api.Repository
 {
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
+        private readonly AsyncRetryPolicy ProvisionedThroughputExceededRetryPolicy = Policy
+            .Handle<ProvisionedThroughputExceededException>()
+            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
         private static readonly AmazonDynamoDBClient DbClient
             = new(new AmazonDynamoDBConfig
             {
-                Timeout = new TimeSpan(0, 0, 10),
                 RetryMode = RequestRetryMode.Standard,
                 MaxErrorRetry = 10,
                 
@@ -164,7 +169,9 @@ namespace SolarDigest.Api.Repository
         {
             var entities = items.AsReadOnlyCollection();
 
-            await foreach (var response in GetPutBatchResponses(entities, cancellationToken))
+            var responses = GetPutBatchResponses(entities, cancellationToken);
+            
+            await foreach (var response in responses.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -189,7 +196,7 @@ namespace SolarDigest.Api.Repository
 
             if (entities.Any())
             {
-                var batches = entities.Batch(25).AsReadOnlyCollection();
+                var batches = entities.Batch(20).AsReadOnlyCollection();
 
                 Logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
@@ -207,7 +214,9 @@ namespace SolarDigest.Api.Repository
 
                     var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
 
-                    var response = await DbClient.BatchWriteItemAsync(batchRequest, cancellationToken);
+                    var response = await ProvisionedThroughputExceededRetryPolicy
+                        .ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken))
+                        .ConfigureAwait(false);
 
                     yield return response;
                 }
@@ -245,7 +254,7 @@ namespace SolarDigest.Api.Repository
         {
             while (!search.IsDone)
             {
-                var documents = await search.GetNextSetAsync(cancellationToken);
+                var documents = await search.GetNextSetAsync(cancellationToken).ConfigureAwait(false);
 
                 foreach (var document in documents)
                 {
