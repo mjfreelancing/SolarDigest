@@ -4,7 +4,6 @@ using AllOverIt.Tasks;
 using SolarDigest.Api.Extensions;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
-using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Api.Repository;
 using SolarDigest.Models;
 using System;

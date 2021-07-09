@@ -1,5 +1,4 @@
 ﻿using SolarDigest.Graphql.Responses;
-using SolarDigest.Models;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Graphql

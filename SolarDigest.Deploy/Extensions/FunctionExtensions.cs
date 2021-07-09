@@ -7,16 +7,6 @@ namespace SolarDigest.Deploy.Extensions
 {
     internal static class FunctionExtensions
     {
-        //public static IFunction AddPolicyStatements(this IFunction function, params PolicyStatement[] statements)
-        //{
-        //    foreach (var statement in statements)
-        //    {
-        //        function.AddToRolePolicy(statement);
-        //    }
-
-        //    return function;
-        //}
-
         public static IFunction GrantDescribeTableData(this IFunction function, Iam iam, params string[] tableNames)
         {
             var statement = iam.GetDynamoDescribeTablePolicyStatement(tableNames);

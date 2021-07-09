@@ -14,9 +14,5 @@ namespace SolarDigest.Deploy.Schema
         [SchemaTypeRequired]
         [LambdaDataSource(Constants.AppName, Constants.Function.UpdateSite)]
         ISite UpdateSite([SchemaTypeRequired] string id, [SchemaTypeRequired] ISiteInput site, ISiteTimestampsInput timestamps);
-
-        //[GraphqlTypeRequired]
-        //[LambdaDataSource(Constants.DataSource.CreateSite)]
-        //Site AddSite2([GraphqlTypeRequired] SiteInput site);
     }
 }
