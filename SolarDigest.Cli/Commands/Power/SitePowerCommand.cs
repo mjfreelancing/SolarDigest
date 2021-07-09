@@ -55,7 +55,9 @@ namespace SolarDigest.Cli.Commands.Power
 
                 if (sitePower.TotalCount == 0)
                 {
+                    Console.WriteLine();
                     Console.WriteLine("No power data for the parameters provided.");
+                    Console.WriteLine();
                     return;
                 }
 
@@ -74,7 +76,9 @@ namespace SolarDigest.Cli.Commands.Power
 
                 if (!hasPreviousPage && !hasNextPage)
                 {
+                    Console.WriteLine();
                     Console.WriteLine("No more power data for the parameters provided.");
+                    Console.WriteLine();
                     return;
                 }
 

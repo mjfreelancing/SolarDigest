@@ -13,7 +13,6 @@ namespace SolarDigest.Deploy.Constructs
         // To simplify stack creation, name these properties the same as the table name
         internal ITable Exception { get; }
         internal ITable Site { get; }
-        internal ITable EnergyCosts { get; }
         internal ITable Power { get; }
         internal ITable PowerMonthly { get; }
         internal ITable PowerYearly { get; }
@@ -26,7 +25,6 @@ namespace SolarDigest.Deploy.Constructs
 
             Exception = CreateTable(nameof(Exception), false, StreamViewType.NEW_IMAGE, "TimeToLive");
             Site = CreateTable(nameof(Site));
-            EnergyCosts = CreateTable(nameof(EnergyCosts), true);
 
             Power = CreateTable(nameof(Power), true, default, default, table =>
             {

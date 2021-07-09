@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AllOverIt" Version="1.10.0" />
+        <PackageReference Include="AllOverIt" Version="1.11.0" />
         <PackageReference Include="GraphQL.Client" Version="3.2.4" />
         <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.4" />
     </ItemGroup>

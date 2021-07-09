@@ -40,7 +40,6 @@
         {
             internal const string Site = "Site";
             internal const string Exception = "Exception";
-            internal const string EnergyCosts = "EnergyCosts";
             internal const string Power = "Power";
             internal const string PowerMonthly = "PowerMonthly";
             internal const string PowerYearly = "PowerYearly";

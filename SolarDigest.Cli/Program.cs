@@ -12,6 +12,10 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Cli
 {
+    // command line args: https://docs.microsoft.com/en-us/dotnet/core/extensions/configuration-providers#command-line-configuration-provider
+    // key="value"
+    // /key "value"
+    // --key "value"
     class Program
     {
         static async Task Main(string[] args)
@@ -58,8 +62,8 @@ namespace SolarDigest.Cli
 
                             services.AddSingleton<ISolarDigestGraphqlConfiguration, SolarDigestGraphqlConfiguration>(_ => graphqlConfig);
                             services.AddTransient<ISolarDigestGraphql, SolarDigestGraphql>();
-                            services.AddTransient<SitePowerCommand>();
                             services.AddTransient<SiteDetailsCommand>();
+                            services.AddTransient<SitePowerCommand>();
                             services.AddTransient<UploadFileCommand>();
                             services.AddTransient<DownloadFileCommand>();
                         });
