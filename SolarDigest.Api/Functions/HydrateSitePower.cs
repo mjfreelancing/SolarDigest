@@ -54,8 +54,8 @@ namespace SolarDigest.Api.Functions
         // The solarEdge API can process, at most, 1 month of data at a time but we are limiting requests
         // to 7 days in order to restrict the execution time of the function and the throughput to DynamoDb
         // (using the free tier).
-        private const int MaxDaysToProcessPerInvocation = 7;
-        private const int MaxDaysPerRequestToProcess = MaxDaysToProcessPerInvocation * 12;
+        private const int MaxDaysPerInvocation = 7;
+        private const int MaxDaysPerRequest = MaxDaysPerInvocation * 12;
 
         protected override async Task<NoResult> InvokeHandlerAsync(FunctionContext<HydrateSitePowerPayload> context)
         {
@@ -101,15 +101,15 @@ namespace SolarDigest.Api.Functions
             // Having said that, we will process at-most 3 months for any given request. A full year of data, as an example,
             // can take 2 hours to complete due to throttling and since hydration occurs every hour we are limiting the amount
             // of data that can be processed per request.
-            if (hydrateEndDateTime - hydrateStartDateTime > TimeSpan.FromDays(MaxDaysPerRequestToProcess))
+            if (hydrateEndDateTime - hydrateStartDateTime > TimeSpan.FromDays(MaxDaysPerRequest))
             {
-                logger.LogDebug($"Limiting the request to a maximum of {MaxDaysPerRequestToProcess} days: " +
+                logger.LogDebug($"Limiting the request to a maximum of {MaxDaysPerRequest} days: " +
                                 $"{hydrateStartDateTime.GetSolarDateTimeString()} to {hydrateEndDateTime.GetSolarDateTimeString()}");
 
-                hydrateEndDateTime = hydrateStartDateTime.AddDays(MaxDaysPerRequestToProcess - 1);
+                hydrateEndDateTime = hydrateStartDateTime.AddDays(MaxDaysPerRequest - 1);
             }
 
-            var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysToProcessPerInvocation);
+            var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysPerInvocation);
 
             var processingToEndDate = hydrateEndDateTime > maxAllowedEndDate
                 ? maxAllowedEndDate
