@@ -22,7 +22,7 @@ namespace SolarDigest.Api.Repository
 {
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private readonly AsyncRetryPolicy ProvisionedThroughputExceededRetryPolicy = Policy
+        private static readonly AsyncRetryPolicy ProvisionedThroughputExceededRetryPolicy = Policy
             .Handle<ProvisionedThroughputExceededException>()
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
