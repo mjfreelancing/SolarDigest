@@ -1,5 +1,5 @@
-﻿using AllOverIt.Helpers;
-using ConsoleService;
+﻿using AllOverIt.GenericHost;
+using AllOverIt.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Cli.Commands;
 using SolarDigest.Cli.Commands.Download;
@@ -9,11 +9,12 @@ using SolarDigest.Cli.Commands.Upload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolarDigest.Cli
 {
-    internal sealed class SolarDigestCli : IConsoleApp
+    internal sealed class SolarDigestCli : ConsoleAppBase
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -29,10 +30,10 @@ namespace SolarDigest.Cli
             _commandHandlers.Add(DownloadFileCommand.Identifier, typeof(DownloadFileCommand));
         }
 
-        public async Task<int> Execute()
+        public override async Task StartAsync(CancellationToken cancellationToken = default)
         {
             var args = Environment.GetCommandLineArgs();
-            
+
             foreach (var (command, type) in _commandHandlers)
             {
                 if (args.Contains(command))
@@ -42,17 +43,19 @@ namespace SolarDigest.Cli
                         var handler = _serviceProvider.GetRequiredService(type) as ICommand;
                         await handler!.Execute().ConfigureAwait(false);
 
-                        return 0;
+                        ExitCode = 0;
+                        return;
                     }
                     catch (Exception exception)
                     {
                         Console.WriteLine(exception);
-                        return -2;
+                        ExitCode = -2;
+                        return;
                     }
                 }
             }
 
-            return -1;
+            ExitCode = -1;
         }
     }
 }

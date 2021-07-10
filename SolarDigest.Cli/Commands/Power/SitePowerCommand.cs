@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SolarDigest.Cli.Commands.Power
 {
-    // Command: power --siteId <siteId> --meterType <meterType> --summaryType <summaryType>
+    // Command: power --site <site> --meterType <meterType> --summaryType <summaryType>
     //                --startDate <startDate> --endDate <endDate> --limit <limit> --startCursor <startCursor>
     // ------------------------------------------------------------------------------------------------------
     //
@@ -37,7 +37,7 @@ namespace SolarDigest.Cli.Commands.Power
         public async Task Execute()
         {
             // all via command line
-            var siteId = _configuration.GetValue<string>("siteId");
+            var siteId = _configuration.GetValue<string>("site");
             var meterType = _configuration.GetValue<string>("meterType");
             var summaryType = _configuration.GetValue<string>("summaryType");
             var startDate = _configuration.GetValue<string>("startDate");
