@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SolarDigest.Deploy": {
+      "commandName": "Project",
+      "commandLineArgs": "--service"
+    }
+  }
+}

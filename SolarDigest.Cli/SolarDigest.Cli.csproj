@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <UserSecretsId>b8cdecea-905a-49ce-a68e-72bc46f7c655</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AllOverIt" Version="1.12.0" />
+        <PackageReference Include="AllOverIt.GenericHost" Version="1.0.0" />
+        <PackageReference Include="AWSSDK.S3" Version="3.7.1.11" />
+        <PackageReference Include="Flurl.Http" Version="3.2.0" />
+        <PackageReference Include="GraphQL.Client" Version="3.2.4" />
+        <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.4" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SolarDigest.Graphql\SolarDigest.Graphql.csproj" />
+    </ItemGroup>
+
+</Project>

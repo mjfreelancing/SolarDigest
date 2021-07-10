@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AllOverIt.Aws.Cdk.AppSync" Version="0.3.0" />
+        <PackageReference Include="Amazon.CDK.AWS.AppSync" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.CloudWatch" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.DynamoDB" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Events" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Events.Targets" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Lambda" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.Lambda.EventSources" Version="1.111.0" />
+        <PackageReference Include="Amazon.CDK.AWS.SSM" Version="1.111.0" />
+    </ItemGroup>
+
+</Project>

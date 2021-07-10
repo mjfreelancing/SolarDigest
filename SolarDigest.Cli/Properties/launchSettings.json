@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "SolarDigest.Cli": {
+        "commandName": "Project",
+        "commandLineArgs": "power --site site_id_here --meterType Production --summaryType DailyAverage --startDate 2020-05-09 --endDate 2021-07-02 --limit 24",
+        "environmentVariables": {
+            "ENVIRONMENT": "Development"
+        }
+    }
+  }
+}

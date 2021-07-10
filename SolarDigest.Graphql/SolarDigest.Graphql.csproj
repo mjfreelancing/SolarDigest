@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AllOverIt" Version="1.12.0" />
+        <PackageReference Include="GraphQL.Client" Version="3.2.4" />
+        <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SolarDigest.Models\SolarDigest.Models.csproj" />
+    </ItemGroup>
+
+</Project>
