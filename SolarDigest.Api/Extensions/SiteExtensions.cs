@@ -17,7 +17,7 @@ namespace SolarDigest.Api.Extensions
         {
             // returns in site's local date
             return site.LastAggregationDate.IsNullOrEmpty()
-                ? site.StartDate.ParseSolarDate().Date
+                ? DateTime.MinValue
                 : site.LastAggregationDate.ParseSolarDate();
         }
 
@@ -25,7 +25,7 @@ namespace SolarDigest.Api.Extensions
         {
             // returns in site's local date
             return site.LastRefreshDateTime.IsNullOrEmpty()
-                ? site.StartDate.ParseSolarDate().Date
+                ? DateTime.MinValue
                 : site.LastRefreshDateTime.ParseSolarDateTime().TrimToHour();
         }
 
@@ -33,7 +33,7 @@ namespace SolarDigest.Api.Extensions
         {
             // returns in site's local date
             return site.LastSummaryDate.IsNullOrEmpty()
-                ? site.StartDate.ParseSolarDate()
+                ? DateTime.MinValue
                 : site.LastSummaryDate.ParseSolarDate();
         }
     }
