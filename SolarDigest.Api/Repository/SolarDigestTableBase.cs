@@ -22,7 +22,10 @@ namespace SolarDigest.Api.Repository
 {
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private static readonly AsyncRetryPolicy ProvisionedThroughputExceededRetryPolicy = Policy
+        private const int PutBatchSize = 10;
+
+        // A factory method to ensure each use is distinct
+        private static AsyncRetryPolicy GetProvisionedThroughputExceededRetryPolicy() => Policy
             .Handle<ProvisionedThroughputExceededException>()
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
@@ -196,7 +199,7 @@ namespace SolarDigest.Api.Repository
 
             if (entities.Any())
             {
-                var batches = entities.Batch(20).AsReadOnlyCollection();
+                var batches = entities.Batch(PutBatchSize).AsReadOnlyCollection();
 
                 Logger.LogDebug($"Processing {entities.Count} entities across {batches.Count} batches of PUT requests");
 
@@ -214,7 +217,7 @@ namespace SolarDigest.Api.Repository
 
                     var batchRequest = new BatchWriteItemRequest(new Dictionary<string, List<WriteRequest>> { { TableName, requests } });
 
-                    var response = await ProvisionedThroughputExceededRetryPolicy
+                    var response = await GetProvisionedThroughputExceededRetryPolicy()
                         .ExecuteAsync(() => DbClient.BatchWriteItemAsync(batchRequest, cancellationToken))
                         .ConfigureAwait(false);
 
