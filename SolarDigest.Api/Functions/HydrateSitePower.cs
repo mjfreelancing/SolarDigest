@@ -75,9 +75,6 @@ namespace SolarDigest.Api.Functions
             // must read the entire entity because we may be updating it
             var site = await siteTable!.GetSiteAsync(siteId).ConfigureAwait(false);
 
-            // todo: to be removed
-            logger.LogDebug($"Current site details: {JsonConvert.SerializeObject(site)}");
-
             // Determine the refresh period to hydrate (local time)
             // - the start/end timestamps are optional - a forced re-fresh can be achieved when providing them
             var (hydrateStartDateTime, hydrateEndDateTime) = GetHydrationPeriodInSiteLocalTime(site, request);
@@ -103,10 +100,10 @@ namespace SolarDigest.Api.Functions
             // of data that can be processed per request.
             if (hydrateEndDateTime - hydrateStartDateTime > TimeSpan.FromDays(MaxDaysPerRequest))
             {
+                hydrateEndDateTime = hydrateStartDateTime.AddDays(MaxDaysPerRequest - 1);
+
                 logger.LogDebug($"Limiting the request to a maximum of {MaxDaysPerRequest} days: " +
                                 $"{hydrateStartDateTime.GetSolarDateTimeString()} to {hydrateEndDateTime.GetSolarDateTimeString()}");
-
-                hydrateEndDateTime = hydrateStartDateTime.AddDays(MaxDaysPerRequest - 1);
             }
 
             var maxAllowedEndDate = hydrateStartDateTime.AddDays(MaxDaysPerInvocation);

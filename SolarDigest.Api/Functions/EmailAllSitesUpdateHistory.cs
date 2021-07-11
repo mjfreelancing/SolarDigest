@@ -41,9 +41,29 @@ namespace SolarDigest.Api.Functions
                 // check subsequent hours in case a trigger was missed
                 if (siteLocalTime.Hour >= Constants.RefreshHour.UpdateHistoryEmail)
                 {
+                    // no point processing if there's no data
+                    var lastRefreshDate = site.GetLastRefreshDateTime();
+
+                    if (lastRefreshDate == DateTime.MinValue)
+                    {
+                        logger.LogDebug($"There's no data to report for site {site.Id}");
+                        continue;
+                    }
+
                     // the last summary date was the previous end date, so we start from the next day
-                    var nextStartDate = site.GetLastSummaryDate().AddDays(1);
+                    var nextStartDate = site.GetLastSummaryDate();
+
+                    nextStartDate = nextStartDate == DateTime.MinValue
+                        ? site.StartDate.ParseSolarDate()
+                        : nextStartDate.AddDays(1);
+
                     var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
+
+                    if (nextEndDate > lastRefreshDate)
+                    {
+                        logger.LogDebug($"Trimming the summary report to the most recent refresh date: {lastRefreshDate.GetSolarDateString()}");
+                        nextEndDate = lastRefreshDate;
+                    }
 
                     if (nextEndDate >= nextStartDate)
                     {

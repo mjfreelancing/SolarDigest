@@ -43,11 +43,24 @@ namespace SolarDigest.Api.Functions
                 // check subsequent hours in case a trigger was missed
                 if (siteLocalTime.Hour >= Constants.RefreshHour.SitePowerAggregation)
                 {
-                    var lastAggregationDate = site.GetLastAggregationDate();
-                    var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
-
                     // make sure we don't aggregate beyond the last refresh timestamp
-                    var lastRefreshTimestamp = site.GetLastRefreshDateTime(); // LastRefreshDateTime.ParseSolarDateTime().Date;
+                    var lastRefreshTimestamp = site.GetLastRefreshDateTime();
+
+                    if (lastRefreshTimestamp == DateTime.MinValue)
+                    {
+                        // must be the first time, so assume the site start date
+                        lastRefreshTimestamp = site.StartDate.ParseSolarDate().Date;
+                    }
+
+                    var lastAggregationDate = site.GetLastAggregationDate();
+
+                    if (lastAggregationDate == DateTime.MinValue)
+                    {
+                        // must be the first time, so assume the site start date
+                        lastAggregationDate = site.StartDate.ParseSolarDate().Date;
+                    }
+
+                    var nextEndDate = siteLocalTime.Date.AddDays(-1);         // not reporting the current day as it is not yet over
 
                     if (nextEndDate > lastRefreshTimestamp)
                     {
