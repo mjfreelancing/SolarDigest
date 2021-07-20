@@ -27,7 +27,9 @@ namespace SolarDigest.Api.Mapping
                 .ForMember(dest => dest.Value, opt => opt.NullSubstitute(0.0d));
 
             CreateMap<SiteDetails, Site>();
+            CreateMap<SiteDetailsWithSecrets, Site>();
             CreateMap<SiteDetails, SiteEntity>();
+            CreateMap<SiteDetailsWithSecrets, SiteEntity>();
             CreateMap<SiteEntity, Site>().ReverseMap();
             CreateMap<Site, GetSiteResponse>();
 

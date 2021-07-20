@@ -4,15 +4,9 @@
     {
         internal const string S3CodeBucketKeyName = "publish.zip";
 
-        internal const string AppName = "SolarDigest";
-        internal const int DataVersion = 1;
-        internal const int ServiceVersion = 1;
-
         internal static class S3Buckets
         {
-            internal const string LambdaSourceCodeBucketName = "solardigest-code";
-            internal const string UploadsBucketName = "solardigest-uploads";
-            internal const string DownloadsBucketName = "solardigest-downloads";
+            internal const string LambdaSourceCodeBucketName = "code";
         }
 
         internal static class Function

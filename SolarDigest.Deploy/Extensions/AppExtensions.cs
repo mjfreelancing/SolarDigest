@@ -6,11 +6,11 @@ namespace SolarDigest.Deploy.Extensions
 {
     internal static class AppExtensions
     {
-        internal static Stack CreateRootStack(this App app, SolarDigestAppProps appProps)
+        internal static Stack CreateRootStack(this App app, string stackName)
         {
-            return new(app, $"{appProps.StackName}V{appProps.Version}", new StackProps
+            return new(app, stackName, new StackProps
             {
-                Description = $"Creates all resources for {appProps.StackName}",
+                Description = $"Creates all resources for {stackName}",
                 Env = new CDKEnvironment
                 {
                     Account = SystemEnvironment.GetEnvironmentVariable("CDK_DEFAULT_ACCOUNT"),

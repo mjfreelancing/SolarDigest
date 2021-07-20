@@ -3,6 +3,7 @@ using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Models;
+using SolarDigest.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace SolarDigest.Api.Repository
 {
     internal sealed class SolarDigestPowerUpdateHistoryTable : SolarDigestTableBase, ISolarDigestPowerUpdateHistoryTable
     {
-        public override string TableName => Constants.Table.PowerUpdateHistory;
+        public override string TableName => $"{Helpers.GetAppVersionName()}_{Shared.Constants.Table.PowerUpdateHistory}";
 
         public SolarDigestPowerUpdateHistoryTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)

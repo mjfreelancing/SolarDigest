@@ -4,6 +4,7 @@ using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Models;
+using SolarDigest.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -14,7 +15,7 @@ namespace SolarDigest.Api.Repository
 {
     internal sealed class SolarDigestPowerMonthlyTable : SolarDigestTableBase, ISolarDigestPowerMonthlyTable
     {
-        public override string TableName => Constants.Table.PowerMonthly;
+        public override string TableName => $"{Helpers.GetAppVersionName()}_{Shared.Constants.Table.PowerMonthly}";
 
         public SolarDigestPowerMonthlyTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)

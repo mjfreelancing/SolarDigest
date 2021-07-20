@@ -4,6 +4,7 @@ using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models.SolarEdge;
 using SolarDigest.Models;
+using SolarDigest.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace SolarDigest.Api.Repository
 {
     internal sealed class SolarDigestPowerTable : SolarDigestTableBase, ISolarDigestPowerTable
     {
-        public override string TableName => Constants.Table.Power;
+        public override string TableName => $"{Helpers.GetAppVersionName()}_{Shared.Constants.Table.Power}";
 
         public SolarDigestPowerTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)

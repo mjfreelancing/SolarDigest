@@ -15,17 +15,10 @@ namespace SolarDigest.Deploy.Stacks
         public static App CreateApp()
         {
             var app = new App();
+            
+            var stack = app.CreateRootStack($"{Shared.Constants.AppName}ServiceV{Shared.Constants.ServiceVersion}");
 
-            var apiProps = new SolarDigestAppProps
-            {
-                StackName = $"{Constants.AppName}Service",
-                AppName = Constants.AppName,
-                Version = Constants.ServiceVersion,
-            };
-
-            var stack = app.CreateRootStack(apiProps);
-
-            var iam = new Iam(stack, apiProps);
+            var iam = new Iam(stack);
 
             _ = new S3Buckets(stack);
 
@@ -35,11 +28,11 @@ namespace SolarDigest.Deploy.Stacks
 
             var mappingTemplates = new SolarDigestMappingTemplates();
 
-            var functions = new Functions(stack, apiProps, iam, mappingTemplates);
+            var functions = new Functions(stack, iam, mappingTemplates);
 
-            var cloudWatch = new LogGroups(stack, apiProps);
+            var cloudWatch = new LogGroups(stack);
 
-            _ = new EventBridge(stack, apiProps, functions, cloudWatch);
+            _ = new EventBridge(stack, functions, cloudWatch);
 
             var authMode = new AuthorizationMode
             {
@@ -52,7 +45,7 @@ namespace SolarDigest.Deploy.Stacks
                 //UserPoolConfig = 
             };
 
-            _ = new AppSync(stack, apiProps, authMode, mappingTemplates);
+            _ = new AppSync(stack, authMode, mappingTemplates);
 
             return app;
         }

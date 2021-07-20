@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Services;
+using SolarDigest.Shared.Utils;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -21,7 +22,7 @@ namespace SolarDigest.Api.Functions
 
             var parameterStore = context.ScopedServiceProvider.GetRequiredService<IParameterStore>();
 
-            var userSecretPath = $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketUploadUser}";
+            var userSecretPath = $"{Constants.Parameters.SecretsRoot}/{Helpers.GetAppVersionName()}_{Shared.Constants.Users.BucketUploadUser}";
 
             var response = await parameterStore.GetByPathAsync(userSecretPath).ConfigureAwait(false);
 
@@ -33,7 +34,7 @@ namespace SolarDigest.Api.Functions
             var abortRequest = new AbortMultipartUploadRequest
             {
                 UploadId = uploadId,
-                BucketName = Constants.S3Buckets.UploadsBucketName,
+                BucketName = Shared.Constants.S3Buckets.UploadsBucketName,
                 Key = filename
             };
 

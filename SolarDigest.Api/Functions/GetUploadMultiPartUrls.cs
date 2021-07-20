@@ -18,7 +18,7 @@ namespace SolarDigest.Api.Functions
 
             var parameterStore = context.ScopedServiceProvider.GetRequiredService<IParameterStore>();
 
-            var userSecretPath = $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketUploadUser}";
+            var userSecretPath = $"{Constants.Parameters.SecretsRoot}/{Shared.Constants.Users.BucketUploadUser}";
 
             var parameters = await parameterStore.GetByPathAsync(userSecretPath).ConfigureAwait(false);
 
@@ -29,7 +29,7 @@ namespace SolarDigest.Api.Functions
 
             var initRequest = new InitiateMultipartUploadRequest
             {
-                BucketName = Constants.S3Buckets.UploadsBucketName,
+                BucketName = Shared.Constants.S3Buckets.UploadsBucketName,
                 Key = filename
             };
 

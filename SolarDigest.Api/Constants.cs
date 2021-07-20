@@ -19,31 +19,9 @@
             public const string SecretsRoot = "/Secrets";
         }
 
-        internal static class Users
-        {
-            public const string BucketDownloadUser = "BucketDownloadUser";
-            public const string BucketUploadUser = "BucketUploadUser";
-        }
-
-        internal static class S3Buckets
-        {
-            internal const string UploadsBucketName = "solardigest-uploads";
-            internal const string DownloadsBucketName = "solardigest-downloads";
-        }
-
         internal static class Events
         {
             public const string Source = "SolarDigest.Api";
-        }
-
-        internal static class Table
-        {
-            internal const string Site = "Site";
-            internal const string Exception = "Exception";
-            internal const string Power = "Power";
-            internal const string PowerMonthly = "PowerMonthly";
-            internal const string PowerYearly = "PowerYearly";
-            internal const string PowerUpdateHistory = "PowerUpdateHistory";
         }
 
         internal static class RefreshHour

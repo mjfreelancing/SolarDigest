@@ -3,6 +3,7 @@ using AutoMapper;
 using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Models;
+using SolarDigest.Shared.Utils;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -13,7 +14,7 @@ namespace SolarDigest.Api.Repository
 {
     internal sealed class SolarDigestSiteTable : SolarDigestTableBase, ISolarDigestSiteTable
     {
-        public override string TableName => Constants.Table.Site;
+        public override string TableName => $"{Helpers.GetAppVersionName()}_{Shared.Constants.Table.Site}";
 
         public SolarDigestSiteTable(IMapper mapper, ISolarDigestLogger logger)
             : base(mapper, logger)
@@ -26,7 +27,7 @@ namespace SolarDigest.Api.Repository
             return MapToSite(siteDetails);
         }
 
-        public async Task<Site> AddSiteAsync(string siteId, SiteDetails siteDetails, CancellationToken cancellationToken)
+        public async Task<Site> AddSiteAsync(string siteId, SiteDetailsWithSecrets siteDetails, CancellationToken cancellationToken)
         {
             var entity = MapToSiteEntity(siteDetails);
             entity.Id = siteId;
@@ -83,6 +84,11 @@ namespace SolarDigest.Api.Repository
         }
 
         private SiteEntity MapToSiteEntity(SiteDetails siteDetails)
+        {
+            return Mapper.Map<SiteEntity>(siteDetails);
+        }
+
+        private SiteEntity MapToSiteEntity(SiteDetailsWithSecrets siteDetails)
         {
             return Mapper.Map<SiteEntity>(siteDetails);
         }

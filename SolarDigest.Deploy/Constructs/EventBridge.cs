@@ -3,6 +3,7 @@ using Amazon.CDK.AWS.Events;
 using Amazon.CDK.AWS.Events.Targets;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
+using SolarDigest.Shared.Utils;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -23,29 +24,27 @@ namespace SolarDigest.Deploy.Constructs
             AggregateSitePowerEvent
         }
 
-        public EventBridge(Construct scope, SolarDigestAppProps appProps, Functions functions, LogGroups logGroups)
+        public EventBridge(Construct scope, Functions functions, LogGroups logGroups)
             : base(scope, "EventBridge")
         {
-            var appName = appProps.AppName;
-
-            CreateCatchAll(appName, logGroups.CatchAllLogGroup);
-            CreateHydrateSitePower(appName, functions.HydrateSitePowerFunction);
-            CreateHydrateAllSitesPowerFunction(appName, functions.HydrateAllSitesPowerFunction);
-            CreateAggregateSitePower(appName, functions.AggregateSitePowerFunction);
-            CreateAggregateAllSitesPower(appName, functions.AggregateAllSitesPowerFunction);
-            CreateEmailAllSitesUpdateHistory(appName, functions.EmailSiteUpdateHistoryFunction);
+            CreateCatchAll(logGroups.CatchAllLogGroup);
+            CreateHydrateSitePower(functions.HydrateSitePowerFunction);
+            CreateHydrateAllSitesPowerFunction(functions.HydrateAllSitesPowerFunction);
+            CreateAggregateSitePower(functions.AggregateSitePowerFunction);
+            CreateAggregateAllSitesPower(functions.AggregateAllSitesPowerFunction);
+            CreateEmailAllSitesUpdateHistory(functions.EmailSiteUpdateHistoryFunction);
         }
 
         // Logs all events received for this account
-        private void CreateCatchAll(string appName, ILogGroup catchAllLogGroup)
+        private void CreateCatchAll(ILogGroup catchAllLogGroup)
         {
             var stack = Stack.Of(this);
             var catchAllLogGroupTarget = new CloudWatchLogGroup(catchAllLogGroup);
 
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.CatchAll}", new RuleProps
+            _ = new Rule(this, $"{SolarEdgeEventType.CatchAll}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.CatchAll}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.CatchAll}",
                 Description = "Log all received events",
                 EventPattern = new EventPattern
                 {
@@ -56,12 +55,12 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function when a HydrateSitePowerEvent message is received
-        private void CreateHydrateSitePower(string appName, IFunction targetFunction)
+        private void CreateHydrateSitePower(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.HydrateSitePowerEvent}", new RuleProps
+            _ = new Rule(this, $"{SolarEdgeEventType.HydrateSitePowerEvent}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.HydrateSitePowerEvent}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateSitePowerEvent}",
                 Description = "Hydrates power data for a given site",
                 EventPattern = new EventPattern
                 {
@@ -72,12 +71,12 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function once per hour, at the top of the hour
-        private void CreateHydrateAllSitesPowerFunction(string appName, IFunction targetFunction)
+        private void CreateHydrateAllSitesPowerFunction(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.HydrateAllSitesPower}", new RuleProps
+            _ = new Rule(this, $"{SolarEdgeEventType.HydrateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.HydrateAllSitesPower}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateAllSitesPower}",
                 Description = "Hydrates power data for all sites every hour",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
@@ -86,12 +85,12 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function when a AggregateSitePowerEvent message is received
-        private void CreateAggregateSitePower(string appName, IFunction targetFunction)
+        private void CreateAggregateSitePower(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.AggregateSitePowerEvent}", new RuleProps
+            _ = new Rule(this, $"{SolarEdgeEventType.AggregateSitePowerEvent}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.AggregateSitePowerEvent}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateSitePowerEvent}",
                 Description = "Aggregates power data for a given site",
                 EventPattern = new EventPattern
                 {
@@ -102,12 +101,12 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function once per hour, at the top of the hour
-        private void CreateAggregateAllSitesPower(string appName, IFunction targetFunction)
+        private void CreateAggregateAllSitesPower(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.AggregateAllSitesPower}", new RuleProps
+            _ = new Rule(this, $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.AggregateAllSitesPower}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}",
                 Description = "Aggregates power data for all sites every hour",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
@@ -115,12 +114,12 @@ namespace SolarDigest.Deploy.Constructs
         }
 
         // calls the target function once per hour, at the top of the hour
-        private void CreateEmailAllSitesUpdateHistory(string appName, IFunction targetFunction)
+        private void CreateEmailAllSitesUpdateHistory(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{appName}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}", new RuleProps
+            _ = new Rule(this, $"{SolarEdgeEventType.EmailAllSitesUpdateHistory}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{appName}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}",
                 Description = "Sends all sites a status update via email",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }

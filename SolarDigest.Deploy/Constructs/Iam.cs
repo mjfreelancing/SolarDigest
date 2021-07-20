@@ -1,7 +1,6 @@
 ﻿using AllOverIt.Extensions;
 using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
-using SolarDigest.Deploy.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,15 +8,12 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class Iam : Construct
     {
-        private readonly SolarDigestAppProps _appProps;
-
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
-        public Iam(Construct scope, SolarDigestAppProps appProps)
+        public Iam(Construct scope)
             : base(scope, "IAM")
         {
-            _appProps = appProps;
             CreateDefaultEventBridgePolicyStatement();
             CreateSendEmailPolicyStatements();
         }
@@ -209,7 +205,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             static string GetTableArn(string tableName)
             {
-                return Fn.ImportValue(TableHelpers.GetExportTableName(tableName));
+                return Fn.ImportValue(DynamoDbTables.GetExportTableName(tableName));
             }
 
             return tableNames.Select(GetTableArn).ToArray();

@@ -8,11 +8,11 @@ namespace SolarDigest.Deploy.Schema
     internal interface ISolarDigestMutationDefinition : IMutationDefinition
     {
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.AddSite)]
+        [LambdaDataSource(Shared.Constants.AppName, Constants.Function.AddSite)]
         ISite AddSite([SchemaTypeRequired] ISiteInput site);
 
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.UpdateSite)]
+        [LambdaDataSource(Shared.Constants.AppName, Constants.Function.UpdateSite)]
         ISite UpdateSite([SchemaTypeRequired] string id, [SchemaTypeRequired] ISiteInput site, ISiteTimestampsInput timestamps);
     }
 }
