@@ -30,7 +30,7 @@ namespace SolarDigest.Deploy.Schema.Types
         public string LastRefreshDateTime { get; }
 
         [SchemaTypeRequired]
-        [LambdaDataSource(Constants.AppName, Constants.Function.GetSitePowerSummary)]
+        [LambdaDataSource(Shared.Constants.AppName, Constants.Function.GetSitePowerSummary)]
         IPowerConnection Power(int limit, string startCursor, [SchemaTypeRequired] IPowerFilterInput filter);
     }
 }

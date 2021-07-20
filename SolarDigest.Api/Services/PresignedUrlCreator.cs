@@ -24,7 +24,7 @@ namespace SolarDigest.Api.Services
         {
             _logger.LogDebug($"Creating download pre-signed url for '{name}'");
 
-            return CreateUrlAsync(Constants.S3Buckets.DownloadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketDownloadUser}",
+            return CreateUrlAsync(Shared.Constants.S3Buckets.DownloadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Shared.Constants.Users.BucketDownloadUser}",
                 HttpVerb.GET);
         }
 
@@ -33,7 +33,7 @@ namespace SolarDigest.Api.Services
             // partNumber is assumed to have a value if uploadId has a value (it is validated before getting here)
             _logger.LogDebug($"Creating upload pre-signed url for '{name}'");
 
-            return CreateUrlAsync(Constants.S3Buckets.UploadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketUploadUser}",
+            return CreateUrlAsync(Shared.Constants.S3Buckets.UploadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Shared.Constants.Users.BucketUploadUser}",
                 HttpVerb.PUT);
         }
 
@@ -44,7 +44,7 @@ namespace SolarDigest.Api.Services
                 ? $"Creating upload pre-signed url for '{name}'"
                 : $"Creating upload pre-signed url for '{name}' ({uploadId}/{partNumber})");
 
-            return CreateUrlAsync(Constants.S3Buckets.UploadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Constants.Users.BucketUploadUser}",
+            return CreateUrlAsync(Shared.Constants.S3Buckets.UploadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Shared.Constants.Users.BucketUploadUser}",
                 HttpVerb.PUT, uploadId, partNumber);
         }
 

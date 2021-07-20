@@ -15,7 +15,6 @@ namespace SolarDigest.Deploy.Constructs
     internal class Functions : Construct
     {
         private readonly IMappingTemplates _mappingTemplates;
-        private readonly SolarDigestAppProps _appProps;
         private readonly Iam _iam;
         private readonly IBucket _codeBucket;
 
@@ -35,14 +34,14 @@ namespace SolarDigest.Deploy.Constructs
         internal IFunction GetUploadMultiPartCompleteFunction { get; private set; }
         internal IFunction GetDownloadUrlFunction { get; private set; }
 
-        public Functions(Construct scope, SolarDigestAppProps appProps, Iam iam, IMappingTemplates mappingTemplates)
+        public Functions(Construct scope, Iam iam, IMappingTemplates mappingTemplates)
             : base(scope, "Function")
         {
-            _appProps = appProps.WhenNotNull(nameof(appProps));
             _iam = iam.WhenNotNull(nameof(iam));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
 
-            _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", Constants.S3Buckets.LambdaSourceCodeBucketName);
+            var bucketName = $"{Shared.Helpers.GetAppVersionName()}-{Constants.S3Buckets.LambdaSourceCodeBucketName}".ToLower();
+            _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", bucketName);
 
             CreateGetSiteFunction();
             CreateAddSiteFunction();
@@ -61,11 +60,11 @@ namespace SolarDigest.Deploy.Constructs
             CreateGetDownloadUrlFunction();
         }
 
-        private IFunction CreateFunction(string appName, string name, string description, double? memorySize = default, int timeoutMinutes = 5)
+        private IFunction CreateFunction(string name, string description, double? memorySize = default, int timeoutMinutes = 5)
         {
             var props = new FunctionProps
             {
-                FunctionName = $"{appName}_{name}",
+                FunctionName = $"{Shared.Helpers.GetAppVersionName()}_{name}",
                 Description = description,
                 Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}::InvokeAsync",
                 Runtime = Runtime.DOTNET_CORE_3_1,
@@ -75,15 +74,13 @@ namespace SolarDigest.Deploy.Constructs
                 LogRetention = RetentionDays.ONE_WEEK,
             };
 
-            var function = new Function(this, $"{name}Function", props);
-
-            return function;
+            return new Function(this, $"{name}Function", props);
         }
 
         private void CreateGetSiteFunction()
         {
             GetSiteFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetSite, "Get site details")
+                CreateFunction(Constants.Function.GetSite, "Get site details")
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
@@ -92,7 +89,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAddSiteFunction()
         {
             AddSiteFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.AddSite, "Add site details")
+                CreateFunction(Constants.Function.AddSite, "Add site details")
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception))
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
@@ -101,7 +98,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateUpdateSiteFunction()
         {
             UpdateSiteFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.UpdateSite, "Update site details")
+                CreateFunction(Constants.Function.UpdateSite, "Update site details")
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception))
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site));
@@ -120,7 +117,7 @@ namespace SolarDigest.Deploy.Constructs
             });
 
             EmailExceptionFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.EmailException, "Sends unexpected exception reports via email")
+                CreateFunction(Constants.Function.EmailException, "Sends unexpected exception reports via email")
                     .GrantSendEmail(_iam)
                     .AddEventSource(exceptionTable)
                     .GrantStreamReadData(_iam, nameof(DynamoDbTables.Exception));
@@ -129,7 +126,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateHydrateAllSitesPowerFunction()
         {
             HydrateAllSitesPowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
+                CreateFunction(Constants.Function.HydrateAllSitesPower, "Hydrate power data for all sites")
                     .GrantPutDefaultEventBridgeEvents(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
@@ -139,7 +136,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateHydrateSitePowerFunction()
         {
             HydrateSitePowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 512, 15)
+                CreateFunction(Constants.Function.HydrateSitePower, "Hydrate power data for a specified site", 512, 15)
                     .GrantPutDefaultEventBridgeEvents(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantBatchWriteTableData(_iam, nameof(DynamoDbTables.Power))
@@ -150,7 +147,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAggregateAllSitesPowerFunction()
         {
             AggregateAllSitesPowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.AggregateAllSitesPower, "Aggregate power data for all sites")
+                CreateFunction(Constants.Function.AggregateAllSitesPower, "Aggregate power data for all sites")
                     .GrantPutDefaultEventBridgeEvents(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site))
                     .GrantReadTableData(_iam, nameof(DynamoDbTables.Site))
@@ -160,7 +157,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAggregateSitePowerFunction()
         {
             AggregateSitePowerFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 512)
+                CreateFunction(Constants.Function.AggregateSitePower, "Aggregate power data for a specified site", 512)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power))
                     .GrantQueryTableData(_iam, nameof(DynamoDbTables.Power))
                     .GrantBatchWriteTableData(_iam, nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
@@ -172,7 +169,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             // Testing shows 768MB RAM is required to avoid DynamoDb execution timeout even though the function only uses around 140MB
             GetSitePowerSummaryFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 768)
+                CreateFunction(Constants.Function.GetSitePowerSummary, "Get a power summary for a specified site", 768)
                     .GrantDescribeTableData(_iam,
                         nameof(DynamoDbTables.Site), nameof(DynamoDbTables.Power),
                         nameof(DynamoDbTables.PowerMonthly), nameof(DynamoDbTables.PowerYearly))
@@ -213,7 +210,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateEmailSiteUpdateHistoryFunction()
         {
             EmailSiteUpdateHistoryFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.EmailAllSitesUpdateHistory, "Sends all sites a summary of power processing")
+                CreateFunction(Constants.Function.EmailAllSitesUpdateHistory, "Sends all sites a summary of power processing")
                     .GrantSendEmail(_iam)
                     .GrantDescribeTableData(_iam, nameof(DynamoDbTables.Site), nameof(DynamoDbTables.PowerUpdateHistory))
                     .GrantReadWriteTableData(_iam, nameof(DynamoDbTables.Site))
@@ -224,7 +221,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetUploadUrlFunction()
         {
             GetUploadUrlFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
+                CreateFunction(Constants.Function.GetUploadUrl, "Generates a pre-signed Url that allows a file to be uploaded")
                     .GrantPutParameters(_iam, "Secrets")
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
@@ -251,7 +248,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetUploadMultiPartUrlsFunction()
         {
             GetUploadMultiPartUrlsFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartUrls, "Generates pre-signed Urls for a batch of uploads")
+                CreateFunction(Constants.Function.GetUploadMultiPartUrls, "Generates pre-signed Urls for a batch of uploads")
                     .GrantPutParameters(_iam, "Secrets")
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
@@ -274,7 +271,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetUploadMultiPartAbortFunction()
         {
             GetUploadMultiPartAbortFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartAbort, "Aborts a previously initiated multi-part upload")
+                CreateFunction(Constants.Function.GetUploadMultiPartAbort, "Aborts a previously initiated multi-part upload")
                     .GrantPutParameters(_iam, "Secrets")
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
@@ -297,7 +294,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetUploadMultiPartCompleteFunction()
         {
             GetUploadMultiPartCompleteFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetUploadMultiPartComplete, "Completes a previously initiated multi-part upload")
+                CreateFunction(Constants.Function.GetUploadMultiPartComplete, "Completes a previously initiated multi-part upload")
                     .GrantPutParameters(_iam, "Secrets")
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
 
@@ -321,7 +318,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateGetDownloadUrlFunction()
         {
             GetDownloadUrlFunction =
-                CreateFunction(_appProps.AppName, Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
+                CreateFunction(Constants.Function.GetDownloadUrl, "Generates a pre-signed Url that allows a file to be downloaded")
                     .GrantGetParameters(_iam, "Secrets")
                     .GrantWriteTableData(_iam, nameof(DynamoDbTables.Exception));
         }

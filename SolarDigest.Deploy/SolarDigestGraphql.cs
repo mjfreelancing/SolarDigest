@@ -7,10 +7,10 @@ namespace SolarDigest.Deploy
 {
     internal sealed class SolarDigestGraphql : AppGraphqlBase
     {
-        public SolarDigestGraphql(Construct scope, SolarDigestAppProps appProps, IAuthorizationMode authMode, IMappingTemplates mappingTemplates)
+        public SolarDigestGraphql(Construct scope, IAuthorizationMode authMode, IMappingTemplates mappingTemplates)
             : base(scope, "GraphQl", new GraphqlApiProps
             {
-                Name = $"{appProps.AppName} V{appProps.Version}",
+                Name = $"{Shared.Constants.AppName} V{Shared.Constants.ServiceVersion}",
                 AuthorizationConfig = new AuthorizationConfig { DefaultAuthorization = authMode }
             }, mappingTemplates)
         {

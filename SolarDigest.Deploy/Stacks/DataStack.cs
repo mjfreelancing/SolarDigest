@@ -10,16 +10,9 @@ namespace SolarDigest.Deploy.Stacks
         {
             var app = new App();
 
-            var apiProps = new SolarDigestAppProps
-            {
-                StackName = $"{Constants.AppName}Data",
-                AppName = Constants.AppName,
-                Version = Constants.DataVersion,
-            };
+            var stack = app.CreateRootStack($"{Shared.Constants.AppName}DataV{Shared.Constants.DataVersion}");
 
-            var stack = app.CreateRootStack(apiProps);
-
-            _ = new DynamoDbTables(stack, apiProps);
+            _ = new DynamoDbTables(stack);
 
             return app;
         }

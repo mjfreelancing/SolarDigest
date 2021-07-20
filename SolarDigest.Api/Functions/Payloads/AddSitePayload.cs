@@ -6,6 +6,6 @@ namespace SolarDigest.Api.Functions.Payloads
     {
         public string Id { get; set; }
 
-        public SiteDetails Site { get; set; }       // only contains core details, no refresh details
+        public SiteDetailsWithSecrets Site { get; set; }       // only contains core details, no refresh details
     }
 }

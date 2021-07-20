@@ -4,12 +4,12 @@
     {
         public static string GetExportTableName(string tableName)
         {
-            return $"{Constants.AppName}Data-Table-{tableName}";
+            return $"{Shared.Helpers.GetAppVersionName()}-Data-Table-{tableName}";
         }
 
         public static string GetExportStreamName(string tableName)
         {
-            return $"{Constants.AppName}Data-Stream-{tableName}";
+            return $"{Shared.Helpers.GetAppVersionName()}Data-Stream-{tableName}";
         }
     }
 }

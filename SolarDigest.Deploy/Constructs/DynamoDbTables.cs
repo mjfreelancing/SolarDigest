@@ -8,8 +8,6 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal class DynamoDbTables : Construct
     {
-        private readonly SolarDigestAppProps _appProps;
-
         // To simplify stack creation, name these properties the same as the table name
         internal ITable Exception { get; }
         internal ITable Site { get; }
@@ -18,11 +16,9 @@ namespace SolarDigest.Deploy.Constructs
         internal ITable PowerYearly { get; }
         internal ITable PowerUpdateHistory { get; }
 
-        public DynamoDbTables(Construct scope, SolarDigestAppProps appProps)
+        public DynamoDbTables(Construct scope)
             : base(scope, "DynamoDB")
         {
-            _appProps = appProps;
-
             Exception = CreateTable(nameof(Exception), false, StreamViewType.NEW_IMAGE, "TimeToLive");
             Site = CreateTable(nameof(Site));
 
@@ -52,7 +48,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             var table = new Table(this, tableName, new TableProps
             {
-                TableName = tableName,
+                TableName = $"{Shared.Helpers.GetAppVersionName()}_{tableName}",
                 PartitionKey = new Attribute { Name = "Id", Type = AttributeType.STRING },
                 SortKey = hasSortKey ? new Attribute { Name = "Sort", Type = AttributeType.STRING } : default,
                 Stream = streamViewType,

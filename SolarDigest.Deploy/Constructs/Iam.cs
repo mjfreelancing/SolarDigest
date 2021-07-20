@@ -9,15 +9,12 @@ namespace SolarDigest.Deploy.Constructs
 {
     internal sealed class Iam : Construct
     {
-        private readonly SolarDigestAppProps _appProps;
-
         internal PolicyStatement PutDefaultEventBridgeEventsPolicyStatement { get; private set; }
         internal PolicyStatement SendEmailPolicyStatement { get; private set; }
 
-        public Iam(Construct scope, SolarDigestAppProps appProps)
+        public Iam(Construct scope)
             : base(scope, "IAM")
         {
-            _appProps = appProps;
             CreateDefaultEventBridgePolicyStatement();
             CreateSendEmailPolicyStatements();
         }

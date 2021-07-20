@@ -9,15 +9,16 @@ namespace SolarDigest.Deploy.Constructs
         public ParameterStore(Construct scope, Users users)
             : base(scope, "Parameters")
         {
-            CreateAccessKeyParameters(Users.UploadUserName, users);
-            CreateAccessKeyParameters(Users.DownloadUserName, users);
+            CreateAccessKeyParameters(Shared.Constants.Users.BucketUploadUser, users);
+            CreateAccessKeyParameters(Shared.Constants.Users.BucketDownloadUser, users);
         }
 
         private void CreateAccessKeyParameters(string username, Users users)
         {
             // NOTE: Secure strings are not supported by Cloud Formation. Something to revisit.
+            var appUsername = $"{Shared.Helpers.GetAppVersionName()}_{username}";
 
-            if (!users.UserAccessKeys.TryGetValue(username, out var accessKey))
+            if (!users.UserAccessKeys.TryGetValue(appUsername, out var accessKey))
             {
                 throw new InvalidOperationException($"The user '{username}' does not have a cached access key");
             }
@@ -28,7 +29,7 @@ namespace SolarDigest.Deploy.Constructs
             {
                 Tier = ParameterTier.STANDARD,
                 Type = ParameterType.STRING,
-                ParameterName = $"/Secrets/{username}/AccessKey",
+                ParameterName = $"/Secrets/{appUsername}/AccessKey",
                 StringValue = accessKey.Ref
             });
 
@@ -36,7 +37,7 @@ namespace SolarDigest.Deploy.Constructs
             {
                 Tier = ParameterTier.STANDARD,
                 Type = ParameterType.STRING,
-                ParameterName = $"/Secrets/{username}/SecretKey",
+                ParameterName = $"/Secrets/{appUsername}/SecretKey",
                 StringValue = accessKey.AttrSecretAccessKey
             });
         }
