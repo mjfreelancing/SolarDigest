@@ -22,7 +22,8 @@ namespace SolarDigest.Api.Repository
 {
     internal abstract class SolarDigestTableBase : ISolarDigestTable
     {
-        private const int PutBatchSize = 10;
+        // would normally go the max limit of 25 requests but keeping it low to help with throttling on the free plan
+        private const int PutBatchSize = 4;
 
         // A factory method to ensure each use is distinct
         private static AsyncRetryPolicy GetProvisionedThroughputExceededRetryPolicy() => Policy

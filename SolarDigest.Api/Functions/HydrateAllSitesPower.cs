@@ -39,7 +39,7 @@ namespace SolarDigest.Api.Functions
                     {
                         new PutEventsRequestEntry
                         {
-                            Source = Constants.Events.Source,
+                            Source = Shared.Constants.Events.Source,
                             EventBusName = "default",
                             DetailType = nameof(HydrateSitePowerEvent),
                             Time = DateTime.Now,

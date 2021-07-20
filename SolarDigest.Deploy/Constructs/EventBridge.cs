@@ -64,6 +64,7 @@ namespace SolarDigest.Deploy.Constructs
                 Description = "Hydrates power data for a given site",
                 EventPattern = new EventPattern
                 {
+                    Source = new []{ Shared.Constants.Events.Source },
                     DetailType = new[] { $"{SolarEdgeEventType.HydrateSitePowerEvent}" }
                 },
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
@@ -94,6 +95,7 @@ namespace SolarDigest.Deploy.Constructs
                 Description = "Aggregates power data for a given site",
                 EventPattern = new EventPattern
                 {
+                    Source = new[] { Shared.Constants.Events.Source },
                     DetailType = new[] { $"{SolarEdgeEventType.AggregateSitePowerEvent}" }
                 },
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }

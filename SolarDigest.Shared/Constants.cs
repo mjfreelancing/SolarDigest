@@ -27,5 +27,10 @@
             public const string UploadsBucketName = "uploads";
             public const string DownloadsBucketName = "downloads";
         }
+
+        public static class Events
+        {
+            public static readonly string Source = $"SolarDigest.Api.v{ServiceVersion}";
+        }
     }
 }

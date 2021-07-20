@@ -87,7 +87,7 @@ namespace SolarDigest.Api.Functions
                             {
                                 new()
                                 {
-                                    Source = Constants.Events.Source,
+                                    Source = Shared.Constants.Events.Source,
                                     EventBusName = "default",
                                     DetailType = nameof(AggregateSitePowerEvent),
                                     Time = DateTime.Now,

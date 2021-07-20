@@ -19,11 +19,6 @@
             public const string SecretsRoot = "/Secrets";
         }
 
-        internal static class Events
-        {
-            public const string Source = "SolarDigest.Api";
-        }
-
         internal static class RefreshHour
         {
             public const int UpdateHistoryEmail = 1;        // 1am each day
