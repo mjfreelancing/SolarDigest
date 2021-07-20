@@ -28,7 +28,7 @@ namespace SolarDigest.Api.Repository
         // A factory method to ensure each use is distinct
         private static AsyncRetryPolicy GetProvisionedThroughputExceededRetryPolicy() => Policy
             .Handle<ProvisionedThroughputExceededException>()
-            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+            .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
 
         private static readonly AmazonDynamoDBClient DbClient
             = new(new AmazonDynamoDBConfig
