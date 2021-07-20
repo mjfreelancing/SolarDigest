@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
+using SolarDigest.Shared.Utils;
 using System.Collections.Generic;
 
 namespace SolarDigest.Deploy.Constructs
@@ -18,7 +19,7 @@ namespace SolarDigest.Deploy.Constructs
 
         private void CreateUser(string username, PolicyStatement policyStatement, bool addToCache)
         {
-            var appUsername = $"{Shared.Helpers.GetAppVersionName()}_{username}";
+            var appUsername = $"{Helpers.GetAppVersionName()}_{username}";
 
             var user = new User(this, username, new UserProps
             {

@@ -8,18 +8,18 @@
 
         public static class Table
         {
-            public const string Site = "Site";
-            public const string Exception = "Exception";
-            public const string Power = "Power";
-            public const string PowerMonthly = "PowerMonthly";
-            public const string PowerYearly = "PowerYearly";
-            public const string PowerUpdateHistory = "PowerUpdateHistory";
+            public const string Site = nameof(Site);
+            public const string Exception = nameof(Exception);
+            public const string Power = nameof(Power);
+            public const string PowerMonthly = nameof(PowerMonthly);
+            public const string PowerYearly = nameof(PowerYearly);
+            public const string PowerUpdateHistory = nameof(PowerUpdateHistory);
         }
 
         public static class Users
         {
-            public const string BucketDownloadUser = "BucketDownloadUser";
-            public const string BucketUploadUser = "BucketUploadUser";
+            public const string BucketDownloadUser = nameof(BucketDownloadUser);
+            public const string BucketUploadUser = nameof(BucketUploadUser);
         }
 
         public static class S3Buckets

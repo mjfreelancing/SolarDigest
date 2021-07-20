@@ -3,6 +3,7 @@ using Amazon.CDK.AWS.Events;
 using Amazon.CDK.AWS.Events.Targets;
 using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
+using SolarDigest.Shared.Utils;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -43,7 +44,7 @@ namespace SolarDigest.Deploy.Constructs
             _ = new Rule(this, $"{SolarEdgeEventType.CatchAll}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.CatchAll}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.CatchAll}",
                 Description = "Log all received events",
                 EventPattern = new EventPattern
                 {
@@ -59,7 +60,7 @@ namespace SolarDigest.Deploy.Constructs
             _ = new Rule(this, $"{SolarEdgeEventType.HydrateSitePowerEvent}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateSitePowerEvent}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateSitePowerEvent}",
                 Description = "Hydrates power data for a given site",
                 EventPattern = new EventPattern
                 {
@@ -75,7 +76,7 @@ namespace SolarDigest.Deploy.Constructs
             _ = new Rule(this, $"{SolarEdgeEventType.HydrateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateAllSitesPower}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.HydrateAllSitesPower}",
                 Description = "Hydrates power data for all sites every hour",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
@@ -89,7 +90,7 @@ namespace SolarDigest.Deploy.Constructs
             _ = new Rule(this, $"{SolarEdgeEventType.AggregateSitePowerEvent}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateSitePowerEvent}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateSitePowerEvent}",
                 Description = "Aggregates power data for a given site",
                 EventPattern = new EventPattern
                 {
@@ -102,10 +103,10 @@ namespace SolarDigest.Deploy.Constructs
         // calls the target function once per hour, at the top of the hour
         private void CreateAggregateAllSitesPower(IFunction targetFunction)
         {
-            _ = new Rule(this, $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}", new RuleProps
+            _ = new Rule(this, $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.AggregateAllSitesPower}",
                 Description = "Aggregates power data for all sites every hour",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }
@@ -118,7 +119,7 @@ namespace SolarDigest.Deploy.Constructs
             _ = new Rule(this, $"{SolarEdgeEventType.EmailAllSitesUpdateHistory}", new RuleProps
             {
                 // using the default EventBus
-                RuleName = $"{Shared.Helpers.GetAppVersionName()}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}",
+                RuleName = $"{Helpers.GetAppVersionName()}_{SolarEdgeEventType.EmailAllSitesUpdateHistory}",
                 Description = "Sends all sites a status update via email",
                 Schedule = Schedule.Cron(new CronOptions { Minute = "0" }),
                 Targets = new IRuleTarget[] { new LambdaFunction(targetFunction) }

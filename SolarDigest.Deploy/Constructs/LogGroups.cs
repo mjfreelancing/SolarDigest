@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.Logs;
+using SolarDigest.Shared.Utils;
 
 namespace SolarDigest.Deploy.Constructs
 {
@@ -12,7 +13,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             CatchAllLogGroup = new LogGroup(this, "CatchAllLogGroup", new LogGroupProps
             {
-                LogGroupName = $"{Shared.Helpers.GetAppVersionName()}-CatchAll",
+                LogGroupName = $"{Helpers.GetAppVersionName()}-CatchAll",
                 Retention = RetentionDays.ONE_WEEK
             });
         }

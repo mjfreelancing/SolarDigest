@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
-using SolarDigest.Shared;
+using SolarDigest.Shared.Utils;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.SSM;
+using SolarDigest.Shared.Utils;
 using System;
 
 namespace SolarDigest.Deploy.Constructs
@@ -16,7 +17,7 @@ namespace SolarDigest.Deploy.Constructs
         private void CreateAccessKeyParameters(string username, Users users)
         {
             // NOTE: Secure strings are not supported by Cloud Formation. Something to revisit.
-            var appUsername = $"{Shared.Helpers.GetAppVersionName()}_{username}";
+            var appUsername = $"{Helpers.GetAppVersionName()}_{username}";
 
             if (!users.UserAccessKeys.TryGetValue(appUsername, out var accessKey))
             {

@@ -3,7 +3,7 @@ using Amazon.S3.Model;
 using Microsoft.Extensions.DependencyInjection;
 using SolarDigest.Api.Functions.Payloads;
 using SolarDigest.Api.Services;
-using SolarDigest.Shared;
+using SolarDigest.Shared.Utils;
 using System.Net;
 using System.Threading.Tasks;
 

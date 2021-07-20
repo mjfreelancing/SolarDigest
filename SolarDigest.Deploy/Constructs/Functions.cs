@@ -7,7 +7,7 @@ using Amazon.CDK.AWS.Lambda;
 using Amazon.CDK.AWS.Logs;
 using Amazon.CDK.AWS.S3;
 using SolarDigest.Deploy.Extensions;
-using SolarDigest.Deploy.Helpers;
+using SolarDigest.Shared.Utils;
 using AwsBucket = Amazon.CDK.AWS.S3.Bucket;
 
 namespace SolarDigest.Deploy.Constructs
@@ -40,7 +40,7 @@ namespace SolarDigest.Deploy.Constructs
             _iam = iam.WhenNotNull(nameof(iam));
             _mappingTemplates = mappingTemplates.WhenNotNull(nameof(mappingTemplates));
 
-            var bucketName = $"{Shared.Helpers.GetAppVersionName()}-{Constants.S3Buckets.LambdaSourceCodeBucketName}".ToLower();
+            var bucketName = $"{Helpers.GetAppVersionName()}-{Constants.S3Buckets.LambdaSourceCodeBucketName}".ToLower();
             _codeBucket = AwsBucket.FromBucketName(this, "CodeBucket", bucketName);
 
             CreateGetSiteFunction();
@@ -64,7 +64,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             var props = new FunctionProps
             {
-                FunctionName = $"{Shared.Helpers.GetAppVersionName()}_{name}",
+                FunctionName = $"{Helpers.GetAppVersionName()}_{name}",
                 Description = description,
                 Handler = $"SolarDigest.Api::SolarDigest.Api.Functions.{name}::InvokeAsync",
                 Runtime = Runtime.DOTNET_CORE_3_1,
@@ -112,8 +112,8 @@ namespace SolarDigest.Deploy.Constructs
 
             var exceptionTable = Table.FromTableAttributes(this, "FromTableAttributesException", new TableAttributes
             {
-                TableArn = Fn.ImportValue(TableHelpers.GetExportTableName(nameof(DynamoDbTables.Exception))),
-                TableStreamArn = Fn.ImportValue(TableHelpers.GetExportStreamName(nameof(DynamoDbTables.Exception)))
+                TableArn = Fn.ImportValue(DynamoDbTables.GetExportTableName(nameof(DynamoDbTables.Exception))),
+                TableStreamArn = Fn.ImportValue(DynamoDbTables.GetExportStreamName(nameof(DynamoDbTables.Exception)))
             });
 
             EmailExceptionFunction =

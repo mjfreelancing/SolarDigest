@@ -1,5 +1,6 @@
 ﻿using Amazon.CDK;
 using Amazon.CDK.AWS.S3;
+using SolarDigest.Shared.Utils;
 using System;
 
 namespace SolarDigest.Deploy.Constructs
@@ -33,7 +34,7 @@ namespace SolarDigest.Deploy.Constructs
             var bucketProps = new BucketProps
             {
                 // S3 does not allow upper case
-                BucketName = $"{Shared.Helpers.GetAppVersionName()}-{bucketName}".ToLower(),
+                BucketName = $"{Helpers.GetAppVersionName()}-{bucketName}".ToLower(),
                 RemovalPolicy = RemovalPolicy.RETAIN
             };
 

@@ -1,4 +1,4 @@
-﻿namespace SolarDigest.Shared
+﻿namespace SolarDigest.Shared.Utils
 {
     public static class Helpers
     {

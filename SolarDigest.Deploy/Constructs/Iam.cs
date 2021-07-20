@@ -1,7 +1,6 @@
 ﻿using AllOverIt.Extensions;
 using Amazon.CDK;
 using Amazon.CDK.AWS.IAM;
-using SolarDigest.Deploy.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -206,7 +205,7 @@ namespace SolarDigest.Deploy.Constructs
         {
             static string GetTableArn(string tableName)
             {
-                return Fn.ImportValue(TableHelpers.GetExportTableName(tableName));
+                return Fn.ImportValue(DynamoDbTables.GetExportTableName(tableName));
             }
 
             return tableNames.Select(GetTableArn).ToArray();

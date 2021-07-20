@@ -4,7 +4,7 @@ using SolarDigest.Api.Data;
 using SolarDigest.Api.Logging;
 using SolarDigest.Api.Models;
 using SolarDigest.Models;
-using SolarDigest.Shared;
+using SolarDigest.Shared.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
