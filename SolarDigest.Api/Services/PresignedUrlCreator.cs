@@ -30,7 +30,6 @@ namespace SolarDigest.Api.Services
 
         public Task<string> CreateUploadUrlAsync(string name)
         {
-            // partNumber is assumed to have a value if uploadId has a value (it is validated before getting here)
             _logger.LogDebug($"Creating upload pre-signed url for '{name}'");
 
             return CreateUrlAsync(Shared.Constants.S3Buckets.UploadsBucketName, name, $"{Constants.Parameters.SecretsRoot}/{Shared.Constants.Users.BucketUploadUser}",

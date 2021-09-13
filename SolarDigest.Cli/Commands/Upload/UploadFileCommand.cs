@@ -89,7 +89,6 @@ namespace SolarDigest.Cli.Commands.Upload
 
                     UploadPartResponse partResponse = null;
 
-
                     if (putResponse.StatusCode == (int)HttpStatusCode.OK)
                     {
                         if (putResponse.Headers.TryGetFirst("ETag", out var etag))
